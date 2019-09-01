@@ -4,7 +4,8 @@ import (
 	"context"
 	"errors"
 	"time"
-	"url-shortner/models"
+
+	"gitlab.com/1995parham/url-shortener/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -40,9 +41,7 @@ func (s URLStore) Inc(ctx context.Context, key string) error {
 
 // Set saves given url with a given key in database
 func (s URLStore) Set(ctx context.Context, key string, url string, expire *time.Time) error {
-
 	urls := s.DB.Collection(collection)
-
 	if _, err := urls.InsertOne(ctx, models.URL{
 		Key:        key,
 		URL:        url,
@@ -59,19 +58,19 @@ func (s URLStore) Set(ctx context.Context, key string, url string, expire *time.
 func (s URLStore) Get(ctx context.Context, key string) (string, error) {
 	record := s.DB.Collection(collection).FindOne(ctx, bson.M{
 		"key": key,
-		/*
-			"expire_time": bson.M{
-				"$or": bson.A{
-					bson.M{
-						"$ne": nil,
-					},
-					bson.M{
-						"$gte": time.Now(),
-					},
+		"$or": bson.A{
+			bson.M{
+				"expire_time": bson.M{
+					"$eq": nil,
 				},
-			},*/
+			},
+			bson.M{
+				"expire_time": bson.M{
+					"$gte": time.Now(),
+				},
+			},
+		},
 	})
-
 	var url models.URL
 	if err := record.Decode(&url); err != nil {
 		if err == mongo.ErrNoDocuments {
