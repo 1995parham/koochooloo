@@ -1,4 +1,4 @@
-module url-shortner
+module gitlab.com/1995parham/url-shortener
 
 go 1.12
 

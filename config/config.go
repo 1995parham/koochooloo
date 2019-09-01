@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config holds all tm component configurations
+// Config holds all configurations
 type Config struct {
 	Debug    bool
 	Database struct {
@@ -35,7 +35,7 @@ func New() Config {
 		logrus.Warnf("no config file found, using defaults and environment variables")
 	}
 
-	v.SetEnvPrefix("i1820_tm")
+	v.SetEnvPrefix("urlshortener")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	v.AutomaticEnv()
 

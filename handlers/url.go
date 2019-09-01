@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	"url-shortner/keys"
-	"url-shortner/stores"
+
+	"gitlab.com/1995parham/url-shortener/keys"
+	"gitlab.com/1995parham/url-shortener/stores"
 
 	"github.com/labstack/echo/v4"
 )

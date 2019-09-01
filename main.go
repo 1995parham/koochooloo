@@ -8,11 +8,12 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	"url-shortner/config"
-	"url-shortner/db"
-	"url-shortner/handlers"
-	"url-shortner/router"
-	"url-shortner/stores"
+
+	"gitlab.com/1995parham/url-shortener/config"
+	"gitlab.com/1995parham/url-shortener/db"
+	"gitlab.com/1995parham/url-shortener/handlers"
+	"gitlab.com/1995parham/url-shortener/router"
+	"gitlab.com/1995parham/url-shortener/stores"
 
 	"github.com/sirupsen/logrus"
 )
