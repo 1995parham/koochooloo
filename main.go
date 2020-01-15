@@ -9,11 +9,11 @@ import (
 	"syscall"
 	"time"
 
-	"gitlab.com/1995parham/url-shortener/config"
-	"gitlab.com/1995parham/url-shortener/db"
-	"gitlab.com/1995parham/url-shortener/handlers"
-	"gitlab.com/1995parham/url-shortener/router"
-	"gitlab.com/1995parham/url-shortener/stores"
+	"github.com/1995parham/koochooloo/config"
+	"github.com/1995parham/koochooloo/db"
+	"github.com/1995parham/koochooloo/handlers"
+	"github.com/1995parham/koochooloo/router"
+	"github.com/1995parham/koochooloo/stores"
 
 	"github.com/sirupsen/logrus"
 )

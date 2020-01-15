@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"gitlab.com/1995parham/url-shortener/keys"
-	"gitlab.com/1995parham/url-shortener/stores"
+	"github.com/1995parham/koochooloo/keys"
+	"github.com/1995parham/koochooloo/stores"
 
 	"github.com/labstack/echo/v4"
 )
