@@ -3,9 +3,9 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/1995parham/koochooloo/keys"
+	"github.com/1995parham/koochooloo/request"
 	"github.com/1995parham/koochooloo/stores"
 
 	"github.com/labstack/echo/v4"
@@ -16,17 +16,11 @@ type URLHandler struct {
 	Store stores.URLStore
 }
 
-type urlReq struct {
-	URL    string     `json:"url" validate:"required"`
-	Name   string     `json:"name"`
-	Expire *time.Time `json:"expire"`
-}
-
 // Create generates short URL and save it on database
 func (h URLHandler) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	var rq urlReq
+	var rq request.URLReq
 	if err := c.Bind(&rq); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -72,7 +66,9 @@ func (h URLHandler) Retrieve(c echo.Context) error {
 		fmt.Println(err)
 		return c.JSON(http.StatusNotFound, "not found")
 	}
-	h.Store.Inc(ctx, key)
+	if err := h.Store.Inc(ctx, key); err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
 	return c.Redirect(http.StatusFound, fmt.Sprintf("http://%s", url))
 }
