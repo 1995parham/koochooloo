@@ -73,7 +73,7 @@ func (h URLHandler) Retrieve(c *fiber.Ctx) {
 	c.Status(http.StatusFound).Location(url)
 }
 
-// Register registers the routes of URL handler on given echo group
+// Register registers the routes of URL handler on given group
 func (h URLHandler) Register(g *fiber.Group) {
 	g.Get("/:key", h.Retrieve)
 	g.Post("/urls", h.Create)
