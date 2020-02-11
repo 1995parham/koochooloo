@@ -1,4 +1,4 @@
-package key
+package store
 
 import "math/rand"
 
@@ -13,5 +13,6 @@ func Key() string {
 	for i := range b {
 		b[i] = source[rand.Intn(len(source))]
 	}
+
 	return string(b)
 }
