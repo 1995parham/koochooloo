@@ -1,58 +1,7 @@
 package main
 
-import (
-	"context"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
-	"github.com/1995parham/koochooloo/config"
-	"github.com/1995parham/koochooloo/db"
-	"github.com/1995parham/koochooloo/handlers"
-	"github.com/1995parham/koochooloo/router"
-	"github.com/1995parham/koochooloo/stores"
-
-	"github.com/sirupsen/logrus"
-)
+import "github.com/1995parham/koochooloo/cmd"
 
 func main() {
-	cfg := config.New()
-
-	e := router.App(cfg.Debug)
-
-	// routes
-	db, err := db.New(cfg.Database.URL, "urlshortener")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	uh := handlers.URLHandler{
-		Store: stores.URLStore{
-			DB: db,
-		},
-	}
-
-	api := e.Group("/api")
-	{
-		uh.Register(api)
-	}
-
-	go func() {
-		if err := e.Start(":8080"); err != http.ErrServerClosed {
-			logrus.Fatalf("API Service failed with %s", err)
-		}
-	}()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		log.Printf("API Service failed on exit: %s", err)
-	}
+	cmd.Execute()
 }
