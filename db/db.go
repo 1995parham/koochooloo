@@ -9,6 +9,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const connectionTimeout = 10 * time.Second
+
 // New creates a new mongodb connection and tests it
 func New(url string, db string) (*mongo.Database, error) {
 	// create mongodb connection
@@ -18,8 +20,9 @@ func New(url string, db string) (*mongo.Database, error) {
 	}
 
 	// connect to the mongodb
-	ctxc, donec := context.WithTimeout(context.Background(), 10*time.Second)
+	ctxc, donec := context.WithTimeout(context.Background(), connectionTimeout)
 	defer donec()
+
 	if err := client.Connect(ctxc); err != nil {
 		return nil, fmt.Errorf("db connection error: %s", err)
 	}

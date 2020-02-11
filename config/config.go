@@ -42,6 +42,7 @@ func New() Config {
 	if err := v.UnmarshalExact(&instance); err != nil {
 		logrus.Fatalf("unmarshaling error: %s", err)
 	}
+
 	logrus.Infof("following configuration is loaded:\n%+v", instance)
 
 	return instance

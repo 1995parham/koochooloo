@@ -3,6 +3,8 @@ package store
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/1995parham/koochooloo/model"
@@ -18,44 +20,58 @@ var ErrKeyNotFound = errors.New("given key does not exist or expired")
 var ErrDuplicateKey = errors.New("given key is exist")
 
 const collection = "urls"
+const one = 1
 
-// URLStore communicate with url collections in MongoDB
-type URLStore struct {
+// URL communicate with url collections in MongoDB
+type URL struct {
 	DB *mongo.Database
 }
 
-// Inc increments counter of url record
-func (s URLStore) Inc(ctx context.Context, key string) error {
+// Inc increments counter of url record by one
+func (s URL) Inc(ctx context.Context, key string) error {
 	record := s.DB.Collection(collection).FindOneAndUpdate(ctx, bson.M{
 		"key": key,
 	}, bson.M{
-		"$inc": bson.M{"count": 1},
+		"$inc": bson.M{"count": one},
 	})
 
 	var url model.URL
 	if err := record.Decode(&url); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-// Set saves given url with a given key in database
-func (s URLStore) Set(ctx context.Context, key string, url string, expire *time.Time) error {
+// Set saves given url with a given key in database. if key is null it generates a random key and returns it.
+func (s URL) Set(ctx context.Context, key string, url string, expire *time.Time) (string, error) {
+	if key == "" {
+		key = Key()
+	} else {
+		key = fmt.Sprintf("$%s", key)
+	}
+
 	urls := s.DB.Collection(collection)
-	if _, err := urls.InsertOne(ctx, model.URL{
+
+	_, err := urls.InsertOne(ctx, model.URL{
 		Key:        key,
 		URL:        url,
 		ExpireTime: expire,
 		Count:      0,
-	}); err != nil {
-		return err
+	})
+	if err != nil {
+		if !strings.HasPrefix(key, "$") && err == ErrDuplicateKey {
+			return s.Set(ctx, "", url, expire)
+		}
+
+		return "", err
 	}
 
-	return nil
+	return key, nil
 }
 
 // Get retrieves url of the given key if it exists
-func (s URLStore) Get(ctx context.Context, key string) (string, error) {
+func (s URL) Get(ctx context.Context, key string) (string, error) {
 	record := s.DB.Collection(collection).FindOne(ctx, bson.M{
 		"key": key,
 		"$or": bson.A{
@@ -71,11 +87,13 @@ func (s URLStore) Get(ctx context.Context, key string) (string, error) {
 			},
 		},
 	})
+
 	var url model.URL
 	if err := record.Decode(&url); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return "", ErrKeyNotFound
 		}
+
 		return "", err
 	}
 

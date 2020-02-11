@@ -23,7 +23,7 @@ func main(cfg config.Config) {
 	}
 
 	handler.URLHandler{
-		Store: store.URLStore{DB: db},
+		Store: store.URL{DB: db},
 	}.Register(app.Group("/api"))
 
 	quit := make(chan os.Signal, 1)
@@ -42,5 +42,4 @@ func Register(root *cobra.Command, cfg config.Config) {
 			},
 		},
 	)
-
 }
