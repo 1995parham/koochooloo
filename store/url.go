@@ -1,11 +1,11 @@
-package stores
+package store
 
 import (
 	"context"
 	"errors"
 	"time"
 
-	"github.com/1995parham/koochooloo/models"
+	"github.com/1995parham/koochooloo/model"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +19,7 @@ var ErrDuplicateKey = errors.New("given key is exist")
 
 const collection = "urls"
 
-// URLStore communicate with url collections
+// URLStore communicate with url collections in MongoDB
 type URLStore struct {
 	DB *mongo.Database
 }
@@ -32,7 +32,7 @@ func (s URLStore) Inc(ctx context.Context, key string) error {
 		"$inc": bson.M{"count": 1},
 	})
 
-	var url models.URL
+	var url model.URL
 	if err := record.Decode(&url); err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (s URLStore) Inc(ctx context.Context, key string) error {
 // Set saves given url with a given key in database
 func (s URLStore) Set(ctx context.Context, key string, url string, expire *time.Time) error {
 	urls := s.DB.Collection(collection)
-	if _, err := urls.InsertOne(ctx, models.URL{
+	if _, err := urls.InsertOne(ctx, model.URL{
 		Key:        key,
 		URL:        url,
 		ExpireTime: expire,
@@ -71,7 +71,7 @@ func (s URLStore) Get(ctx context.Context, key string) (string, error) {
 			},
 		},
 	})
-	var url models.URL
+	var url model.URL
 	if err := record.Decode(&url); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return "", ErrKeyNotFound
