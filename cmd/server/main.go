@@ -26,6 +26,7 @@ func main(cfg config.Config) {
 	}.Register(app.Group("/api"))
 
 	app.Listen(":8080")
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
