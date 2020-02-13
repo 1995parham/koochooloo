@@ -22,33 +22,23 @@ func (h URLHandler) Create(c *fiber.Ctx) {
 	var rq request.URL
 
 	if err := json.Unmarshal([]byte(c.Body()), &rq); err != nil {
-		if err := c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}); err != nil {
-			panic(err)
-		}
+		c.Next(c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}))
 	}
 
 	if err := rq.Validate(); err != nil {
-		if err := c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}); err != nil {
-			panic(err)
-		}
+		c.Next(c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}))
 	}
 
 	k, err := h.Store.Set(ctx, rq.Name, rq.URL, rq.Expire)
 	if err != nil {
 		if err == store.ErrDuplicateKey {
-			if err := c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}); err != nil {
-				panic(err)
-			}
+			c.Next(c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}))
 		}
 
-		if err := c.Status(http.StatusInternalServerError).JSON(response.Error{Message: err.Error()}); err != nil {
-			panic(err)
-		}
+		c.Next(c.Status(http.StatusInternalServerError).JSON(response.Error{Message: err.Error()}))
 	}
 
-	if err := c.Status(http.StatusOK).JSON(k); err != nil {
-		panic(err)
-	}
+	c.Next(c.Status(http.StatusOK).JSON(k))
 }
 
 // Retrieve retrieves URL for given short URL and redirect to it
@@ -59,15 +49,11 @@ func (h URLHandler) Retrieve(c *fiber.Ctx) {
 
 	url, err := h.Store.Get(ctx, key)
 	if err != nil {
-		if err := c.Status(http.StatusNotFound).JSON(response.Error{Message: "Not Found"}); err != nil {
-			panic(err)
-		}
+		c.Next(c.Status(http.StatusNotFound).JSON(response.Error{Message: "Not Found"}))
 	}
 
 	if err := h.Store.Inc(ctx, key); err != nil {
-		if err := c.Status(http.StatusInternalServerError).JSON(response.Error{Message: err.Error()}); err != nil {
-			panic(err)
-		}
+		c.Next(c.Status(http.StatusInternalServerError).JSON(response.Error{Message: err.Error()}))
 	}
 
 	c.Status(http.StatusFound).Location(url)
