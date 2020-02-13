@@ -5,9 +5,11 @@ go 1.13
 require (
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
-	github.com/gofiber/fiber v1.4.3
+	github.com/gofiber/fiber v1.5.0
 	github.com/google/go-cmp v0.3.1 // indirect
-	github.com/klauspost/compress v1.9.8 // indirect
+	github.com/klauspost/compress v1.10.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.4.2
