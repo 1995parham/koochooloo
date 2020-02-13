@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/1995parham/koochooloo/request"
@@ -21,7 +20,7 @@ func (h URLHandler) Create(c *fiber.Ctx) {
 
 	var rq request.URL
 
-	if err := json.Unmarshal([]byte(c.Body()), &rq); err != nil {
+	if err := c.BodyParser(&rq); err != nil {
 		c.Next(c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}))
 	}
 
