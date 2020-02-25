@@ -7,6 +7,7 @@ import (
 	"github.com/1995parham/koochooloo/response"
 	"github.com/1995parham/koochooloo/store"
 	"github.com/gofiber/fiber"
+	"github.com/sirupsen/logrus"
 )
 
 // URLHandler handles interaction with URLs
@@ -52,7 +53,7 @@ func (h URLHandler) Retrieve(c *fiber.Ctx) {
 	}
 
 	if err := h.Store.Inc(ctx, key); err != nil {
-		c.Next(c.Status(http.StatusInternalServerError).JSON(response.Error{Message: err.Error()}))
+		logrus.Errorf("Inc Error: %s", err)
 	}
 
 	c.Status(http.StatusFound).Location(url)
