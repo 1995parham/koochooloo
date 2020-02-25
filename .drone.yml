@@ -11,3 +11,7 @@ steps:
     image: golang
     commands:
       - go test -v ./...
+
+services:
+  - name: database
+    image: mongo:latest
