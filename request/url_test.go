@@ -37,10 +37,13 @@ func TestURLValidation(t *testing.T) {
 		rq := request.URL{
 			URL: c.url,
 		}
+
 		err := rq.Validate()
+
 		if c.isValid && err != nil {
 			t.Fatalf("valid request %+v has error %s", rq, err)
 		}
+
 		if !c.isValid && err == nil {
 			t.Fatalf("invalid request %+v has no error", rq)
 		}
