@@ -13,6 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const enable = 1
+
 func main(cfg config.Config) {
 	db, err := db.New(cfg.Database.URL, "urlshortener")
 	if err != nil {
@@ -22,12 +24,13 @@ func main(cfg config.Config) {
 	idx, err := db.Collection(store.Collection).Indexes().CreateOne(
 		context.Background(),
 		mongo.IndexModel{
-			Keys:    bson.M{"key": 1},
+			Keys:    bson.M{"key": enable},
 			Options: options.Index().SetUnique(true),
 		})
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Println(idx)
 }
 
