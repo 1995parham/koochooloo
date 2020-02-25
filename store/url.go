@@ -19,7 +19,8 @@ var ErrKeyNotFound = errors.New("given key does not exist or expired")
 // ErrDuplicateKey indicates that given key is exists on database
 var ErrDuplicateKey = errors.New("given key is exist")
 
-const collection = "urls"
+// Collection is a name of the MongoDB collection for URLs
+const Collection = "urls"
 const one = 1
 
 // URL communicate with url collections in MongoDB
@@ -29,7 +30,7 @@ type URL struct {
 
 // Inc increments counter of url record by one
 func (s URL) Inc(ctx context.Context, key string) error {
-	record := s.DB.Collection(collection).FindOneAndUpdate(ctx, bson.M{
+	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx, bson.M{
 		"key": key,
 	}, bson.M{
 		"$inc": bson.M{"count": one},
@@ -51,7 +52,7 @@ func (s URL) Set(ctx context.Context, key string, url string, expire *time.Time)
 		key = fmt.Sprintf("$%s", key)
 	}
 
-	urls := s.DB.Collection(collection)
+	urls := s.DB.Collection(Collection)
 
 	_, err := urls.InsertOne(ctx, model.URL{
 		Key:        key,
@@ -72,7 +73,7 @@ func (s URL) Set(ctx context.Context, key string, url string, expire *time.Time)
 
 // Get retrieves url of the given key if it exists
 func (s URL) Get(ctx context.Context, key string) (string, error) {
-	record := s.DB.Collection(collection).FindOne(ctx, bson.M{
+	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
 		"$or": bson.A{
 			bson.M{
