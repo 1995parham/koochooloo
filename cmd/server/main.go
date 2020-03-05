@@ -25,7 +25,9 @@ func main(cfg config.Config) {
 		Store: store.URL{DB: db},
 	}.Register(app.Group("/api"))
 
-	app.Listen(":8080")
+	if err := app.Listen(":8080"); err != nil {
+		panic(err)
+	}
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
