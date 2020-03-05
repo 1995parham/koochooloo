@@ -1,0 +1,49 @@
+---
+openapi: 3.0.0
+
+info:
+  title: koochooloo
+  description: Make your URLs shorter (smaller) and more memorable
+  version: 1.0.0
+
+servers:
+  - url: /api
+
+paths:
+  /urls:
+    post:
+      summary: Create a short version of given URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                name:
+                  type: string
+                expite:
+                  type: string
+                  format: date-time
+              required:
+                - url
+      responses:
+        200:
+          content:
+            application/json:
+              type: string
+  /urls/{short}:
+    get:
+      summary: Redirect to URL of given short version
+      parameters:
+        - in: path
+          name: short
+          schema:
+            type: string
+          required: true
+      responses:
+        302:
+          description: Redirect to URL of given short version
