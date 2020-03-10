@@ -17,6 +17,21 @@ paths:
         required: true
         content:
           application/json:
+            examples:
+              without-name:
+                summary: Random Short URL
+                value:
+                  url: https://www.google.com
+              with-name:
+                summary: Explicit Short URL
+                value:
+                  url: https://www.google.com
+                  name: google
+              with-expiration:
+                summary: Random Short URL with Expiration
+                value:
+                  url: https://www.google.com
+                  expire: "2011-08-30T13:22:53.108Z"
             schema:
               type: object
               properties:
@@ -32,15 +47,29 @@ paths:
                 - url
       responses:
         200:
+          description: Successfully created a short URL record
           content:
             application/json:
-              type: string
+              examples:
+                without-name:
+                  summary: Random Short URL
+                  value: CKaniA
+                with-name:
+                  summary: Explicit Short URL
+                  value: $google
+                with-expiration:
+                  summary: Random Short URL with Expiration
+                  value: CKaniA
+              schema:
+                type: string
+                example: CKaniA
   /urls/{short}:
     get:
       summary: Redirect to URL of given short version
       parameters:
         - in: path
           name: short
+          example: CKaniA
           schema:
             type: string
           required: true
