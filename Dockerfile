@@ -16,7 +16,7 @@ COPY . .
 # Build the Go app
 RUN go build -o /koochooloo
 
-FROM scratch
+FROM alpine:latest
 
 # Add Maintainer Info
 LABEL maintainer="Parham Alvani <parham.alvani@gmail.com>"
