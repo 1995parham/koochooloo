@@ -1,6 +1,7 @@
 ---
 kind: pipeline
 name: default
+type: docker
 
 steps:
   - name: lint
@@ -11,6 +12,14 @@ steps:
     image: golang
     commands:
       - go test -v ./...
+  - name: docker
+    image: plugins/docker
+    settings:
+      username: 1995parham
+      password:
+        from_secret: docker_password
+      repo: 1995parham/koochooloo
+      tags: latest
 
 services:
   - name: database
