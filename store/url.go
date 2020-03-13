@@ -34,9 +34,9 @@ type URL struct {
 }
 
 // NewURL creates new URL store
-func NewURL(DB *mongo.Database) *URL {
+func NewURL(db *mongo.Database) *URL {
 	return &URL{
-		DB: DB,
+		DB: db,
 		InsertedCounter: promauto.NewCounter(prometheus.CounterOpts{
 			Namespace: "koochooloo",
 			Name:      "inserted_urls_counter",
