@@ -25,8 +25,8 @@ WORKDIR /root/
 
 COPY --from=builder /koochooloo .
 
-# Expose port 8080 to the outside world
-EXPOSE 8080
+# Expose port 1378 to the outside world
+EXPOSE 1378
 
 ENTRYPOINT ["./koochooloo"]
 

@@ -12,7 +12,8 @@ import (
 type Config struct {
 	Debug    bool
 	Database struct {
-		URL string
+		Name string
+		URL  string
 	}
 }
 

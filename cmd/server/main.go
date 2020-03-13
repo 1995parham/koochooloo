@@ -16,16 +16,16 @@ import (
 func main(cfg config.Config) {
 	app := fiber.New()
 
-	db, err := db.New(cfg.Database.URL, "urlshortener")
+	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
 	if err != nil {
 		panic(err)
 	}
 
 	handler.URLHandler{
-		Store: store.URL{DB: db},
+		Store: store.NewURL(db),
 	}.Register(app.Group("/api"))
 
-	if err := app.Listen(":8080"); err != nil {
+	if err := app.Listen(":1378"); err != nil {
 		panic(err)
 	}
 
