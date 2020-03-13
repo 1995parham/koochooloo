@@ -16,7 +16,7 @@ import (
 const enable = 1
 
 func main(cfg config.Config) {
-	db, err := db.New(cfg.Database.URL, "urlshortener")
+	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
 	if err != nil {
 		panic(err)
 	}
