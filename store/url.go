@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/1995parham/koochooloo/model"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,10 +28,23 @@ const one = 1
 // URL communicate with url collections in MongoDB
 type URL struct {
 	DB *mongo.Database
+
+	InsertedCounter prometheus.Counter
+}
+
+// NewURL creates new URL store
+func NewURL(DB *mongo.Database) *URL {
+	return &URL{
+		DB: DB,
+		InsertedCounter: promauto.NewCounter(prometheus.CounterOpts{
+			Namespace: "koochooloo",
+			Name:      "inserted_urls_counter",
+		}),
+	}
 }
 
 // Inc increments counter of url record by one
-func (s URL) Inc(ctx context.Context, key string) error {
+func (s *URL) Inc(ctx context.Context, key string) error {
 	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx, bson.M{
 		"key": key,
 	}, bson.M{
@@ -45,12 +60,14 @@ func (s URL) Inc(ctx context.Context, key string) error {
 }
 
 // Set saves given url with a given key in database. if key is null it generates a random key and returns it.
-func (s URL) Set(ctx context.Context, key string, url string, expire *time.Time) (string, error) {
+func (s *URL) Set(ctx context.Context, key string, url string, expire *time.Time) (string, error) {
 	if key == "" {
 		key = Key()
 	} else {
 		key = fmt.Sprintf("$%s", key)
 	}
+
+	s.InsertedCounter.Inc()
 
 	urls := s.DB.Collection(Collection)
 
@@ -72,7 +89,7 @@ func (s URL) Set(ctx context.Context, key string, url string, expire *time.Time)
 }
 
 // Get retrieves url of the given key if it exists
-func (s URL) Get(ctx context.Context, key string) (string, error) {
+func (s *URL) Get(ctx context.Context, key string) (string, error) {
 	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
 		"$or": bson.A{
