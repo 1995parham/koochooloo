@@ -30,6 +30,7 @@ type URL struct {
 	DB *mongo.Database
 
 	InsertedCounter prometheus.Counter
+	FetchedCounter  prometheus.Counter
 }
 
 // NewURL creates new URL store
@@ -39,6 +40,10 @@ func NewURL(DB *mongo.Database) *URL {
 		InsertedCounter: promauto.NewCounter(prometheus.CounterOpts{
 			Namespace: "koochooloo",
 			Name:      "inserted_urls_counter",
+		}),
+		FetchedCounter: promauto.NewCounter(prometheus.CounterOpts{
+			Namespace: "koochooloo",
+			Name:      "fetched_urls_counter",
 		}),
 	}
 }
@@ -114,6 +119,8 @@ func (s *URL) Get(ctx context.Context, key string) (string, error) {
 
 		return "", err
 	}
+
+	s.FetchedCounter.Inc()
 
 	return url.URL, nil
 }
