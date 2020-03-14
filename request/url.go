@@ -17,6 +17,6 @@ type URL struct {
 // Validate URL request
 func (r URL) Validate() error {
 	return validation.ValidateStruct(&r,
-		validation.Field(&r.URL, validation.Required, is.RequestURL),
+		validation.Field(&r.URL, validation.Required, is.RequestURI),
 	)
 }
