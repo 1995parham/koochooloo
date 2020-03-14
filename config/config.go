@@ -8,14 +8,26 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config holds all configurations
-type Config struct {
-	Debug    bool
+type (
+	// Config holds all configurations
+	Config struct {
+		Debug      bool
+		Database   Database
+		Monitoring Monitoring
+	}
+
+	// Database configuration
 	Database struct {
 		Name string
 		URL  string
 	}
-}
+
+	// monitoring (prometheus) configuration
+	Monitoring struct {
+		Address string
+		Enabled bool
+	}
+)
 
 // New reads configuration with viper
 func New() Config {
