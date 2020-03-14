@@ -16,7 +16,7 @@ import (
 )
 
 func main(cfg config.Config) {
-	metric.NewServer(cfg.Monitoring)
+	metric.NewServer(cfg.Monitoring).Start()
 
 	app := echo.New()
 
