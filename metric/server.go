@@ -25,11 +25,11 @@ func NewServer(cfg config.Monitoring) Server {
 // Start creates and run a metric server for prometheus in new go routine
 func (s Server) Start() {
 	if s.Enabled {
-		metricServer := http.NewServeMux()
-		metricServer.Handle("/metrics", promhttp.Handler())
+		srv := http.NewServeMux()
+		srv.Handle("/metrics", promhttp.Handler())
 
 		go func() {
-			if err := http.ListenAndServe(s.Address, metricServer); err != http.ErrServerClosed {
+			if err := http.ListenAndServe(s.Address, srv); err != http.ErrServerClosed {
 				fmt.Println(err)
 			}
 		}()
