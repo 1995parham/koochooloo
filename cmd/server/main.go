@@ -8,12 +8,15 @@ import (
 	"github.com/1995parham/koochooloo/config"
 	"github.com/1995parham/koochooloo/db"
 	"github.com/1995parham/koochooloo/handler"
+	"github.com/1995parham/koochooloo/metric"
 	"github.com/1995parham/koochooloo/store"
 	"github.com/gofiber/fiber"
 	"github.com/spf13/cobra"
 )
 
 func main(cfg config.Config) {
+	metric.NewServer(cfg.Monitoring)
+
 	app := fiber.New()
 
 	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
