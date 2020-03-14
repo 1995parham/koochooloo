@@ -1,6 +1,7 @@
 package server
 
 import (
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,14 +11,14 @@ import (
 	"github.com/1995parham/koochooloo/handler"
 	"github.com/1995parham/koochooloo/metric"
 	"github.com/1995parham/koochooloo/store"
-	"github.com/gofiber/fiber"
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 )
 
 func main(cfg config.Config) {
 	metric.NewServer(cfg.Monitoring)
 
-	app := fiber.New()
+	app := echo.New()
 
 	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
 	if err != nil {
@@ -28,7 +29,7 @@ func main(cfg config.Config) {
 		Store: store.NewURL(db),
 	}.Register(app.Group("/api"))
 
-	if err := app.Listen(":1378"); err != nil {
+	if err := app.Start(":1378"); err != http.ErrServerClosed {
 		panic(err)
 	}
 

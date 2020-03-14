@@ -4,9 +4,8 @@ import (
 	"net/http"
 
 	"github.com/1995parham/koochooloo/request"
-	"github.com/1995parham/koochooloo/response"
 	"github.com/1995parham/koochooloo/store"
-	"github.com/gofiber/fiber"
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,51 +15,51 @@ type URLHandler struct {
 }
 
 // Create generates short URL and save it on database
-func (h URLHandler) Create(c *fiber.Ctx) {
-	ctx := c.Fasthttp
+func (h URLHandler) Create(c echo.Context) error {
+	ctx := c.Request().Context()
 
 	var rq request.URL
 
-	if err := c.BodyParser(&rq); err != nil {
-		c.Next(c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}))
+	if err := c.Bind(&rq); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := rq.Validate(); err != nil {
-		c.Next(c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}))
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	k, err := h.Store.Set(ctx, rq.Name, rq.URL, rq.Expire)
 	if err != nil {
 		if err == store.ErrDuplicateKey {
-			c.Next(c.Status(http.StatusBadRequest).JSON(response.Error{Message: err.Error()}))
+			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
-		c.Next(c.Status(http.StatusInternalServerError).JSON(response.Error{Message: err.Error()}))
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	c.Next(c.Status(http.StatusOK).JSON(k))
+	return c.JSON(http.StatusOK, k)
 }
 
 // Retrieve retrieves URL for given short URL and redirect to it
-func (h URLHandler) Retrieve(c *fiber.Ctx) {
-	ctx := c.Fasthttp
+func (h URLHandler) Retrieve(c echo.Context) error {
+	ctx := c.Request().Context()
 
-	key := c.Params("key")
+	key := c.Param("key")
 
 	url, err := h.Store.Get(ctx, key)
 	if err != nil {
-		c.Next(c.Status(http.StatusNotFound).JSON(response.Error{Message: "Not Found"}))
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
 	if err := h.Store.Inc(ctx, key); err != nil {
 		logrus.Errorf("Inc Error: %s", err)
 	}
 
-	c.Status(http.StatusFound).Location(url)
+	return c.Redirect(http.StatusFound, url)
 }
 
 // Register registers the routes of URL handler on given group
-func (h URLHandler) Register(g *fiber.Group) {
-	g.Get("/:key", h.Retrieve)
-	g.Post("/urls", h.Create)
+func (h URLHandler) Register(g *echo.Group) {
+	g.GET("/:key", h.Retrieve)
+	g.POST("/urls", h.Create)
 }
