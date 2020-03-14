@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/1995parham/koochooloo/model"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,23 +26,14 @@ const one = 1
 // URL communicate with url collections in MongoDB
 type URL struct {
 	DB *mongo.Database
-
-	InsertedCounter prometheus.Counter
-	FetchedCounter  prometheus.Counter
+	Usage
 }
 
 // NewURL creates new URL store
 func NewURL(db *mongo.Database) *URL {
 	return &URL{
-		DB: db,
-		InsertedCounter: promauto.NewCounter(prometheus.CounterOpts{
-			Namespace: "koochooloo",
-			Name:      "inserted_urls_counter",
-		}),
-		FetchedCounter: promauto.NewCounter(prometheus.CounterOpts{
-			Namespace: "koochooloo",
-			Name:      "fetched_urls_counter",
-		}),
+		DB:    db,
+		Usage: NewUsage("url"),
 	}
 }
 
