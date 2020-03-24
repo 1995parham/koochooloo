@@ -72,7 +72,7 @@ func (s *URL) Set(ctx context.Context, key string, url string, expire *time.Time
 		Count:      0,
 	})
 	if err != nil {
-		if !strings.HasPrefix(key, "$") && err == ErrDuplicateKey {
+		if !strings.HasPrefix(key, "$") && errors.Is(err, ErrDuplicateKey) {
 			return s.Set(ctx, "", url, expire)
 		}
 
@@ -102,7 +102,7 @@ func (s *URL) Get(ctx context.Context, key string) (string, error) {
 
 	var url model.URL
 	if err := record.Decode(&url); err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return "", ErrKeyNotFound
 		}
 

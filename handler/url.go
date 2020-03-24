@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/1995parham/koochooloo/request"
@@ -30,7 +31,7 @@ func (h URLHandler) Create(c echo.Context) error {
 
 	k, err := h.Store.Set(ctx, rq.Name, rq.URL, rq.Expire)
 	if err != nil {
-		if err == store.ErrDuplicateKey {
+		if errors.Is(err, store.ErrDuplicateKey) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
