@@ -1,31 +1,38 @@
 package config
 
 import (
-	"bytes"
 	"strings"
 
+	"github.com/knadh/koanf"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/file"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
+)
+
+const (
+	// Prefix indicates environment variables prefix
+	Prefix = "koochooloo_"
 )
 
 type (
 	// Config holds all configurations
 	Config struct {
-		Debug      bool
-		Database   Database
-		Monitoring Monitoring
+		Debug      bool       `koanf:"debug"`
+		Database   Database   `koanf:"database"`
+		Monitoring Monitoring `koanf:"monitoring"`
 	}
 
 	// Database configuration
 	Database struct {
-		Name string
-		URL  string
+		Name string `koanf:"name"`
+		URL  string `koanf:"url"`
 	}
 
-	// monitoring (prometheus) configuration
+	// Monitoring (prometheus) configuration
 	Monitoring struct {
-		Address string
-		Enabled bool
+		Address string `koanf:"address"`
+		Enabled bool   `koanf:"enabled"`
 	}
 )
 
@@ -33,27 +40,28 @@ type (
 func New() Config {
 	var instance Config
 
-	v := viper.New()
-	v.SetConfigType("yaml")
-	v.AddConfigPath(".")
-	v.SetConfigName("config.default")
+	k := koanf.New(".")
 
-	if err := v.ReadConfig(bytes.NewBufferString(Default)); err != nil {
-		logrus.Fatalf("fatal error loading **default** config file: %s \n", err)
+	// load default configuration from file
+	if err := k.Load(file.Provider("config.example.yml"), yaml.Parser()); err != nil {
+		logrus.Fatalf("error loading config.example.yml: %s", err)
 	}
 
-	v.SetConfigName("config")
-
-	if err := v.MergeInConfig(); err != nil {
-		logrus.Warnf("no config file found, using defaults and environment variables")
+	// load configuration from file
+	if err := k.Load(file.Provider("config.yml"), yaml.Parser()); err != nil {
+		logrus.Errorf("error loading config.yml: %s", err)
 	}
 
-	v.SetEnvPrefix("urlshortener")
-	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
-	v.AutomaticEnv()
+	// load environment variables
+	if err := k.Load(env.Provider(Prefix, ".", func(s string) string {
+		return strings.Replace(strings.ToLower(
+			strings.TrimPrefix(s, Prefix)), "_", ".", -1)
+	}), nil); err != nil {
+		logrus.Errorf("error loading environment variables: %s", err)
+	}
 
-	if err := v.UnmarshalExact(&instance); err != nil {
-		logrus.Fatalf("unmarshaling error: %s", err)
+	if err := k.Unmarshal("", &instance); err != nil {
+		logrus.Fatalf("error unmarshalling config: %s", err)
 	}
 
 	logrus.Infof("following configuration is loaded:\n%+v", instance)
