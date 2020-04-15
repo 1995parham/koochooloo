@@ -29,6 +29,10 @@ func main(cfg config.Config) {
 		Store: store.NewURL(db),
 	}.Register(app.Group("/api"))
 
+	app.GET("/healthz", func(context echo.Context) error {
+		return context.NoContent(http.StatusNoContent)
+	})
+
 	if err := app.Start(":1378"); err != http.ErrServerClosed {
 		panic(err)
 	}
