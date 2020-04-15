@@ -7,6 +7,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 const connectionTimeout = 10 * time.Second
@@ -20,11 +21,22 @@ func New(url string, db string) (*mongo.Database, error) {
 	}
 
 	// connect to the mongodb
-	ctxc, donec := context.WithTimeout(context.Background(), connectionTimeout)
-	defer donec()
+	{
+		ctx, done := context.WithTimeout(context.Background(), connectionTimeout)
+		defer done()
 
-	if err := client.Connect(ctxc); err != nil {
-		return nil, fmt.Errorf("db connection error: %s", err)
+		if err := client.Connect(ctx); err != nil {
+			return nil, fmt.Errorf("db connection error: %w", err)
+		}
+	}
+	// ping the mongodb
+	{
+		ctx, done := context.WithTimeout(context.Background(), 2*time.Second)
+		defer done()
+
+		if err := client.Ping(ctx, readpref.Primary()); err != nil {
+			return nil, fmt.Errorf("db ping error: %w", err)
+		}
 	}
 
 	return client.Database(db), nil
