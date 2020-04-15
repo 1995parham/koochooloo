@@ -31,7 +31,7 @@ func New(url string, db string) (*mongo.Database, error) {
 	}
 	// ping the mongodb
 	{
-		ctx, done := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, done := context.WithTimeout(context.Background(), connectionTimeout)
 		defer done()
 
 		if err := client.Ping(ctx, readpref.Primary()); err != nil {
