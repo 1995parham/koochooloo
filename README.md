@@ -14,6 +14,6 @@ docker-compose up -d
 ```
 
 ```sh
-curl -X POST -d '{"url": "www.google.com"}' -H 'Content-Type: application/json' 127.0.0.1:8080/api/urls
-curl -L 127.0.0.1:8080/api/CKaniA
+curl -X POST -d '{"url": "https://elahe-dastan.github.io"}' -H 'Content-Type: application/json' 127.0.0.1:1378/api/urls
+curl -L 127.0.0.1:1378/api/CKaniA
 ```
