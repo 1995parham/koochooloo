@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: koochooloo
+  labels:
+    app: koochooloo
+spec:
+  selector:
+    matchLabels:
+      app: koochooloo
+  template:
+    metadata:
+      labels:
+        app: koochooloo
+    spec:
+      initContainers:
+        - name: migrate
+          image: 1995parham/koochooloo
+          args:
+            - migrate
+          volumeMounts:
+            - mountPath: /app/config.yml
+              subPath: config.yml
+              name: koochooloo-config
+              readOnly: true
+      containers:
+        - name: koochooloo
+          image: 1995parham/koochooloo
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 1378
+          volumeMounts:
+            - mountPath: /app/config.yml
+              subPath: config.yml
+              name: koochooloo-config
+              readOnly: true
+          args:
+            - server
+          livenessProbe:
+            httpGet:
+              port: 1378
+              path: /healthz
+      volumes:
+        - name: koochooloo-config
+          configMap:
+            name: koochooloo-config
