@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: koochooloo
+  labels:
+    app: koochooloo
+spec:
+  selector:
+    app: koochooloo
+  ports:
+    - port: 1378
+      targetPort: 1378
+      name: http
+      protocol: TCP
