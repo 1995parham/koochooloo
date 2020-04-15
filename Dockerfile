@@ -21,7 +21,7 @@ FROM alpine:latest
 # Add Maintainer Info
 LABEL maintainer="Parham Alvani <parham.alvani@gmail.com>"
 
-WORKDIR /root/
+WORKDIR /app/
 
 COPY --from=builder /koochooloo .
 
