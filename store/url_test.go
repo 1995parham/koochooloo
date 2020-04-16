@@ -92,7 +92,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 			suite.Equal(c.expectedSetErr, err)
 
 			if c.key != "" {
-				suite.Equal(c.key, key)
+				suite.Equal("$"+c.key, key)
 			}
 
 			if c.expectedSetErr == nil {
