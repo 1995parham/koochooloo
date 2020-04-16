@@ -13,7 +13,7 @@ steps:
     environment:
       koochooloo_database_url: "mongodb://database:27017"
       koochooloo_database_name: "koochooloo"
-    command:
+    commands:
       - go run main.go migrate
   - name: test
     image: golang
