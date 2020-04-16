@@ -22,7 +22,7 @@ type MongoURLSuite struct {
 func (suite *MongoURLSuite) SetupSuite() {
 	cfg := config.New()
 
-	db, err := db.New(cfg.Database.Name, cfg.Database.URL)
+	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
 	suite.NoError(err)
 
 	suite.DB = db
