@@ -10,13 +10,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// URLHandler handles interaction with URLs
-type URLHandler struct {
+// URL handles interaction with URLs
+type URL struct {
 	Store store.URL
 }
 
 // Create generates short URL and save it on database
-func (h URLHandler) Create(c echo.Context) error {
+func (h URL) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	var rq request.URL
@@ -42,7 +42,7 @@ func (h URLHandler) Create(c echo.Context) error {
 }
 
 // Retrieve retrieves URL for given short URL and redirect to it
-func (h URLHandler) Retrieve(c echo.Context) error {
+func (h URL) Retrieve(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	key := c.Param("key")
@@ -60,7 +60,7 @@ func (h URLHandler) Retrieve(c echo.Context) error {
 }
 
 // Register registers the routes of URL handler on given group
-func (h URLHandler) Register(g *echo.Group) {
+func (h URL) Register(g *echo.Group) {
 	g.GET("/:key", h.Retrieve)
 	g.POST("/urls", h.Create)
 }
