@@ -8,8 +8,18 @@ steps:
     image: golangci/golangci-lint
     commands:
       - golangci-lint run --enable-all
+  - name: migrate
+    image: golang
+    environment:
+      koochooloo_database_url: "mongodb://database:27017"
+      koochooloo_database_name: "koochooloo"
+    command:
+      - go run main.go migrate
   - name: test
     image: golang
+    environment:
+      koochooloo_database_url: "mongodb://database:27017"
+      koochooloo_database_name: "koochooloo"
     commands:
       - go test -v ./...
   - name: docker
