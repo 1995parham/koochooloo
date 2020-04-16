@@ -25,7 +25,7 @@ func main(cfg config.Config) {
 		panic(err)
 	}
 
-	handler.URLHandler{
+	handler.URL{
 		Store: store.NewMongoURL(db),
 	}.Register(app.Group("/api"))
 
