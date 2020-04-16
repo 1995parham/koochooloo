@@ -83,8 +83,8 @@ func (suite *MongoURLSuite) TestSetGet() {
 	for _, c := range cases {
 		c := c
 		suite.Run(c.name, func() {
-			var expire *time.Time
-			if c.expire.Equal(time.Time{}) {
+			var expire = &c.expire
+			if c.expire.IsZero() {
 				expire = nil
 			}
 
@@ -98,7 +98,9 @@ func (suite *MongoURLSuite) TestSetGet() {
 
 				url, err := suite.Store.Get(context.Background(), key)
 				suite.Equal(c.expectedGetErr, err)
-				suite.Equal(c.url, url)
+				if c.expectedGetErr == nil {
+					suite.Equal(c.url, url)
+				}
 			}
 		})
 	}
