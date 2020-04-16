@@ -19,26 +19,33 @@ var ErrKeyNotFound = errors.New("given key does not exist or expired")
 // ErrDuplicateKey indicates that given key is exists on database
 var ErrDuplicateKey = errors.New("given key is exist")
 
+// URL stores and retrieves urls
+type URL interface {
+	Inc(ctx context.Context, key string) error
+	Set(ctx context.Context, key string, url string, expire *time.Time) (string, error)
+	Get(ctx context.Context, key string) (string, error)
+}
+
 // Collection is a name of the MongoDB collection for URLs
 const Collection = "urls"
 const one = 1
 
-// URL communicate with url collections in MongoDB
-type URL struct {
+// MongoURL communicate with url collections in MongoDB
+type MongoURL struct {
 	DB *mongo.Database
 	Usage
 }
 
-// NewURL creates new URL store
-func NewURL(db *mongo.Database) *URL {
-	return &URL{
+// NewMongoURL creates new URL store
+func NewMongoURL(db *mongo.Database) *MongoURL {
+	return &MongoURL{
 		DB:    db,
 		Usage: NewUsage("url"),
 	}
 }
 
 // Inc increments counter of url record by one
-func (s *URL) Inc(ctx context.Context, key string) error {
+func (s *MongoURL) Inc(ctx context.Context, key string) error {
 	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx, bson.M{
 		"key": key,
 	}, bson.M{
@@ -54,7 +61,7 @@ func (s *URL) Inc(ctx context.Context, key string) error {
 }
 
 // Set saves given url with a given key in database. if key is null it generates a random key and returns it.
-func (s *URL) Set(ctx context.Context, key string, url string, expire *time.Time) (string, error) {
+func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time.Time) (string, error) {
 	if key == "" {
 		key = Key()
 	} else {
@@ -83,7 +90,7 @@ func (s *URL) Set(ctx context.Context, key string, url string, expire *time.Time
 }
 
 // Get retrieves url of the given key if it exists
-func (s *URL) Get(ctx context.Context, key string) (string, error) {
+func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
 		"$or": bson.A{

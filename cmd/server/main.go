@@ -26,7 +26,7 @@ func main(cfg config.Config) {
 	}
 
 	handler.URLHandler{
-		Store: store.NewURL(db),
+		Store: store.NewMongoURL(db),
 	}.Register(app.Group("/api"))
 
 	app.GET("/healthz", func(context echo.Context) error {
