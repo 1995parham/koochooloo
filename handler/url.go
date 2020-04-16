@@ -12,7 +12,7 @@ import (
 
 // URLHandler handles interaction with URLs
 type URLHandler struct {
-	Store *store.URL
+	Store store.URL
 }
 
 // Create generates short URL and save it on database
