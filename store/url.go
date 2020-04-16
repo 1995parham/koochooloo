@@ -29,6 +29,7 @@ type URL interface {
 // Collection is a name of the MongoDB collection for URLs
 const Collection = "urls"
 const one = 1
+const mongodbDuplicateKeyErrorCode = 11000
 
 // MongoURL communicate with url collections in MongoDB
 type MongoURL struct {
@@ -79,8 +80,12 @@ func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time
 		Count:      0,
 	})
 	if err != nil {
-		if !strings.HasPrefix(key, "$") && errors.Is(err, ErrDuplicateKey) {
-			return s.Set(ctx, "", url, expire)
+		if errors.Is(err, mongo.WriteError{}) && err.(mongo.WriteError).Code == mongodbDuplicateKeyErrorCode {
+			if !strings.HasPrefix(key, "$") {
+				return s.Set(ctx, "", url, expire)
+			}
+
+			return "", ErrDuplicateKey
 		}
 
 		return "", err
