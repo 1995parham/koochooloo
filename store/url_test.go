@@ -74,7 +74,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 			name:           "Expired",
 			key:            "",
 			url:            "https://github.com",
-			expire:         time.Now().Add(time.Minute),
+			expire:         time.Now().Add(-time.Minute),
 			expectedSetErr: nil,
 			expectedGetErr: store.ErrKeyNotFound,
 		},
@@ -91,11 +91,11 @@ func (suite *MongoURLSuite) TestSetGet() {
 			key, err := suite.Store.Set(context.Background(), c.key, c.url, expire)
 			suite.Equal(c.expectedSetErr, err)
 
-			if c.key != "" {
-				suite.Equal("$"+c.key, key)
-			}
-
 			if c.expectedSetErr == nil {
+				if c.key != "" {
+					suite.Equal("$"+c.key, key)
+				}
+
 				url, err := suite.Store.Get(context.Background(), key)
 				suite.Equal(c.expectedGetErr, err)
 				suite.Equal(c.url, url)
