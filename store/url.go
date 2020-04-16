@@ -80,8 +80,8 @@ func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time
 		Count:      0,
 	})
 	if err != nil {
-		if errors.Is(err, mongo.WriteException{}) &&
-			err.(mongo.WriteException).WriteErrors[0].Code == mongodbDuplicateKeyErrorCode {
+		if exp, ok := err.(mongo.WriteException); ok &&
+			exp.WriteErrors[0].Code == mongodbDuplicateKeyErrorCode {
 			if !strings.HasPrefix(key, "$") {
 				return s.Set(ctx, "", url, expire)
 			}
