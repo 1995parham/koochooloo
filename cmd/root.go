@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// ExitFailure status code
+// ExitFailure status code.
 const ExitFailure = 1
 
 // Execute adds all child commands to the root command and sets flags appropriately.

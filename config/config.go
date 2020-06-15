@@ -37,7 +37,7 @@ type (
 	}
 )
 
-// New reads configuration with viper
+// New reads configuration with viper.
 func New() Config {
 	var instance Config
 

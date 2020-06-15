@@ -10,12 +10,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// URL handles interaction with URLs
+// URL handles interaction with URLs.
 type URL struct {
 	Store store.URL
 }
 
-// Create generates short URL and save it on database
+// Create generates short URL and save it on database.
 func (h URL) Create(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -41,7 +41,7 @@ func (h URL) Create(c echo.Context) error {
 	return c.JSON(http.StatusOK, k)
 }
 
-// Retrieve retrieves URL for given short URL and redirect to it
+// Retrieve retrieves URL for given short URL and redirect to it.
 func (h URL) Retrieve(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -59,7 +59,7 @@ func (h URL) Retrieve(c echo.Context) error {
 	return c.Redirect(http.StatusFound, url)
 }
 
-// Register registers the routes of URL handler on given group
+// Register registers the routes of URL handler on given group.
 func (h URL) Register(g *echo.Group) {
 	g.GET("/:key", h.Retrieve)
 	g.POST("/urls", h.Create)

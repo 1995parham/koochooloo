@@ -12,12 +12,12 @@ import (
 
 const connectionTimeout = 10 * time.Second
 
-// New creates a new mongodb connection and tests it
+// New creates a new mongodb connection and tests it.
 func New(url string, db string) (*mongo.Database, error) {
 	// create mongodb connection
 	client, err := mongo.NewClient(options.Client().ApplyURI(url))
 	if err != nil {
-		return nil, fmt.Errorf("db new client error: %s", err)
+		return nil, fmt.Errorf("db new client error: %w", err)
 	}
 
 	// connect to the mongodb

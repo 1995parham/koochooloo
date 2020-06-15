@@ -34,7 +34,7 @@ func main(cfg config.Config) {
 	fmt.Println(idx)
 }
 
-// Register migrate command
+// Register migrate command.
 func Register(root *cobra.Command, cfg config.Config) {
 	root.AddCommand(
 		&cobra.Command{
