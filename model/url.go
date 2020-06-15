@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// URL is a model for url with its attributes
+// URL is a model for url with its attributes.
 type URL struct {
 	Key        string     `bson:"key"`
 	URL        string     `bson:"url"`

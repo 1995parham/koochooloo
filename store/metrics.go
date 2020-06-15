@@ -2,7 +2,7 @@ package store
 
 import "github.com/prometheus/client_golang/prometheus"
 
-// Usage contains metrics to meter database insert/retrieve
+// Usage contains metrics to meter database insert/retrieve.
 type Usage struct {
 	InsertedCounter prometheus.Counter
 	FetchedCounter  prometheus.Counter

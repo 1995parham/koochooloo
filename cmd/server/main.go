@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,7 +34,7 @@ func main(cfg config.Config) {
 		return context.NoContent(http.StatusNoContent)
 	})
 
-	if err := app.Start(":1378"); err != http.ErrServerClosed {
+	if err := app.Start(":1378"); !errors.Is(err, http.ErrServerClosed) {
 		panic(err)
 	}
 
@@ -42,7 +43,7 @@ func main(cfg config.Config) {
 	<-quit
 }
 
-// Register server command
+// Register server command.
 func Register(root *cobra.Command, cfg config.Config) {
 	root.AddCommand(
 		&cobra.Command{

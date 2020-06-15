@@ -13,31 +13,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// ErrKeyNotFound indicates that given key does not exist on database
+// ErrKeyNotFound indicates that given key does not exist on database.
 var ErrKeyNotFound = errors.New("given key does not exist or expired")
 
-// ErrDuplicateKey indicates that given key is exists on database
+// ErrDuplicateKey indicates that given key is exists on database.
 var ErrDuplicateKey = errors.New("given key is exist")
 
-// URL stores and retrieves urls
+// URL stores and retrieves urls.
 type URL interface {
 	Inc(ctx context.Context, key string) error
 	Set(ctx context.Context, key string, url string, expire *time.Time) (string, error)
 	Get(ctx context.Context, key string) (string, error)
 }
 
-// Collection is a name of the MongoDB collection for URLs
+// Collection is a name of the MongoDB collection for URLs.
 const Collection = "urls"
 const one = 1
 const mongodbDuplicateKeyErrorCode = 11000
 
-// MongoURL communicate with url collections in MongoDB
+// MongoURL communicate with url collections in MongoDB.
 type MongoURL struct {
 	DB *mongo.Database
 	Usage
 }
 
-// NewMongoURL creates new URL store
+// NewMongoURL creates new URL store.
 func NewMongoURL(db *mongo.Database) *MongoURL {
 	return &MongoURL{
 		DB:    db,
@@ -45,7 +45,7 @@ func NewMongoURL(db *mongo.Database) *MongoURL {
 	}
 }
 
-// Inc increments counter of url record by one
+// Inc increments counter of url record by one.
 func (s *MongoURL) Inc(ctx context.Context, key string) error {
 	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx, bson.M{
 		"key": key,
@@ -95,7 +95,7 @@ func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time
 	return key, nil
 }
 
-// Get retrieves url of the given key if it exists
+// Get retrieves url of the given key if it exists.
 func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
