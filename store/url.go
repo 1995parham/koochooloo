@@ -19,7 +19,6 @@ var ErrKeyNotFound = errors.New("given key does not exist or expired")
 // ErrDuplicateKey indicates that given key is exists on database.
 var ErrDuplicateKey = errors.New("given key is exist")
 
-//nolint: gofumpt
 // URL stores and retrieves urls.
 type URL interface {
 	Inc(ctx context.Context, key string) error
@@ -129,6 +128,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 	return url.URL, nil
 }
 
+//nolint: gofumpt
 // Get retrieves url of the given key if it exists.
 func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
