@@ -126,3 +126,35 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 
 	return url.URL, nil
 }
+
+// Get retrieves url of the given key if it exists.
+func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
+	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
+		"key": key,
+		"$or": bson.A{
+			bson.M{
+				"expire_time": bson.M{
+					"$eq": nil,
+				},
+			},
+			bson.M{
+				"expire_time": bson.M{
+					"$gte": time.Now(),
+				},
+			},
+		},
+	})
+
+	var url model.URL
+	if err := record.Decode(&url); err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return 0, ErrKeyNotFound
+		}
+
+		return 0, err
+	}
+
+	s.FetchedCounter.Inc()
+
+	return url.Count, nil
+}

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/1995parham/koochooloo/request"
@@ -59,8 +60,26 @@ func (h URL) Retrieve(c echo.Context) error {
 	return c.Redirect(http.StatusFound, url)
 }
 
+func (h URL) Count(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	key := c.Param("url")
+
+	m := h.Store.(*store.MongoURL)
+
+	count, err := m.Count(ctx, key)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	fmt.Println(count)
+
+	return fmt.Errorf("%d",count)
+}
+
 // Register registers the routes of URL handler on given group.
 func (h URL) Register(g *echo.Group) {
 	g.GET("/:key", h.Retrieve)
 	g.POST("/urls", h.Create)
+	g.GET("/count/:url", h.Count)
 }
