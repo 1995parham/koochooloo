@@ -13,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+//nolint: gofumpt
 // ErrKeyNotFound indicates that given key does not exist on database.
 var ErrKeyNotFound = errors.New("given key does not exist or expired")
 
