@@ -22,8 +22,9 @@ var ErrDuplicateKey = errors.New("given key is exist")
 // URL stores and retrieves urls.
 type URL interface {
 	Inc(ctx context.Context, key string) error
-	Set(ctx context.Context, key string, url string, expire *time.Time) (string, error)
+	Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error)
 	Get(ctx context.Context, key string) (string, error)
+	Count(ctx context.Context, key string) (int, error)
 }
 
 // Collection is a name of the MongoDB collection for URLs.
@@ -62,7 +63,7 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 }
 
 // Set saves given url with a given key in database. if key is null it generates a random key and returns it.
-func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time.Time) (string, error) {
+func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
 	if key == "" {
 		key = Key()
 	} else {
@@ -83,7 +84,7 @@ func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time
 		if exp, ok := err.(mongo.WriteException); ok &&
 			exp.WriteErrors[0].Code == mongodbDuplicateKeyErrorCode {
 			if !strings.HasPrefix(key, "$") {
-				return s.Set(ctx, "", url, expire)
+				return s.Set(ctx, "", url, expire, 0)
 			}
 
 			return "", ErrDuplicateKey
@@ -129,7 +130,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 
 // Get retrieves url of the given key if it exists.
 func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
-	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
+	record := s.DB.Collection(Collection).FindOne(ctx, bson.M {
 		"key": key,
 		"$or": bson.A{
 			bson.M{
@@ -153,8 +154,6 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 
 		return 0, err
 	}
-
-	s.FetchedCounter.Inc()
 
 	return url.Count, nil
 }
