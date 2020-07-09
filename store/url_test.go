@@ -117,6 +117,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 	}
 }
 
+//nolint: gofumpt
 func TestMongoURLSuite(t *testing.T) {
 	suite.Run(t, new(MongoURLSuite))
 }
