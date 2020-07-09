@@ -13,13 +13,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-//nolint: gofumpt
 // ErrKeyNotFound indicates that given key does not exist on database.
 var ErrKeyNotFound = errors.New("given key does not exist or expired")
 
 // ErrDuplicateKey indicates that given key is exists on database.
 var ErrDuplicateKey = errors.New("given key is exist")
 
+//nolint: gofumpt
 // URL stores and retrieves urls.
 type URL interface {
 	Inc(ctx context.Context, key string) error
