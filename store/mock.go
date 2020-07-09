@@ -58,10 +58,5 @@ func (m MockURL) Get(ctx context.Context, key string) (string, error) {
 func (m MockURL) Count(ctx context.Context, key string) (int, error) {
 	url := m.store[key]
 
-	//if url.ExpireTime == nil || url.ExpireTime.After(time.Now()) {
-	//	fmt.Println(url.Count)
-	//
-	//}
-
 	return url.Count, nil
 }
