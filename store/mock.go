@@ -8,6 +8,7 @@ import (
 	"github.com/1995parham/koochooloo/model"
 )
 
+//nolint: gofumpt
 type MockURL struct {
 	store map[string]model.URL
 }
