@@ -130,7 +130,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 
 // Get retrieves url of the given key if it exists.
 func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
-	record := s.DB.Collection(Collection).FindOne(ctx, bson.M {
+	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
 		"$or": bson.A{
 			bson.M{
