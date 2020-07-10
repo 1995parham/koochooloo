@@ -29,7 +29,7 @@ func (h URL) Create(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	k, err := h.Store.Set(ctx, rq.Name, rq.URL, rq.Expire)
+	k, err := h.Store.Set(ctx, rq.Name, rq.URL, rq.Expire, 0)
 	if err != nil {
 		if errors.Is(err, store.ErrDuplicateKey) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -59,8 +59,22 @@ func (h URL) Retrieve(c echo.Context) error {
 	return c.Redirect(http.StatusFound, url)
 }
 
+func (h URL) Count(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	key := c.Param("key")
+
+	count, err := h.Store.Count(ctx, key)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, count)
+}
+
 // Register registers the routes of URL handler on given group.
 func (h URL) Register(g *echo.Group) {
 	g.GET("/:key", h.Retrieve)
 	g.POST("/urls", h.Create)
+	g.GET("/count/:key", h.Count)
 }

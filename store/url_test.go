@@ -45,6 +45,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 		expire         time.Time
 		expectedSetErr error
 		expectedGetErr error
+		count          int
 	}{
 		{
 			name:           "Successful",
@@ -53,6 +54,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 			expire:         time.Time{},
 			expectedSetErr: nil,
 			expectedGetErr: nil,
+			count:          2,
 		},
 		{
 			name:           "Duplicate Key",
@@ -61,6 +63,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 			expire:         time.Time{},
 			expectedSetErr: store.ErrDuplicateKey,
 			expectedGetErr: nil,
+			count:          3,
 		},
 		{
 			name:           "Automatic",
@@ -69,6 +72,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 			expire:         time.Time{},
 			expectedSetErr: nil,
 			expectedGetErr: nil,
+			count:          9,
 		},
 		{
 			name:           "Expired",
@@ -77,6 +81,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 			expire:         time.Now().Add(-time.Minute),
 			expectedSetErr: nil,
 			expectedGetErr: store.ErrKeyNotFound,
+			count:          5,
 		},
 	}
 
@@ -88,7 +93,7 @@ func (suite *MongoURLSuite) TestSetGet() {
 				expire = nil
 			}
 
-			key, err := suite.Store.Set(context.Background(), c.key, c.url, expire)
+			key, err := suite.Store.Set(context.Background(), c.key, c.url, expire, c.count)
 			suite.Equal(c.expectedSetErr, err)
 
 			if c.expectedSetErr == nil {
@@ -101,11 +106,18 @@ func (suite *MongoURLSuite) TestSetGet() {
 				if c.expectedGetErr == nil {
 					suite.Equal(c.url, url)
 				}
+
+				count, err := suite.Store.Count(context.Background(), key)
+				suite.Equal(c.expectedGetErr, err)
+				if c.expectedGetErr == nil {
+					suite.Equal(c.count, count)
+				}
 			}
 		})
 	}
 }
 
+//nolint: gofumpt
 func TestMongoURLSuite(t *testing.T) {
 	suite.Run(t, new(MongoURLSuite))
 }
