@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/1995parham/koochooloo/model"
@@ -21,7 +22,7 @@ func (m MockURL) Inc(ctx context.Context, key string) error {
 	return nil
 }
 
-func (m MockURL) Set(ctx context.Context, key string, url string, expire *time.Time) (string, error) {
+func (m MockURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
 	if key == "" {
 		key = Key()
 	} else {
@@ -35,9 +36,11 @@ func (m MockURL) Set(ctx context.Context, key string, url string, expire *time.T
 	m.store[key] = model.URL{
 		Key:        key,
 		URL:        url,
-		Count:      0,
+		Count:      count,
 		ExpireTime: expire,
 	}
+
+	fmt.Println(count)
 
 	return key, nil
 }
@@ -50,4 +53,11 @@ func (m MockURL) Get(ctx context.Context, key string) (string, error) {
 	}
 
 	return "", ErrKeyNotFound
+}
+
+//nolint: gofumpt
+func (m MockURL) Count(ctx context.Context, key string) (int, error) {
+	url := m.store[key]
+
+	return url.Count, nil
 }

@@ -115,6 +115,7 @@ func (suite *URLSuite) TestPostRetrieve() {
 	}
 }
 
+//nolint: gofumpt
 func TestURLSuite(t *testing.T) {
 	suite.Run(t, new(URLSuite))
 }
