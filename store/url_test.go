@@ -105,11 +105,8 @@ func (suite *MongoURLSuite) TestSetGet() {
 				suite.Equal(c.expectedGetErr, err)
 				if c.expectedGetErr == nil {
 					suite.Equal(c.url, url)
-				}
-
-				count, err := suite.Store.Count(context.Background(), key)
-				suite.Equal(c.expectedGetErr, err)
-				if c.expectedGetErr == nil {
+					count, err := suite.Store.Count(context.Background(), key)
+					suite.Equal(nil, err)
 					suite.Equal(c.count, count)
 				}
 			}
