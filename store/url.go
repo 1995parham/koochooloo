@@ -14,30 +14,34 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// ErrKeyNotFound indicates that given key does not exist on database.
-var ErrKeyNotFound = errors.New("given key does not exist or expired")
+var (
+	// ErrKeyNotFound indicates that given key does not exist on database.
+	ErrKeyNotFound = errors.New("given key does not exist or expired")
+	// ErrDuplicateKey indicates that given key is exists on database.
+	ErrDuplicateKey = errors.New("given key is exist")
+)
 
-// ErrDuplicateKey indicates that given key is exists on database.
-var ErrDuplicateKey = errors.New("given key is exist")
-
-// URL stores and retrieves urls.
-type URL interface {
-	Inc(ctx context.Context, key string) error
-	Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error)
-	Get(ctx context.Context, key string) (string, error)
-	Count(ctx context.Context, key string) (int, error)
-}
+type (
+	// URL stores and retrieves urls.
+	URL interface {
+		Inc(ctx context.Context, key string) error
+		Set(ctx context.Context, key, url string, expire *time.Time, count int) (string, error)
+		Get(ctx context.Context, key string) (string, error)
+		Count(ctx context.Context, key string) (int, error)
+	}
+	// MongoURL communicate with url collections in MongoDB.
+	MongoURL struct {
+		DB *mongo.Database
+		Usage
+	}
+)
 
 // Collection is a name of the MongoDB collection for URLs.
-const Collection = "urls"
-const one = 1
-const mongodbDuplicateKeyErrorCode = 11000
-
-// MongoURL communicate with url collections in MongoDB.
-type MongoURL struct {
-	DB *mongo.Database
-	Usage
-}
+const (
+	Collection                   = "urls"
+	one                          = 1
+	mongodbDuplicateKeyErrorCode = 11000
+)
 
 // NewMongoURL creates new URL store.
 func NewMongoURL(db *mongo.Database) *MongoURL {
@@ -64,7 +68,7 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 }
 
 // Set saves given url with a given key in database. if key is null it generates a random key and returns it.
-func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
+func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, count int) (string, error) {
 	if key == "" {
 		key = Key()
 	} else {
@@ -150,6 +154,7 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 	var count struct {
 		Count int
 	}
+
 	if err := record.Decode(&count); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return 0, ErrKeyNotFound
