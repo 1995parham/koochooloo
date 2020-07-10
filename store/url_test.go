@@ -37,7 +37,7 @@ func (suite *MongoURLSuite) TearDownSuite() {
 }
 
 // nolint: funlen
-func (suite *MongoURLSuite) TestSetGet() {
+func (suite *MongoURLSuite) TestSetGetCount() {
 	cases := []struct {
 		name           string
 		key            string
