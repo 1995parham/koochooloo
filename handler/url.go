@@ -59,6 +59,7 @@ func (h URL) Retrieve(c echo.Context) error {
 	return c.Redirect(http.StatusFound, url)
 }
 
+// Count retrieves the access count for the given short URL.
 func (h URL) Count(c echo.Context) error {
 	ctx := c.Request().Context()
 
