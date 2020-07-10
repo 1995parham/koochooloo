@@ -11,6 +11,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // ErrKeyNotFound indicates that given key does not exist on database.
@@ -78,7 +79,7 @@ func (s *MongoURL) Set(ctx context.Context, key string, url string, expire *time
 		Key:        key,
 		URL:        url,
 		ExpireTime: expire,
-		Count:      0,
+		Count:      count,
 	})
 	if err != nil {
 		if exp, ok := err.(mongo.WriteException); ok &&
@@ -128,8 +129,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 	return url.URL, nil
 }
 
-//nolint: gofumpt
-// Get retrieves url of the given key if it exists.
+// Count retrieves number of access for the url of the given key if it exists.
 func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
@@ -145,10 +145,12 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 				},
 			},
 		},
-	})
+	}, options.FindOne().SetProjection(bson.M{"count": true}))
 
-	var url model.URL
-	if err := record.Decode(&url); err != nil {
+	var count struct {
+		Count int
+	}
+	if err := record.Decode(&count); err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return 0, ErrKeyNotFound
 		}
@@ -156,5 +158,5 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 		return 0, err
 	}
 
-	return url.Count, nil
+	return count.Count, nil
 }
