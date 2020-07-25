@@ -3,7 +3,7 @@
 >
 > Urban Dictionary
 
-[![Drone (cloud)](https://img.shields.io/drone/build/1995parham/koochooloo.svg?style=flat-square)](https://cloud.drone.io/1995parham/koochooloo)
+[![Drone (cloud)](https://img.shields.io/drone/build/1995parham/koochooloo.svg?style=flat-square&logo=drone)](https://cloud.drone.io/1995parham/koochooloo)
 
 ## Introduction
 Here is a mini project for shortening your URLs.
