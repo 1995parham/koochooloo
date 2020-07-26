@@ -88,7 +88,7 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 	for _, c := range cases {
 		c := c
 		suite.Run(c.name, func() {
-			var expire = &c.expire
+			expire := &c.expire
 			if c.expire.IsZero() {
 				expire = nil
 			}
@@ -114,7 +114,6 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 	}
 }
 
-//nolint: gofumpt
 func TestMongoURLSuite(t *testing.T) {
 	suite.Run(t, new(MongoURLSuite))
 }
