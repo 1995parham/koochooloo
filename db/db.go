@@ -12,7 +12,6 @@ import (
 
 const connectionTimeout = 10 * time.Second
 
-//nolint: gofumpt
 // New creates a new mongodb connection and tests it.
 func New(url string, db string) (*mongo.Database, error) {
 	// create mongodb connection

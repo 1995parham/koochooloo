@@ -78,7 +78,7 @@ func (suite *URLSuite) TestPostRetrieve() {
 	for _, c := range cases {
 		c := c
 		suite.Run(c.name, func() {
-			var expire = &c.expire
+			expire := &c.expire
 			if c.expire.IsZero() {
 				expire = nil
 			}
@@ -115,7 +115,6 @@ func (suite *URLSuite) TestPostRetrieve() {
 	}
 }
 
-//nolint: gofumpt
 func TestURLSuite(t *testing.T) {
 	suite.Run(t, new(URLSuite))
 }

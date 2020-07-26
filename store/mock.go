@@ -55,7 +55,6 @@ func (m MockURL) Get(ctx context.Context, key string) (string, error) {
 	return "", ErrKeyNotFound
 }
 
-//nolint: gofumpt
 func (m MockURL) Count(ctx context.Context, key string) (int, error) {
 	url := m.store[key]
 
