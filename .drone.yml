@@ -21,7 +21,14 @@ steps:
       koochooloo_database_url: "mongodb://database:27017"
       koochooloo_database_name: "koochooloo"
     commands:
-      - go test -v ./...
+      - go test -v ./... -covermode=count -coverprofile=coverage.out
+  - name: coveralls
+    image: lizheming/drone-coveralls
+    settings:
+      token:
+        from_secret: coveralls_token
+      files:
+        - ./coverage.out
   - name: docker
     image: plugins/docker
     settings:
