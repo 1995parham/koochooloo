@@ -25,7 +25,8 @@ steps:
   - name: coverage
     image: plugins/codecov
     settings:
-      token: codecov_token
+      token:
+        from_secret: codecov_token
       files:
         - coverage.out
   - name: docker
