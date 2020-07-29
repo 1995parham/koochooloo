@@ -4,6 +4,7 @@
 > Urban Dictionary
 
 [![Drone (cloud)](https://img.shields.io/drone/build/1995parham/koochooloo.svg?style=flat-square&logo=drone)](https://cloud.drone.io/1995parham/koochooloo)
+[![Codecov](https://img.shields.io/codecov/c/gh/1995parham/koochooloo?logo=codecov&style=flat-square)](https://codecov.io/gh/1995parham/koochooloo)
 
 ## Introduction
 Here is a mini project for shortening your URLs.
