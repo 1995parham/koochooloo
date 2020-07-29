@@ -21,14 +21,13 @@ steps:
       koochooloo_database_url: "mongodb://database:27017"
       koochooloo_database_name: "koochooloo"
     commands:
-      - go test -v ./... -covermode=count -coverprofile=coverage.out
-  - name: coveralls
-    image: lizheming/drone-coveralls
+      - go test -v ./... -covermode=atomic -coverprofile=coverage.out
+  - name: coverage
+    image: plugins/codecov
     settings:
-      token:
-        from_secret: coveralls_token
+      token: codecov_token
       files:
-        - ./coverage.out
+        - coverage.out
   - name: docker
     image: plugins/docker
     settings:
