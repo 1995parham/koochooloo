@@ -36,6 +36,36 @@ func (suite *MongoURLSuite) TearDownSuite() {
 	suite.NoError(suite.DB.Client().Disconnect(context.Background()))
 }
 
+func (suite *MongoURLSuite) TestIncCount() {
+	cases := []struct {
+		name  string
+		count int
+		inc   int
+	}{
+		{
+			name:  "Successful",
+			count: 2,
+			inc:   1,
+		},
+	}
+
+	for _, c := range cases {
+		c := c
+		suite.Run(c.name, func() {
+			key, err := suite.Store.Set(context.Background(), "", "https://elahe-dastan.github.io", nil, c.count)
+			suite.NoError(err)
+
+			for i := 0; i < c.inc; i++ {
+				suite.NoError(suite.Store.Inc(context.Background(), key))
+			}
+
+			count, err := suite.Store.Count(context.Background(), key)
+			suite.NoError(err)
+			suite.Equal(c.count+c.inc, count)
+		})
+	}
+}
+
 // nolint: funlen
 func (suite *MongoURLSuite) TestSetGetCount() {
 	cases := []struct {
@@ -45,7 +75,6 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 		expire         time.Time
 		expectedSetErr error
 		expectedGetErr error
-		count          int
 	}{
 		{
 			name:           "Successful",
@@ -54,7 +83,6 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 			expire:         time.Time{},
 			expectedSetErr: nil,
 			expectedGetErr: nil,
-			count:          2,
 		},
 		{
 			name:           "Duplicate Key",
@@ -63,7 +91,6 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 			expire:         time.Time{},
 			expectedSetErr: store.ErrDuplicateKey,
 			expectedGetErr: nil,
-			count:          3,
 		},
 		{
 			name:           "Automatic",
@@ -72,7 +99,6 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 			expire:         time.Time{},
 			expectedSetErr: nil,
 			expectedGetErr: nil,
-			count:          9,
 		},
 		{
 			name:           "Expired",
@@ -81,7 +107,6 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 			expire:         time.Now().Add(-time.Minute),
 			expectedSetErr: nil,
 			expectedGetErr: store.ErrKeyNotFound,
-			count:          5,
 		},
 	}
 
@@ -93,7 +118,7 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 				expire = nil
 			}
 
-			key, err := suite.Store.Set(context.Background(), c.key, c.url, expire, c.count)
+			key, err := suite.Store.Set(context.Background(), c.key, c.url, expire, 0)
 			suite.Equal(c.expectedSetErr, err)
 
 			if c.expectedSetErr == nil {
@@ -105,9 +130,12 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 				suite.Equal(c.expectedGetErr, err)
 				if c.expectedGetErr == nil {
 					suite.Equal(c.url, url)
-					count, err := suite.Store.Count(context.Background(), key)
-					suite.Equal(nil, err)
-					suite.Equal(c.count, count)
+				}
+
+				count, err := suite.Store.Count(context.Background(), key)
+				suite.Equal(c.expectedGetErr, err)
+				if c.expectedGetErr == nil {
+					suite.Equal(0, count)
 				}
 			}
 		})
