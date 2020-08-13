@@ -45,6 +45,21 @@ SQL model is used in main code and mocked is used for tests. Please note that th
 ### Handler
 HTTP handler are defined in `handler` package. [Echo](https://github.com/labstack/echo) is an awesome HTTP framework that has eveything you need. Each handler has its structure with a `Register` method that registers its route into a given route group. Route group is a concept from [Echo](https://github.com/labstack/echo) framework for grouping routes under a specific parent path. Each handler has what it needs into its structure. Handler structure are created in `main.go` then register on their group.
 
+```go
+type Healthz struct {
+}
+
+// Handle shows server is up and running.
+func (h Healthz) Handle(c echo.Context) error {
+	return c.NoContent(http.StatusNoContent)
+}
+
+// Register registers the routes of healthz handler on given echo group.
+func (h Healthz) Register(g *echo.Group) {
+	g.GET("/healthz", h.Handle)
+}
+```
+
 ### Metrics
 All metrics are gathered using [prometheus](https://prometheus.io/). Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them. For migrating from prmotheus you just need to change `metric.go`. Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for prometheus metrics.
 
