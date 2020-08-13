@@ -30,9 +30,7 @@ func main(cfg config.Config) {
 		Store: store.NewMongoURL(db),
 	}.Register(app.Group("/api"))
 
-	app.GET("/healthz", func(context echo.Context) error {
-		return context.NoContent(http.StatusNoContent)
-	})
+	handler.Healthz{}.Register(app.Group("/"))
 
 	if err := app.Start(":1378"); !errors.Is(err, http.ErrServerClosed) {
 		panic(err)
