@@ -12,25 +12,25 @@ import (
 )
 
 const (
-	// Prefix indicates environment variables prefix
+	// Prefix indicates environment variables prefix.
 	Prefix = "koochooloo_"
 )
 
 type (
-	// Config holds all configurations
+	// Config holds all configurations.
 	Config struct {
 		Debug      bool       `koanf:"debug"`
 		Database   Database   `koanf:"database"`
 		Monitoring Monitoring `koanf:"monitoring"`
 	}
 
-	// Database configuration
+	// Database configuration.
 	Database struct {
 		Name string `koanf:"name"`
 		URL  string `koanf:"url"`
 	}
 
-	// Monitoring (prometheus) configuration
+	// Monitoring (prometheus) configuration.
 	Monitoring struct {
 		Address string `koanf:"address"`
 		Enabled bool   `koanf:"enabled"`
