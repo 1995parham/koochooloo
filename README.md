@@ -12,29 +12,78 @@
 Here is a mini project for shortening your URLs.
 This sweet project shows how to write a simple lovely Golang's project that contains the Database, Configuration,
 and, etc. You can use this project as a guidance to write your ReST applications.
-This project try to be strongly typed, easy to read and easy to maintain therefore there is no global variable, `init` function and etc.
+This project tries to be strongly typed, easy to read and easy to maintain therefore there is no global variable, `init` function and etc.
 We have used the singular name for package as a de-facto standard.
 
 I want to dedicate this project to my love :heart:.
+
+The goal is have a project that you can add features into it easily and without struggling with the code base.
+Each package works independently from other packages and you can find easily what you need.
 
 ## Structure
 ### Binaries
 First of all, `cmd` package contains the binaries of this project with use of [cobra](https://github.com/spf13/cobra).
 It is good to have a simple binary for database migrations that can be run on initiation phase of project.
-Each binary has its `main.go` in its package and register itself with a `Register` function.
+Each binary has its `main.go` in its package and registers itself with a `Register` function.
 In the `root.go` of `cmd` configuration and other shared things are initiated.
+Here is an example for register function:
+
+```go
+// Register server command.
+func Register(root *cobra.Command, cfg config.Config) {
+	root.AddCommand(
+		&cobra.Command{
+			Use:   "server",
+			Short: "Run server to serve the requests",
+			Run: func(cmd *cobra.Command, args []string) {
+				main(cfg)
+			},
+		},
+	)
+}
+```
+
+Again each command registers its flag by itself so we have sepration with other commands.
+Sometimes we need to have shared flags between commands, then it is better to have them in config.
+For the later case, `koanf` can help us with the structure as below:
+
+```go
+func Register(fs *pflag.FlagSet) {
+	fs.StringP(
+		"url", "u",
+		nats.DefaultURL,
+		fmt.Sprintf("nats server url(s) e.g. %s", nats.DefaultURL),
+	)
+}
+```
+
+This function register shared flags and then we load configuration based on them with the following function:
+
+```go
+k := koanf.New(".")
+if err := k.Load(posflag.Provider(fs, ".", k), nil); err != nil {
+	logrus.Errorf("error loading config.yml: %s", err)
+}
+
+if err := k.Unmarshal("", &instance); err != nil {
+	logrus.Fatalf("error unmarshalling config: %s", err)
+}
+
+```
 
 ### Configuration
 The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables. [koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
 
 - having a defined and typed structure for configuration
 - don't use global configuration. each module has its configuration defined in `config` module and it will pass to it in its initiation.
+- print loaded configuration at startup so everyone can validate the applied configuration.
 
 P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://github.com/spf13/viper) for having typed configuration.
 By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
 
 ### Database
-There is a `db` package that is responsible for connecting to the database. This package use the database configuration that is defined in `config` module and create a database instance. It is good to ping your database here to have fully confident to your database instance.
+There is a `db` package that is responsible for connecting to the database. This package uses the database configuration that is defined in `config` module and create a database instance. It is good to ping your database here to have fully confident to your database instance.
+Also for having an insight at database health you can call this ping function periodically and report its result with metrics.
 
 ### Model
 Project models are defined in `model` package. These models are used internally but the can be used in `response` or `request` package.
@@ -79,6 +128,11 @@ if err := prometheus.Register(my_metric); err != nil {
 ```
 
 For having better controller on metrics endpoint there is another HTTP server that is defined in `metric` package for monitoring.
+
+### Request/Response
+It is good to have sperated pakcages for requests and responses. These packages also contain validation logic.
+One of the good validation pakcages in Go is [ozzo-validator](https://github.com/go-ozzo/ozzo-validation).
+After providing validate method, after getting request you can validate it with its method with ease.
 
 ## Up and Running
 This project only requires MongoDB, and you can run it with provided `docker-compose`.
