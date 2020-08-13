@@ -9,9 +9,59 @@
 ## Introduction
 Here is a mini project for shortening your URLs.
 This sweet project shows how to write a simple lovely Golang's project that contains the Database, Configuration,
-and, etc. You can use this project as a guidance to write ReST applications.
+and, etc. You can use this project as a guidance to write your ReST applications.
+This project try to be strongly typed, easy to read and easy to maintain therefore there is no global variable, `init` function and etc.
+We have used the singular name for package as a de-facto standard.
 
 I want to dedicate this project to my love :heart:.
+
+## Structure
+### Binaries
+First of all, `cmd` package contains the binaries of this project with use of [cobra](https://github.com/spf13/cobra).
+It is good to have a simple binary for database migrations that can be run on initiation phase of project.
+Each binary has its `main.go` in its package and register itself with a `Register` function.
+In the `root.go` of `cmd` configuration and other shared things are initiated.
+
+### Configuration
+The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables. [koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
+
+- having a defined and typed structure for configuration
+- don't use global configuration. each module has its configuration defined in `config` module and it will pass to it in its initiation.
+
+P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://github.com/spf13/viper) for having typed configuration.
+By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
+
+### Database
+There is a `db` package that is responsible for connecting to the database. This package use the database configuration that is defined in `config` module and create a database instance. It is good to ping your database here to have fully confident to your database instance.
+
+### Model
+Project models are defined in `model` package. These models are used internally but the can be used in `response` or `request` package.
+There is no structure for communicating with database in this package.
+
+### Store
+Stores are responsible for commnunicating with database to store or retrieve models. Stores are `interface` and there is an SQL and moked version for them.
+SQL model is used in main code and mocked is used for tests. Please note that the tests for SQL stores are touchy and are done with actual database.
+
+### Handler
+HTTP handler are defined in `handler` package. [Echo](https://github.com/labstack/echo) is an awesome HTTP framework that has eveything you need. Each handler has its structure with a `Register` method that registers its route into a given route group. Route group is a concept from [Echo](https://github.com/labstack/echo) framework for grouping routes under a specific parent path. Each handler has what it needs into its structure. Handler structure are created in `main.go` then register on their group.
+
+### Metrics
+All metrics are gathered using [prometheus](https://prometheus.io/). Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them. For migrating from prmotheus you just need to change `metric.go`. Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for prometheus metrics.
+
+
+```go
+// my_mertic is a prometheus.Counter
+
+if err := prometheus.Register(my_metric); err != nil {
+    if are, ok := err.(prometheus.AlreadyRegisteredError); ok {
+        my_metric = are.ExistingCollector.(prometheus.Counter)
+    } else {
+        panic(err)
+    }
+}
+```
+
+For having better controller on metrics endpoint there is another HTTP server that is defined in `metric` package for monitoring.
 
 ## Up and Running
 This project only requires MongoDB, and you can run it with provided `docker-compose`.
