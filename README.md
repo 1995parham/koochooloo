@@ -7,6 +7,7 @@
 [![Codecov](https://img.shields.io/codecov/c/gh/1995parham/koochooloo?logo=codecov&style=flat-square)](https://codecov.io/gh/1995parham/koochooloo)
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/1995parham/koochooloo/latest?style=flat-square&logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/1995parham/koochooloo?style=flat-square&logo=docker)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/1995parham/koochooloo)](https://pkg.go.dev/github.com/1995parham/koochooloo)
 
 ## Introduction
 Here is a mini project for shortening your URLs.
