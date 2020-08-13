@@ -29,6 +29,22 @@ func (suite *URLSuite) SetupSuite() {
 	url.Register(suite.engine.Group("/api"))
 }
 
+func (suite *URLSuite) TestBadRequest() {
+	// because there is no content-type header, request is categorized as a bad request.
+	b, err := json.Marshal(request.URL{
+		URL:    "https://elahe-dastan.github.io",
+		Name:   "",
+		Expire: nil,
+	})
+	suite.NoError(err)
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
+
+	suite.engine.ServeHTTP(w, req)
+	suite.Equal(http.StatusBadRequest, w.Code)
+}
+
 // nolint: funlen
 func (suite *URLSuite) TestPostRetrieve() {
 	cases := []struct {
