@@ -32,6 +32,7 @@ steps:
   - name: docker
     image: plugins/docker
     settings:
+      dockerfile: build/package/Dockerfile
       username: 1995parham
       password:
         from_secret: docker_password

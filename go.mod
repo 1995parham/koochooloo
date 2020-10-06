@@ -1,6 +1,6 @@
 module github.com/1995parham/koochooloo
 
-go 1.14
+go 1.15
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/1995parham/koochooloo/config"
-	"github.com/1995parham/koochooloo/db"
-	"github.com/1995parham/koochooloo/store"
+	"github.com/1995parham/koochooloo/internal/config"
+	"github.com/1995parham/koochooloo/internal/db"
+	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/stretchr/testify/suite"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"

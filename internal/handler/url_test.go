@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/1995parham/koochooloo/handler"
-	"github.com/1995parham/koochooloo/request"
-	"github.com/1995parham/koochooloo/store"
+	"github.com/1995parham/koochooloo/internal/handler"
+	"github.com/1995parham/koochooloo/internal/request"
+	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
 )

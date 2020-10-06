@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/1995parham/koochooloo/request"
-	"github.com/1995parham/koochooloo/store"
+	"github.com/1995parham/koochooloo/internal/request"
+	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )

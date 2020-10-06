@@ -3,9 +3,9 @@ package cmd
 import (
 	"os"
 
-	"github.com/1995parham/koochooloo/cmd/migrate"
-	"github.com/1995parham/koochooloo/cmd/server"
-	"github.com/1995parham/koochooloo/config"
+	"github.com/1995parham/koochooloo/internal/cmd/migrate"
+	"github.com/1995parham/koochooloo/internal/cmd/server"
+	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

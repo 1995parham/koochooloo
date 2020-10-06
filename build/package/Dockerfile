@@ -14,6 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
+WORKDIR /app/cmd/koochooloo
 RUN go build -o /koochooloo
 
 FROM alpine:latest

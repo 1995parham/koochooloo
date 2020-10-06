@@ -7,11 +7,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/1995parham/koochooloo/config"
-	"github.com/1995parham/koochooloo/db"
-	"github.com/1995parham/koochooloo/handler"
-	"github.com/1995parham/koochooloo/metric"
-	"github.com/1995parham/koochooloo/store"
+	"github.com/1995parham/koochooloo/internal/config"
+	"github.com/1995parham/koochooloo/internal/db"
+	"github.com/1995parham/koochooloo/internal/handler"
+	"github.com/1995parham/koochooloo/internal/metric"
+	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 )
