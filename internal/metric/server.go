@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/1995parham/koochooloo/config"
+	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 

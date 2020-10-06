@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/1995parham/koochooloo/handler"
+	"github.com/1995parham/koochooloo/internal/handler"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
 )

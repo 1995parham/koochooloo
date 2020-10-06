@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/1995parham/koochooloo/model"
+	"github.com/1995parham/koochooloo/internal/model"
 )
 
 type MockURL struct {

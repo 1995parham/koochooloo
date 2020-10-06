@@ -55,8 +55,8 @@ func New() Config {
 
 	// load environment variables
 	if err := k.Load(env.Provider(Prefix, ".", func(s string) string {
-		return strings.Replace(strings.ToLower(
-			strings.TrimPrefix(s, Prefix)), "_", ".", -1)
+		return strings.ReplaceAll(strings.ToLower(
+			strings.TrimPrefix(s, Prefix)), "_", ".")
 	}), nil); err != nil {
 		logrus.Errorf("error loading environment variables: %s", err)
 	}

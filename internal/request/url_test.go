@@ -3,7 +3,7 @@ package request_test
 import (
 	"testing"
 
-	"github.com/1995parham/koochooloo/request"
+	"github.com/1995parham/koochooloo/internal/request"
 )
 
 func TestURLValidation(t *testing.T) {
