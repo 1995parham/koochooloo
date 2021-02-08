@@ -1,4 +1,5 @@
 # koochooloo :baby:
+
 > a Persian word which means "small" or "li'l". It is often used to refer to a girl when flirting, (with the meaning, li'l girl)
 >
 > Urban Dictionary
@@ -10,11 +11,12 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/1995parham/koochooloo)](https://pkg.go.dev/github.com/1995parham/koochooloo)
 
 ## Introduction
+
 Here is a mini project for shortening your URLs.
-This sweet project shows how to write a simple lovely Golang's project that contains the Database, Configuration,
-and, etc. You can use this project as a guidance to write your ReST applications.
+This sweet project shows how to write a simple lovely Golang's project that contains Database, Configuration, and, etc.
+You can use this project as a guidance to write your ReST applications.
 This project tries to be strongly typed, easy to read and easy to maintain therefore there is no global variable, `init` function and etc.
-We have used the singular name for package as a de-facto standard.
+We have used the singular name for package as a de-facto standard, and the structure is based on [project-layout](https://github.com/golang-standards/project-layout).
 
 I want to dedicate this project to my love :heart:.
 
@@ -22,7 +24,9 @@ The goal is have a project that you can add features into it easily and without 
 Each package works independently from other packages and you can find easily what you need.
 
 ## Structure
+
 ### Binaries
+
 First of all, `cmd` package contains the binaries of this project with use of [cobra](https://github.com/spf13/cobra).
 It is good to have a simple binary for database migrations that can be run on initiation phase of project.
 Each binary has its `main.go` in its package and registers itself with a `Register` function.
@@ -44,7 +48,7 @@ func Register(root *cobra.Command, cfg config.Config) {
 }
 ```
 
-Again each command registers its flag by itself so we have sepration with other commands.
+Again each command registers its flag by itself so we have sepration from other commands.
 Sometimes we need to have shared flags between commands, then it is better to have them in config.
 For the later case, `koanf` can help us with the structure as below:
 
@@ -73,6 +77,7 @@ if err := k.Unmarshal("", &instance); err != nil {
 ```
 
 ### Configuration
+
 The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables. [koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
 
 - having a defined and typed structure for configuration
@@ -83,18 +88,22 @@ P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://
 By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
 
 ### Database
+
 There is a `db` package that is responsible for connecting to the database. This package uses the database configuration that is defined in `config` module and create a database instance. It is good to ping your database here to have fully confident to your database instance.
 Also for having an insight at database health you can call this ping function periodically and report its result with metrics.
 
 ### Model
+
 Project models are defined in `model` package. These models are used internally but the can be used in `response` or `request` package.
 There is no structure for communicating with database in this package.
 
 ### Store
+
 Stores are responsible for commnunicating with database to store or retrieve models. Stores are `interface` and there is an SQL and moked version for them.
 SQL model is used in main code and mocked is used for tests. Please note that the tests for SQL stores are touchy and are done with actual database.
 
 ### Handler
+
 HTTP handler are defined in `handler` package. [Echo](https://github.com/labstack/echo) is an awesome HTTP framework that has eveything you need. Each handler has its structure with a `Register` method that registers its route into a given route group. Route group is a concept from [Echo](https://github.com/labstack/echo) framework for grouping routes under a specific parent path. Each handler has what it needs into its structure. Handler structure are created in `main.go` then register on their group.
 
 ```go
@@ -113,8 +122,8 @@ func (h Healthz) Register(g *echo.Group) {
 ```
 
 ### Metrics
-All metrics are gathered using [prometheus](https://prometheus.io/). Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them. For migrating from prmotheus you just need to change `metric.go`. Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for prometheus metrics.
 
+All metrics are gathered using [prometheus](https://prometheus.io/). Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them. For migrating from prmotheus you just need to change `metric.go`. Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for prometheus metrics.
 
 ```go
 // my_mertic is a prometheus.Counter
@@ -131,11 +140,23 @@ if err := prometheus.Register(my_metric); err != nil {
 For having better controller on metrics endpoint there is another HTTP server that is defined in `metric` package for monitoring.
 
 ### Request/Response
+
 It is good to have sperated pakcages for requests and responses. These packages also contain validation logic.
 One of the good validation pakcages in Go is [ozzo-validator](https://github.com/go-ozzo/ozzo-validation).
 After providing validate method, after getting request you can validate it with its method with ease.
 
+## Logging
+
+Logging one the most important part of application. At the beginning there is no need to have something more than simple stdout logs.
+But in the future you need to strcuture you logs and ship them into an aggregation system because when your system grows detecting issues
+from text logs will be inpossible.
+
+[zap](https://github.com/uber-go/zap) is one the best logger for structure logging.
+`zap` forces you to pass it into your child module and you also name loggers with `Named` method.
+By using the named logger you can easily find you module logs in your log aggregator.
+
 ## Up and Running
+
 This project only requires MongoDB, and you can run it with provided `docker-compose`.
 
 ```sh
