@@ -2,11 +2,11 @@ package metric
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.uber.org/zap"
 )
 
 // Server contains information about metrics server.
@@ -24,14 +24,14 @@ func NewServer(cfg config.Monitoring) Server {
 }
 
 // Start creates and run a metric server for prometheus in new go routine.
-func (s Server) Start() {
+func (s Server) Start(logger *zap.Logger) {
 	if s.Enabled {
 		srv := http.NewServeMux()
 		srv.Handle("/metrics", promhttp.Handler())
 
 		go func() {
 			if err := http.ListenAndServe(s.Address, srv); !errors.Is(err, http.ErrServerClosed) {
-				fmt.Println(err)
+				logger.Error("metric server initiation failed", zap.Error(err))
 			}
 		}()
 	}

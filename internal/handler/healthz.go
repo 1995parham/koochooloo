@@ -4,9 +4,11 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 )
 
 type Healthz struct {
+	Logger *zap.Logger
 }
 
 // Handle shows server is up and running.

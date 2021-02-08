@@ -8,6 +8,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/handler"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 )
 
 type HealthzSuite struct {
@@ -19,7 +20,7 @@ type HealthzSuite struct {
 func (suite *HealthzSuite) SetupSuite() {
 	suite.engine = echo.New()
 
-	handler.Healthz{}.Register(suite.engine.Group(""))
+	handler.Healthz{Logger: zap.NewNop()}.Register(suite.engine.Group(""))
 }
 
 func (suite *HealthzSuite) TestHandler() {
@@ -32,5 +33,6 @@ func (suite *HealthzSuite) TestHandler() {
 }
 
 func TestHealthzSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(HealthzSuite))
 }

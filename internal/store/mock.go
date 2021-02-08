@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/1995parham/koochooloo/internal/model"
@@ -39,8 +38,6 @@ func (m MockURL) Set(ctx context.Context, key string, url string, expire *time.T
 		Count:      count,
 		ExpireTime: expire,
 	}
-
-	fmt.Println(count)
 
 	return key, nil
 }

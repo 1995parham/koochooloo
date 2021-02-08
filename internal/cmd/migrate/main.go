@@ -2,7 +2,6 @@ package migrate
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/db"
@@ -11,14 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 )
 
 const enable = 1
 
-func main(cfg config.Config) {
+func main(cfg config.Config, logger *zap.Logger) {
 	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
 	if err != nil {
-		panic(err)
+		logger.Fatal("database initiation failed", zap.Error(err))
 	}
 
 	idx, err := db.Collection(store.Collection).Indexes().CreateOne(
@@ -31,17 +31,18 @@ func main(cfg config.Config) {
 		panic(err)
 	}
 
-	fmt.Println(idx)
+	logger.Info("database index", zap.Any("index", idx))
 }
 
 // Register migrate command.
-func Register(root *cobra.Command, cfg config.Config) {
+func Register(root *cobra.Command, cfg config.Config, logger *zap.Logger) {
 	root.AddCommand(
+		// nolint: exhaustivestruct
 		&cobra.Command{
 			Use:   "migrate",
 			Short: "Setup database indices",
 			Run: func(cmd *cobra.Command, args []string) {
-				main(cfg)
+				main(cfg, logger)
 			},
 		},
 	)

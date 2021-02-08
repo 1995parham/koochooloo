@@ -67,11 +67,11 @@ This function register shared flags and then we load configuration based on them
 ```go
 k := koanf.New(".")
 if err := k.Load(posflag.Provider(fs, ".", k), nil); err != nil {
-	logrus.Errorf("error loading config.yml: %s", err)
+	log.Errorf("error loading config.yml: %s", err)
 }
 
 if err := k.Unmarshal("", &instance); err != nil {
-	logrus.Fatalf("error unmarshalling config: %s", err)
+	log.Fatalf("error unmarshalling config: %s", err)
 }
 
 ```
