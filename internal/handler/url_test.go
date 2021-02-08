@@ -133,5 +133,6 @@ func (suite *URLSuite) TestPostRetrieve() {
 }
 
 func TestURLSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(URLSuite))
 }

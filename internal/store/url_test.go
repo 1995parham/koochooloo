@@ -143,5 +143,6 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 }
 
 func TestMongoURLSuite(t *testing.T) {
+	t.Parallel()
 	suite.Run(t, new(MongoURLSuite))
 }
