@@ -7,6 +7,8 @@ import (
 )
 
 func TestURLValidation(t *testing.T) {
+	t.Parallel()
+
 	cases := []struct {
 		url     string
 		isValid bool
@@ -35,7 +37,9 @@ func TestURLValidation(t *testing.T) {
 
 	for _, c := range cases {
 		rq := request.URL{
-			URL: c.url,
+			URL:    c.url,
+			Expire: nil,
+			Name:   "",
 		}
 
 		err := rq.Validate()
