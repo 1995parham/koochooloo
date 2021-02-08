@@ -1,4 +1,6 @@
-# koochooloo :baby:
+# koochooloo :nut:
+
+<img src="./.img/koochooloo.png" align="center">
 
 > a Persian word which means "small" or "li'l". It is often used to refer to a girl when flirting, (with the meaning, li'l girl)
 >
