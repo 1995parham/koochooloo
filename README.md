@@ -1,6 +1,8 @@
-# koochooloo :nut:
+# koochooloo :chestnut:
 
-<img src="./.img/koochooloo.png" align="center">
+<p align="center">
+<img src="./.img/koochooloo.png" height="250px">
+</p>
 
 > a Persian word which means "small" or "li'l". It is often used to refer to a girl when flirting, (with the meaning, li'l girl)
 >
