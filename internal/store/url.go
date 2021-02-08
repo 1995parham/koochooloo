@@ -60,7 +60,7 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 
 	var url model.URL
 	if err := record.Decode(&url); err != nil {
-		return err
+		return fmt.Errorf("%w", err)
 	}
 
 	return nil
@@ -85,7 +85,9 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 		Count:      count,
 	})
 	if err != nil {
-		if exp, ok := err.(mongo.WriteException); ok &&
+		var exp mongo.WriteException
+
+		if ok := errors.As(err, &exp); ok &&
 			exp.WriteErrors[0].Code == mongodbDuplicateKeyErrorCode {
 			if !strings.HasPrefix(key, "$") {
 				return s.Set(ctx, "", url, expire, 0)
@@ -94,7 +96,7 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 			return "", ErrDuplicateKey
 		}
 
-		return "", err
+		return "", fmt.Errorf("%w", err)
 	}
 
 	return key, nil
@@ -124,7 +126,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 			return "", ErrKeyNotFound
 		}
 
-		return "", err
+		return "", fmt.Errorf("%w", err)
 	}
 
 	s.FetchedCounter.Inc()
@@ -159,7 +161,7 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 			return 0, ErrKeyNotFound
 		}
 
-		return 0, err
+		return 0, fmt.Errorf("%w", err)
 	}
 
 	return count.Count, nil

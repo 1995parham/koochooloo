@@ -129,7 +129,8 @@ All metrics are gathered using [prometheus](https://prometheus.io/). Each packag
 // my_mertic is a prometheus.Counter
 
 if err := prometheus.Register(my_metric); err != nil {
-    if are, ok := err.(prometheus.AlreadyRegisteredError); ok {
+    var are prometheus.AlreadyRegisteredError
+    if ok := errors.As(err, &are); ok {
         my_metric = are.ExistingCollector.(prometheus.Counter)
     } else {
         panic(err)
