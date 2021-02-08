@@ -14,6 +14,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 )
 
 type URLSuite struct {
@@ -25,7 +26,7 @@ type URLSuite struct {
 func (suite *URLSuite) SetupSuite() {
 	suite.engine = echo.New()
 
-	url := handler.URL{Store: store.NewMockURL()}
+	url := handler.URL{Store: store.NewMockURL(), Logger: zap.NewNop()}
 	url.Register(suite.engine.Group("/api"))
 }
 

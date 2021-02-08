@@ -7,12 +7,13 @@ import (
 	"github.com/1995parham/koochooloo/internal/request"
 	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 )
 
 // URL handles interaction with URLs.
 type URL struct {
-	Store store.URL
+	Store  store.URL
+	Logger *zap.Logger
 }
 
 // Create generates short URL and save it on database.
@@ -53,7 +54,11 @@ func (h URL) Retrieve(c echo.Context) error {
 	}
 
 	if err := h.Store.Inc(ctx, key); err != nil {
-		logrus.Errorf("Inc Error: %s", err)
+		h.Logger.Error("increase counter for fetching url failed",
+			zap.Error(err),
+			zap.String("key", key),
+			zap.String("url", url),
+		)
 	}
 
 	return c.Redirect(http.StatusFound, url)

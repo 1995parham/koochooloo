@@ -2,9 +2,8 @@ package store
 
 import (
 	"crypto/rand"
+	"log"
 	"math/big"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Length is a random key length.
@@ -18,7 +17,7 @@ func Key() string {
 	for i := range b {
 		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(source))))
 		if err != nil {
-			logrus.Fatal(err)
+			log.Fatal(err)
 		}
 
 		b[i] = source[n.Int64()]
