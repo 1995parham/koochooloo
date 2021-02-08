@@ -7,6 +7,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-ozzo/ozzo-validation v3.6.0+incompatible
 	github.com/golang/protobuf v1.3.5 // indirect
+	github.com/google/go-cmp v0.5.0 // indirect
 	github.com/klauspost/compress v1.10.3 // indirect
 	github.com/knadh/koanf v0.8.2
 	github.com/labstack/echo/v4 v4.1.15
@@ -23,8 +24,9 @@ require (
 	go.mongodb.org/mongo-driver v1.3.1
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4 // indirect
+	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
+	golang.org/x/tools v0.0.0-20200626171337-aa94e735be7f // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
-	mvdan.cc/gofumpt v0.0.0-20200627213337-90206bd98491 // indirect
 )
