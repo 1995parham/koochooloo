@@ -24,8 +24,8 @@
     <li>
       <a href="#structure"> ➤ Structure</a>
       <ul>
-        <li><a href="#binaries"> binaries </a></li>
-        <li><a href="#configuration"> configuration </a></li>
+        <li><a href="#binaries"> Binaries </a></li>
+        <li><a href="#configuration"> Configuration </a></li>
         <li><a href="#database"> Database </a></li>
         <li><a href="#model"> Model </a></li>
         <li><a href="#store"> Store </a></li>
@@ -58,7 +58,7 @@ Each package works independently from other packages and you can find easily wha
 <h2 id="structure">Structure</h2>
 
 <!-- BINARIES -->
-<h3 id="binaries">binaries</h3>
+<h3 id="binaries">Binaries</h3>
 
 First of all, `cmd` package contains the binaries of this project with use of [cobra](https://github.com/spf13/cobra).
 It is good to have a simple binary for database migrations that can be run on initiation phase of project.
