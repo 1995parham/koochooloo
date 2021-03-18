@@ -26,7 +26,10 @@ func NewUsage(name string) Usage {
 	if err := prometheus.Register(inserted); err != nil {
 		var are prometheus.AlreadyRegisteredError
 		if ok := errors.As(err, &are); ok {
-			inserted = are.ExistingCollector.(prometheus.Counter)
+			inserted, ok = are.ExistingCollector.(prometheus.Counter)
+			if !ok {
+				panic("inserted must be a counter")
+			}
 		} else {
 			panic(err)
 		}
@@ -45,7 +48,10 @@ func NewUsage(name string) Usage {
 	if err := prometheus.Register(fetched); err != nil {
 		var are prometheus.AlreadyRegisteredError
 		if ok := errors.As(err, &are); ok {
-			inserted = are.ExistingCollector.(prometheus.Counter)
+			inserted, ok = are.ExistingCollector.(prometheus.Counter)
+			if !ok {
+				panic("fetched must be a counter")
+			}
 		} else {
 			panic(err)
 		}
