@@ -14,34 +14,7 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/1995parham/koochooloo?style=flat-square&logo=docker)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/1995parham/koochooloo)](https://pkg.go.dev/github.com/1995parham/koochooloo)
 
-<!-- TABLE OF CONTENTS -->
-<h2 id="table-of-contents"> :book: Table of Contents</h2>
-
-<details open="open">
-  <summary>Table of Contents</summary>
-  <ol>
-    <li><a href="#introduction"> ➤ Introduction </a></li>
-    <li>
-      <a href="#structure"> ➤ Structure</a>
-      <ul>
-        <li><a href="#binaries"> Binaries </a></li>
-        <li><a href="#configuration"> Configuration </a></li>
-        <li><a href="#database"> Database </a></li>
-        <li><a href="#model"> Model </a></li>
-        <li><a href="#store"> Store </a></li>
-        <li><a href="#handler"> Handler </a></li>
-        <li><a href="#metrics"> Metrics </a></li>
-        <li><a href="#request/response"> Request/Response </a></li>
-      </ul>
-    </li>
-    <li><a href="#logging"> ➤ Logging </a></li>
-    <li><a href="#up-and-running"> ➤ Up and Running </a></li>
-    <li><a href="#load-testing"> ➤ Load Testing </a></li>
-  </ol>
-</details>
-
-<!-- INTRODUCTION -->
-<h2 id="introduction">Introduction</h2>
+## Introduction
 
 Here is a mini project for shortening your URLs.
 This sweet project shows how to write a simple lovely Golang's project that contains Database, Configuration, and, etc.
@@ -54,11 +27,9 @@ I want to dedicate this project to my love :heart:.
 The goal is have a project that you can add features into it easily and without struggling with the code base.
 Each package works independently from other packages and you can find easily what you need.
 
-<!-- STRUCTURE -->
-<h2 id="structure">Structure</h2>
+## Structure
 
-<!-- BINARIES -->
-<h3 id="binaries">Binaries</h3>
+### Binaries
 
 First of all, `cmd` package contains the binaries of this project with use of [cobra](https://github.com/spf13/cobra).
 It is good to have a simple binary for database migrations that can be run on initiation phase of project.
@@ -109,8 +80,7 @@ if err := k.Unmarshal("", &instance); err != nil {
 
 ```
 
-<!-- CONFIGURATION -->
-<h3 id="configuration">Configuration</h3>
+### Configuration
 
 The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables. [koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
 
@@ -121,26 +91,22 @@ The main part of each application is its configuration. There are many ways for 
 P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://github.com/spf13/viper) for having typed configuration.
 By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
 
-<!-- DATABASE -->
-<h3 id="database">Database</h3>
+### Database
 
 There is a `db` package that is responsible for connecting to the database. This package uses the database configuration that is defined in `config` module and create a database instance. It is good to ping your database here to have fully confident to your database instance.
 Also for having an insight at database health you can call this ping function periodically and report its result with metrics.
 
-<!-- MODEL -->
-<h3 id="model">Model</h3>
+### Model
 
 Project models are defined in `model` package. These models are used internally but the can be used in `response` or `request` package.
 There is no structure for communicating with database in this package.
 
-<!-- STORE -->
-<h3 id="store">Store</h3>
+### Store
 
 Stores are responsible for commnunicating with database to store or retrieve models. Stores are `interface` and there is an SQL and moked version for them.
 SQL model is used in main code and mocked is used for tests. Please note that the tests for SQL stores are touchy and are done with actual database.
 
-<!-- HANDLER -->
-<h3 id="handler">Handler</h3>
+### Handler
 
 HTTP handler are defined in `handler` package. [Echo](https://github.com/labstack/echo) is an awesome HTTP framework that has eveything you need. Each handler has its structure with a `Register` method that registers its route into a given route group. Route group is a concept from [Echo](https://github.com/labstack/echo) framework for grouping routes under a specific parent path. Each handler has what it needs into its structure. Handler structure are created in `main.go` then register on their group.
 
@@ -159,8 +125,7 @@ func (h Healthz) Register(g *echo.Group) {
 }
 ```
 
-<!-- METRICS -->
-<h3 id="metrics">Metrics</h3>
+### Metrics
 
 All metrics are gathered using [prometheus](https://prometheus.io/). Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them. For migrating from prmotheus you just need to change `metric.go`. Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for prometheus metrics.
 
@@ -179,15 +144,13 @@ if err := prometheus.Register(my_metric); err != nil {
 
 For having better controller on metrics endpoint there is another HTTP server that is defined in `metric` package for monitoring.
 
-<!-- REQUEST/RESPONSE -->
-<h3 id="request/response">Request/Response</h3>
+### Request/Response
 
 It is good to have sperated pakcages for requests and responses. These packages also contain validation logic.
 One of the good validation pakcages in Go is [ozzo-validator](https://github.com/go-ozzo/ozzo-validation).
 After providing validate method, after getting request you can validate it with its method with ease.
 
-<!-- LOGGING -->
-<h2 id="logging">logging</h2>
+### Logging
 
 Logging one the most important part of application. At the beginning there is no need to have something more than simple stdout logs.
 But in the future you need to strcuture you logs and ship them into an aggregation system because when your system grows detecting issues
@@ -197,8 +160,7 @@ from text logs will be inpossible.
 `zap` forces you to pass it into your child module and you also name loggers with `Named` method.
 By using the named logger you can easily find you module logs in your log aggregator.
 
-<!-- UP AND RUNNING -->
-<h2 id="up-and-running">Up and Running</h2>
+## Up and Running
 
 This project only requires MongoDB, and you can run it with provided `docker-compose`.
 
@@ -213,8 +175,7 @@ curl -X POST -d '{"url": "https://elahe-dastan.github.io"}' -H 'Content-Type: ap
 curl -L 127.0.0.1:1378/api/CKaniA
 ```
 
-<!-- LOAD TESTING -->
-<h2 id="load-testing">Load Testing</h2>
+## Load Testing
 
 ```
     checks.....................: 99.83% ✓ 2995  ✗ 5
