@@ -12,6 +12,7 @@ type Healthz struct {
 }
 
 // Handle shows server is up and running.
+// nolint: wrapcheck
 func (h Healthz) Handle(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
