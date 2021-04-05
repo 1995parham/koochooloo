@@ -44,7 +44,7 @@ func New() Config {
 	k := koanf.New(".")
 
 	// load default configuration from file
-	if err := k.Load(structs.Provider(Default(), "konaf"), nil); err != nil {
+	if err := k.Load(structs.Provider(Default(), "koanf"), nil); err != nil {
 		log.Fatalf("error loading default: %s", err)
 	}
 
