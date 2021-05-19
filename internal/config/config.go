@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/env"
@@ -20,14 +21,8 @@ type (
 	// Config holds all configurations.
 	Config struct {
 		Debug      bool       `koanf:"debug"`
-		Database   Database   `koanf:"database"`
+		Database   db.Config  `koanf:"database"`
 		Monitoring Monitoring `koanf:"monitoring"`
-	}
-
-	// Database configuration.
-	Database struct {
-		Name string `koanf:"name"`
-		URL  string `koanf:"url"`
 	}
 
 	// Monitoring (prometheus) configuration.

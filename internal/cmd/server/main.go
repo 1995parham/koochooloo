@@ -22,7 +22,7 @@ func main(cfg config.Config, logger *zap.Logger) {
 
 	app := echo.New()
 
-	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
+	db, err := db.New(cfg.Database)
 	if err != nil {
 		logger.Fatal("database initiation failed", zap.Error(err))
 	}
