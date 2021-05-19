@@ -16,7 +16,7 @@ import (
 const enable = 1
 
 func main(cfg config.Config, logger *zap.Logger) {
-	db, err := db.New(cfg.Database.URL, cfg.Database.Name)
+	db, err := db.New(cfg.Database)
 	if err != nil {
 		logger.Fatal("database initiation failed", zap.Error(err))
 	}
