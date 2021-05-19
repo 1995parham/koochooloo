@@ -15,8 +15,8 @@ type Usage struct {
 func NewUsage(name string) Usage {
 	inserted := prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "koochooloo",
-		Name:      "inserted_counter",
-		Help:      "count number of insert operations",
+		Name:      "inserted_total",
+		Help:      "total number of insert operations",
 		Subsystem: "url_store",
 		ConstLabels: prometheus.Labels{
 			"store": name,
@@ -37,8 +37,8 @@ func NewUsage(name string) Usage {
 
 	fetched := prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "koochooloo",
-		Name:      "fetched_counter",
-		Help:      "count number of fetch operations",
+		Name:      "fetched_total",
+		Help:      "total number of fetch operations",
 		Subsystem: "url_store",
 		ConstLabels: prometheus.Labels{
 			"store": name,
