@@ -8,7 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// Configs of metric servers.
+// Config of metric servers.
 type Config struct {
 	Address string `koanf:"address"`
 	Enabled bool   `koanf:"enabled"`

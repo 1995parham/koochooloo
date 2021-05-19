@@ -1,6 +1,6 @@
 package db
 
-// Database configuration.
+// Config contains the database configuration.
 type Config struct {
 	Name string `koanf:"name"`
 	URL  string `koanf:"url"`
