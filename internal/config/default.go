@@ -1,6 +1,9 @@
 package config
 
-import "github.com/1995parham/koochooloo/internal/db"
+import (
+	"github.com/1995parham/koochooloo/internal/db"
+	"github.com/1995parham/koochooloo/internal/metric"
+)
 
 // Default return default configuration.
 func Default() Config {
@@ -10,7 +13,7 @@ func Default() Config {
 			Name: "koochooloo",
 			URL:  "mongodb://127.0.0.1:27017",
 		},
-		Monitoring: Monitoring{
+		Monitoring: metric.Config{
 			Address: ":8080",
 			Enabled: true,
 		},
