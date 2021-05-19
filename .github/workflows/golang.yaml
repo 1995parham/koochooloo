@@ -19,4 +19,5 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
       - run: cd deployments && docker-compose up -d
+      - run: cd cmd/koochooloo && go run main.go migrate
       - run: go test ./...
