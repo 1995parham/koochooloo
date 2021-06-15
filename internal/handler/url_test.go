@@ -87,12 +87,11 @@ func (suite *URLSuite) TestPostRetrieve() {
 			expire:   time.Time{},
 			retrieve: http.StatusFound,
 		}, {
-			name:     "Invalid Expiration",
-			code:     http.StatusOK,
-			key:      "ex",
-			url:      "https://instagram.com",
-			expire:   time.Now().Add(-time.Minute),
-			retrieve: http.StatusBadRequest,
+			name:   "Invalid Expiration",
+			code:   http.StatusBadRequest,
+			key:    "ex",
+			url:    "https://instagram.com",
+			expire: time.Now().Add(-time.Minute),
 		}, {
 			name:     "Expired",
 			code:     http.StatusOK,
