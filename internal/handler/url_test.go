@@ -97,7 +97,7 @@ func (suite *URLSuite) TestPostRetrieve() {
 			code:     http.StatusOK,
 			key:      "ex",
 			url:      "https://instagram.com",
-			expire:   time.Now().Add(time.Nanosecond),
+			expire:   time.Now().Add(time.Second),
 			retrieve: http.StatusNotFound,
 		},
 	}
