@@ -30,6 +30,56 @@ func (suite *URLSuite) SetupSuite() {
 	url.Register(suite.engine.Group("/api"))
 }
 
+func (suite *URLSuite) TestCountNotFound() {
+	require := suite.Require()
+
+	key := "notexists"
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", fmt.Sprintf("/api/count/%s", key), nil)
+
+	suite.engine.ServeHTTP(w, req)
+	require.Equal(http.StatusNotFound, w.Code)
+}
+
+func (suite *URLSuite) TestCount() {
+	require := suite.Require()
+
+	url := "https://irandoc.ir"
+	key := "doc"
+
+	b, err := json.Marshal(request.URL{
+		URL:    url,
+		Name:   key,
+		Expire: nil,
+	})
+	require.NoError(err)
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.engine.ServeHTTP(w, req)
+	require.Equal(http.StatusOK, w.Code)
+
+	var resp string
+
+	require.NoError(json.NewDecoder(w.Body).Decode(&resp))
+	require.Equal("$"+key, resp)
+
+	{
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/api/count/%s", resp), nil)
+
+		suite.engine.ServeHTTP(w, req)
+		require.Equal(http.StatusOK, w.Code)
+
+		var count int
+		require.NoError(json.NewDecoder(w.Body).Decode(&count))
+		require.Equal(0, count)
+	}
+}
+
 func (suite *URLSuite) TestBadRequest() {
 	require := suite.Require()
 
