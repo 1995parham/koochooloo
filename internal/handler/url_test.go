@@ -48,6 +48,43 @@ func (suite *URLSuite) TestBadRequest() {
 	require.Equal(http.StatusBadRequest, w.Code)
 }
 
+func (suite *URLSuite) TestExpiration() {
+	require := suite.Require()
+
+	expire := time.Now().Add(time.Second)
+	url := "https://instagram.com"
+	key := "ex"
+
+	b, err := json.Marshal(request.URL{
+		URL:    url,
+		Name:   key,
+		Expire: &expire,
+	})
+	require.NoError(err)
+
+	w := httptest.NewRecorder()
+	req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.engine.ServeHTTP(w, req)
+	require.Equal(http.StatusOK, w.Code)
+
+	var resp string
+
+	require.NoError(json.NewDecoder(w.Body).Decode(&resp))
+	require.Equal("$"+key, resp)
+
+	time.Sleep(time.Second)
+
+	{
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/api/%s", resp), nil)
+
+		suite.engine.ServeHTTP(w, req)
+		require.Equal(http.StatusNotFound, w.Code)
+	}
+}
+
 // nolint: funlen
 func (suite *URLSuite) TestPostRetrieve() {
 	require := suite.Require()
@@ -92,13 +129,6 @@ func (suite *URLSuite) TestPostRetrieve() {
 			key:    "ex",
 			url:    "https://instagram.com",
 			expire: time.Now().Add(-time.Minute),
-		}, {
-			name:     "Expired",
-			code:     http.StatusOK,
-			key:      "ex",
-			url:      "https://instagram.com",
-			expire:   time.Now().Add(time.Second),
-			retrieve: http.StatusNotFound,
 		},
 	}
 
