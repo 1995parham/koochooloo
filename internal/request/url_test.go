@@ -2,15 +2,18 @@ package request_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/1995parham/koochooloo/internal/request"
 )
 
+// nolint: funlen
 func TestURLValidation(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
 		url     string
+		expire  time.Time
 		isValid bool
 	}{
 		{
@@ -33,12 +36,27 @@ func TestURLValidation(t *testing.T) {
 			url:     "http://www.hello.com",
 			isValid: true,
 		},
+		{
+			url:     "http://www.hello.com",
+			expire:  time.Now().Add(time.Second),
+			isValid: true,
+		},
+		{
+			url:     "http://www.hello.com",
+			expire:  time.Now().Add(-time.Second),
+			isValid: false,
+		},
 	}
 
 	for _, c := range cases {
+		var expire *time.Time
+		if !c.expire.IsZero() {
+			expire = &c.expire
+		}
+
 		rq := request.URL{
 			URL:    c.url,
-			Expire: nil,
+			Expire: expire,
 			Name:   "",
 		}
 

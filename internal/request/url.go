@@ -1,6 +1,7 @@
 package request
 
 import (
+	"fmt"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -15,9 +16,13 @@ type URL struct {
 }
 
 // Validate URL request.
-// nolint: wrapcheck
 func (r URL) Validate() error {
-	return validation.ValidateStruct(&r,
+	if err := validation.ValidateStruct(&r,
 		validation.Field(&r.URL, validation.Required, is.RequestURI),
-	)
+		validation.Field(&r.Expire, validation.Min(time.Now())),
+	); err != nil {
+		return fmt.Errorf("url request validation failed: %w", err)
+	}
+
+	return nil
 }
