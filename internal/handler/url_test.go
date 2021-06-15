@@ -80,18 +80,25 @@ func (suite *URLSuite) TestPostRetrieve() {
 			url:    "github.com",
 			expire: time.Time{},
 		}, {
-			name:     "Automatic",
+			name:     "Automatic Key Generation",
 			code:     http.StatusOK,
 			key:      "",
 			url:      "https://google.com",
 			expire:   time.Time{},
 			retrieve: http.StatusFound,
 		}, {
-			name:     "Expire",
+			name:     "Invalid Expiration",
 			code:     http.StatusOK,
 			key:      "ex",
 			url:      "https://instagram.com",
 			expire:   time.Now().Add(-time.Minute),
+			retrieve: http.StatusBadRequest,
+		}, {
+			name:     "Expired",
+			code:     http.StatusOK,
+			key:      "ex",
+			url:      "https://instagram.com",
+			expire:   time.Now().Add(time.Nanosecond),
 			retrieve: http.StatusNotFound,
 		},
 	}
