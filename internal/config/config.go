@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/1995parham/koochooloo/internal/db"
+	"github.com/1995parham/koochooloo/internal/logger"
 	"github.com/1995parham/koochooloo/internal/metric"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -21,9 +22,9 @@ const (
 type (
 	// Config holds all configurations.
 	Config struct {
-		Debug      bool          `koanf:"debug"`
 		Database   db.Config     `koanf:"database"`
 		Monitoring metric.Config `koanf:"monitoring"`
+		Logger     logger.Config `koanf:"logger"`
 	}
 )
 
