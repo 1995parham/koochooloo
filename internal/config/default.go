@@ -13,7 +13,6 @@ func Default() Config {
 			Level: "debug",
 			Syslog: logger.Syslog{
 				Enabled: false,
-				Tag:     "",
 				Network: "",
 				Address: "",
 				Tag:     "",
