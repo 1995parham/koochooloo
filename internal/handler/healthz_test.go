@@ -24,12 +24,14 @@ func (suite *HealthzSuite) SetupSuite() {
 }
 
 func (suite *HealthzSuite) TestHandler() {
+	require := suite.Require()
+
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/healthz", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.engine.ServeHTTP(w, req)
-	suite.Equal(http.StatusNoContent, w.Code)
+	require.Equal(http.StatusNoContent, w.Code)
 }
 
 func TestHealthzSuite(t *testing.T) {
