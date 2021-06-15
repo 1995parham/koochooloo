@@ -31,23 +31,27 @@ func (suite *URLSuite) SetupSuite() {
 }
 
 func (suite *URLSuite) TestBadRequest() {
+	require := suite.Require()
+
 	// because there is no content-type header, request is categorized as a bad request.
 	b, err := json.Marshal(request.URL{
 		URL:    "https://elahe-dastan.github.io",
 		Name:   "",
 		Expire: nil,
 	})
-	suite.NoError(err)
+	require.NoError(err)
 
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
 
 	suite.engine.ServeHTTP(w, req)
-	suite.Equal(http.StatusBadRequest, w.Code)
+	require.Equal(http.StatusBadRequest, w.Code)
 }
 
 // nolint: funlen
 func (suite *URLSuite) TestPostRetrieve() {
+	require := suite.Require()
+
 	cases := []struct {
 		name     string
 		code     int
@@ -105,28 +109,28 @@ func (suite *URLSuite) TestPostRetrieve() {
 				Name:   c.key,
 				Expire: expire,
 			})
-			suite.NoError(err)
+			require.NoError(err)
 
 			w := httptest.NewRecorder()
 			req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 			suite.engine.ServeHTTP(w, req)
-			suite.Equal(c.code, w.Code)
+			require.Equal(c.code, w.Code)
 
 			if c.code == http.StatusOK {
 				var resp string
-				suite.NoError(json.NewDecoder(w.Body).Decode(&resp))
+				require.NoError(json.NewDecoder(w.Body).Decode(&resp))
 
 				if c.key != "" {
-					suite.Equal("$"+c.key, resp)
+					require.Equal("$"+c.key, resp)
 				}
 
 				w := httptest.NewRecorder()
 				req := httptest.NewRequest("GET", fmt.Sprintf("/api/%s", resp), nil)
 
 				suite.engine.ServeHTTP(w, req)
-				suite.Equal(c.retrieve, w.Code)
+				require.Equal(c.retrieve, w.Code)
 			}
 		})
 	}
