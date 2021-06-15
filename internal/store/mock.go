@@ -46,6 +46,7 @@ func (m MockURL) Get(ctx context.Context, key string) (string, error) {
 	url := m.store[key]
 
 	if url.ExpireTime == nil || url.ExpireTime.After(time.Now()) {
+		url.Count += 1
 		return url.URL, nil
 	}
 
@@ -53,7 +54,10 @@ func (m MockURL) Get(ctx context.Context, key string) (string, error) {
 }
 
 func (m MockURL) Count(ctx context.Context, key string) (int, error) {
-	url := m.store[key]
+	url, found := m.store[key]
+	if !found {
+		return 0, ErrKeyNotFound
+	}
 
 	return url.Count, nil
 }
