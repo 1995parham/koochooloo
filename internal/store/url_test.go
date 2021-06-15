@@ -23,7 +23,7 @@ func (suite *MongoURLSuite) SetupSuite() {
 	cfg := config.New()
 
 	db, err := db.New(cfg.Database)
-	suite.NoError(err)
+	suite.Require().NoError(err)
 
 	suite.DB = db
 	suite.Store = store.NewMongoURL(db)
@@ -31,12 +31,14 @@ func (suite *MongoURLSuite) SetupSuite() {
 
 func (suite *MongoURLSuite) TearDownSuite() {
 	_, err := suite.DB.Collection(store.Collection).DeleteMany(context.Background(), bson.D{})
-	suite.NoError(err)
+	suite.Require().NoError(err)
 
-	suite.NoError(suite.DB.Client().Disconnect(context.Background()))
+	suite.Require().NoError(suite.DB.Client().Disconnect(context.Background()))
 }
 
 func (suite *MongoURLSuite) TestIncCount() {
+	require := suite.Require()
+
 	cases := []struct {
 		name  string
 		count int
@@ -53,21 +55,23 @@ func (suite *MongoURLSuite) TestIncCount() {
 		c := c
 		suite.Run(c.name, func() {
 			key, err := suite.Store.Set(context.Background(), "", "https://elahe-dastan.github.io", nil, c.count)
-			suite.NoError(err)
+			require.NoError(err)
 
 			for i := 0; i < c.inc; i++ {
-				suite.NoError(suite.Store.Inc(context.Background(), key))
+				require.NoError(suite.Store.Inc(context.Background(), key))
 			}
 
 			count, err := suite.Store.Count(context.Background(), key)
-			suite.NoError(err)
-			suite.Equal(c.count+c.inc, count)
+			require.NoError(err)
+			require.Equal(c.count+c.inc, count)
 		})
 	}
 }
 
 // nolint: funlen
 func (suite *MongoURLSuite) TestSetGetCount() {
+	require := suite.Require()
+
 	cases := []struct {
 		name           string
 		key            string
@@ -119,23 +123,23 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 			}
 
 			key, err := suite.Store.Set(context.Background(), c.key, c.url, expire, 0)
-			suite.Equal(c.expectedSetErr, err)
+			require.Equal(c.expectedSetErr, err)
 
 			if c.expectedSetErr == nil {
 				if c.key != "" {
-					suite.Equal("$"+c.key, key)
+					require.Equal("$"+c.key, key)
 				}
 
 				url, err := suite.Store.Get(context.Background(), key)
-				suite.Equal(c.expectedGetErr, err)
+				require.Equal(c.expectedGetErr, err)
 				if c.expectedGetErr == nil {
-					suite.Equal(c.url, url)
+					require.Equal(c.url, url)
 				}
 
 				count, err := suite.Store.Count(context.Background(), key)
-				suite.Equal(c.expectedGetErr, err)
+				require.Equal(c.expectedGetErr, err)
 				if c.expectedGetErr == nil {
-					suite.Equal(0, count)
+					require.Equal(0, count)
 				}
 			}
 		})
