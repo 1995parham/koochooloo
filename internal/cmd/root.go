@@ -19,7 +19,7 @@ const ExitFailure = 1
 func Execute() {
 	cfg := config.New()
 
-	logger := logger.New(cfg.Debug)
+	logger := logger.New(cfg.Logger)
 
 	// nolint: exhaustivestruct
 	root := &cobra.Command{
