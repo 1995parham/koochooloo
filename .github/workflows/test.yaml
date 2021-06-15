@@ -1,9 +1,9 @@
 ---
-name: golang
+name: test
 on:
   - push
 jobs:
-  golangci:
+  lint:
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -13,7 +13,7 @@ jobs:
         with:
           version: latest
           args: --enable-all
-  go:
+  test:
     name: test
     runs-on: ubuntu-latest
     steps:
