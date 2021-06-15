@@ -7,8 +7,8 @@
 > a Persian word which means "small" or "li'l". It is often used to refer to a girl when flirting, (with the meaning, li'l girl)
 >
 > Urban Dictionary
-
-[![Drone (cloud)](https://img.shields.io/drone/build/1995parham/koochooloo.svg?style=flat-square&logo=drone)](https://cloud.drone.io/1995parham/koochooloo)
+ 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/1995parham/koochooloo/test?label=test&logo=github&style=flat-square)
 [![Codecov](https://img.shields.io/codecov/c/gh/1995parham/koochooloo?logo=codecov&style=flat-square)](https://codecov.io/gh/1995parham/koochooloo)
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/1995parham/koochooloo/latest?style=flat-square&logo=docker)
 ![Docker Pulls](https://img.shields.io/docker/pulls/1995parham/koochooloo?style=flat-square&logo=docker)
