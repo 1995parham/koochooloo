@@ -2,6 +2,18 @@
 version: "3"
 services:
   database:
-    image: mongo
+    image: mongo:latest
     ports:
       - 27017:27017
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - target: 6831
+        published: 6831
+        protocol: udp
+      - target: 16686
+        published: 16686
+        protocol: tcp
+      - target: 14268
+        published: 14268
+        protocol: tcp
