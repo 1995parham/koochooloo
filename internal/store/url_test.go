@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type MongoURLSuite struct {
@@ -26,7 +27,7 @@ func (suite *MongoURLSuite) SetupSuite() {
 	suite.Require().NoError(err)
 
 	suite.DB = db
-	suite.Store = store.NewMongoURL(db)
+	suite.Store = store.NewMongoURL(db, trace.NewNoopTracerProvider().Tracer(""))
 }
 
 func (suite *MongoURLSuite) TearDownSuite() {
