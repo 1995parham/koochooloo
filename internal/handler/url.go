@@ -7,6 +7,8 @@ import (
 	"github.com/1995parham/koochooloo/internal/request"
 	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/labstack/echo/v4"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -14,25 +16,35 @@ import (
 type URL struct {
 	Store  store.URL
 	Logger *zap.Logger
+	Tracer trace.Tracer
 }
 
 // Create generates short URL and save it on database.
 // nolint: wrapcheck
 func (h URL) Create(c echo.Context) error {
-	ctx := c.Request().Context()
+	ctx, span := h.Tracer.Start(c.Request().Context(), "handler.url.create")
+	defer span.End()
 
 	var rq request.URL
 
 	if err := c.Bind(&rq); err != nil {
+		span.RecordError(err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := rq.Validate(); err != nil {
+		span.RecordError(err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
+	span.SetAttributes(attribute.String("url", rq.URL))
+
 	k, err := h.Store.Set(ctx, rq.Name, rq.URL, rq.Expire, 0)
 	if err != nil {
+		span.RecordError(err)
+
 		if errors.Is(err, store.ErrDuplicateKey) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
