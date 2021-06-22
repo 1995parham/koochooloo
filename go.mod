@@ -20,6 +20,11 @@ require (
 	github.com/tchap/zapext/v2 v2.1.0
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.5.3
+	go.opentelemetry.io/otel v0.20.0
+	go.opentelemetry.io/otel/exporters/stdout v0.20.0
+	go.opentelemetry.io/otel/exporters/trace/jaeger v0.20.0
+	go.opentelemetry.io/otel/sdk v0.20.0
+	go.opentelemetry.io/otel/trace v0.20.0
 	go.uber.org/atomic v1.8.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.17.0
