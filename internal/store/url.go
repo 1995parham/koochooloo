@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -30,7 +31,8 @@ type (
 	}
 	// MongoURL communicate with url collections in MongoDB.
 	MongoURL struct {
-		DB *mongo.Database
+		DB     *mongo.Database
+		Tracer trace.Tracer
 		Usage
 	}
 )
@@ -43,10 +45,11 @@ const (
 )
 
 // NewMongoURL creates new URL store.
-func NewMongoURL(db *mongo.Database) *MongoURL {
+func NewMongoURL(db *mongo.Database, tracer trace.Tracer) *MongoURL {
 	return &MongoURL{
-		DB:    db,
-		Usage: NewUsage("url"),
+		DB:     db,
+		Tracer: tracer,
+		Usage:  NewUsage("url"),
 	}
 }
 
@@ -68,6 +71,9 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 
 // Set saves given url with a given key in database. if key is null it generates a random key and returns it.
 func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, count int) (string, error) {
+	ctx, span := s.Tracer.Start(ctx, "store.url.set")
+	defer span.End()
+
 	if key == "" {
 		key = Key()
 	} else {
