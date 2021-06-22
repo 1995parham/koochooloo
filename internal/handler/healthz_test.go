@@ -8,6 +8,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/handler"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -20,7 +21,10 @@ type HealthzSuite struct {
 func (suite *HealthzSuite) SetupSuite() {
 	suite.engine = echo.New()
 
-	handler.Healthz{Logger: zap.NewNop()}.Register(suite.engine.Group(""))
+	handler.Healthz{
+		Logger: zap.NewNop(),
+		Tracer: trace.NewNoopTracerProvider().Tracer(""),
+	}.Register(suite.engine.Group(""))
 }
 
 func (suite *HealthzSuite) TestHandler() {

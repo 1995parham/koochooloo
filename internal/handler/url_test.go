@@ -14,6 +14,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/store"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -26,7 +27,11 @@ type URLSuite struct {
 func (suite *URLSuite) SetupSuite() {
 	suite.engine = echo.New()
 
-	url := handler.URL{Store: store.NewMockURL(), Logger: zap.NewNop()}
+	url := handler.URL{
+		Store:  store.NewMockURL(),
+		Logger: zap.NewNop(),
+		Tracer: trace.NewNoopTracerProvider().Tracer(""),
+	}
 	url.Register(suite.engine.Group("/api"))
 }
 
