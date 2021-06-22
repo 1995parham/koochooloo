@@ -4,6 +4,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/1995parham/koochooloo/internal/logger"
 	"github.com/1995parham/koochooloo/internal/metric"
+	telemetry "github.com/1995parham/koochooloo/internal/telemetry/config"
 )
 
 // Default return default configuration.
@@ -25,6 +26,12 @@ func Default() Config {
 		Monitoring: metric.Config{
 			Address: ":8080",
 			Enabled: true,
+		},
+		Telemetry: telemetry.Config{
+			Trace: telemetry.Trace{
+				Enabled: false,
+				URL:     "",
+			},
 		},
 	}
 }

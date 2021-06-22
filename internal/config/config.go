@@ -7,6 +7,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/1995parham/koochooloo/internal/logger"
 	"github.com/1995parham/koochooloo/internal/metric"
+	telemetry "github.com/1995parham/koochooloo/internal/telemetry/config"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/yaml"
 	"github.com/knadh/koanf/providers/env"
@@ -22,9 +23,10 @@ const (
 type (
 	// Config holds all configurations.
 	Config struct {
-		Database   db.Config     `koanf:"database"`
-		Monitoring metric.Config `koanf:"monitoring"`
-		Logger     logger.Config `koanf:"logger"`
+		Database   db.Config        `koanf:"database"`
+		Monitoring metric.Config    `koanf:"monitoring"`
+		Logger     logger.Config    `koanf:"logger"`
+		Telemetry  telemetry.Config `koanf:"telemetry"`
 	}
 )
 
