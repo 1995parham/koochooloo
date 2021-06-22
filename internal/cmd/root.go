@@ -7,6 +7,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/cmd/server"
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/logger"
+	"github.com/1995parham/koochooloo/internal/telemetry/trace"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -21,13 +22,15 @@ func Execute() {
 
 	logger := logger.New(cfg.Logger)
 
+	tracer := trace.New(cfg.Telemetry.Trace)
+
 	// nolint: exhaustivestruct
 	root := &cobra.Command{
 		Use:   "koochooloo",
 		Short: "Make your URLs shorter (smaller) and more memorable",
 	}
 
-	server.Register(root, cfg, logger)
+	server.Register(root, cfg, logger, tracer)
 	migrate.Register(root, cfg, logger)
 
 	if err := root.Execute(); err != nil {
