@@ -5,7 +5,7 @@ import (
 
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/db"
-	"github.com/1995parham/koochooloo/internal/store"
+	store "github.com/1995parham/koochooloo/internal/store/url"
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
