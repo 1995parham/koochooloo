@@ -55,6 +55,9 @@ func NewMongoURL(db *mongo.Database, tracer trace.Tracer) *MongoURL {
 
 // Inc increments counter of url record by one.
 func (s *MongoURL) Inc(ctx context.Context, key string) error {
+	ctx, span := s.Tracer.Start(ctx, "store.url.inc")
+	defer span.End()
+
 	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx, bson.M{
 		"key": key,
 	}, bson.M{
@@ -110,6 +113,9 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 
 // Get retrieves url of the given key if it exists.
 func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
+	ctx, span := s.Tracer.Start(ctx, "store.url.get")
+	defer span.End()
+
 	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
 		"$or": bson.A{
@@ -142,6 +148,9 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 
 // Count retrieves number of access for the url of the given key if it exists.
 func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
+	ctx, span := s.Tracer.Start(ctx, "store.url.count")
+	defer span.End()
+
 	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
 		"key": key,
 		"$or": bson.A{

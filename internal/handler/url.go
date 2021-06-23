@@ -58,7 +58,8 @@ func (h URL) Create(c echo.Context) error {
 // Retrieve retrieves URL for given short URL and redirect to it.
 // nolint: wrapcheck
 func (h URL) Retrieve(c echo.Context) error {
-	ctx := c.Request().Context()
+	ctx, span := h.Tracer.Start(c.Request().Context(), "handler.url.retrieve")
+	defer span.End()
 
 	key := c.Param("key")
 
@@ -81,7 +82,8 @@ func (h URL) Retrieve(c echo.Context) error {
 // Count retrieves the access count for the given short URL.
 // nolint: wrapcheck
 func (h URL) Count(c echo.Context) error {
-	ctx := c.Request().Context()
+	ctx, span := h.Tracer.Start(c.Request().Context(), "handler.url.count")
+	defer span.End()
 
 	key := c.Param("key")
 
