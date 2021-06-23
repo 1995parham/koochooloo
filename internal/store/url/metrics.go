@@ -1,4 +1,4 @@
-package store
+package url
 
 import (
 	"errors"

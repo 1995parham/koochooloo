@@ -1,4 +1,4 @@
-package store_test
+package url_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/db"
-	"github.com/1995parham/koochooloo/internal/store"
+	"github.com/1995parham/koochooloo/internal/store/url"
 	"github.com/stretchr/testify/suite"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,7 +17,7 @@ import (
 type MongoURLSuite struct {
 	suite.Suite
 	DB    *mongo.Database
-	Store store.URL
+	Store url.URL
 }
 
 func (suite *MongoURLSuite) SetupSuite() {
@@ -27,11 +27,11 @@ func (suite *MongoURLSuite) SetupSuite() {
 	suite.Require().NoError(err)
 
 	suite.DB = db
-	suite.Store = store.NewMongoURL(db, trace.NewNoopTracerProvider().Tracer(""))
+	suite.Store = url.NewMongoURL(db, trace.NewNoopTracerProvider().Tracer(""))
 }
 
 func (suite *MongoURLSuite) TearDownSuite() {
-	_, err := suite.DB.Collection(store.Collection).DeleteMany(context.Background(), bson.D{})
+	_, err := suite.DB.Collection(url.Collection).DeleteMany(context.Background(), bson.D{})
 	suite.Require().NoError(err)
 
 	suite.Require().NoError(suite.DB.Client().Disconnect(context.Background()))
@@ -94,7 +94,7 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 			key:            "raha",
 			url:            "https://elahe-dastan.github.io",
 			expire:         time.Time{},
-			expectedSetErr: store.ErrDuplicateKey,
+			expectedSetErr: url.ErrDuplicateKey,
 			expectedGetErr: nil,
 		},
 		{
@@ -111,7 +111,7 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 			url:            "https://github.com",
 			expire:         time.Now().Add(-time.Minute),
 			expectedSetErr: nil,
-			expectedGetErr: store.ErrKeyNotFound,
+			expectedGetErr: url.ErrKeyNotFound,
 		},
 	}
 
