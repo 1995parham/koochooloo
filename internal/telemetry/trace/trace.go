@@ -5,11 +5,11 @@ import (
 
 	"github.com/1995parham/koochooloo/internal/telemetry/config"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout"
-	"go.opentelemetry.io/otel/exporters/trace/jaeger"
+	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/semconv"
+	"go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -18,11 +18,11 @@ func New(cfg config.Trace) trace.Tracer {
 
 	var err error
 	if !cfg.Enabled {
-		exporter, err = stdout.NewExporter(
+		exporter, err = stdout.New(
 			stdout.WithPrettyPrint(),
 		)
 	} else {
-		exporter, err = jaeger.NewRawExporter(
+		exporter, err = jaeger.New(
 			jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(cfg.URL + "/api/traces")))
 	}
 
@@ -30,16 +30,20 @@ func New(cfg config.Trace) trace.Tracer {
 		log.Fatalf("failed to initialize export pipeline: %v", err)
 	}
 
-	bsp := sdktrace.NewBatchSpanProcessor(exporter)
-	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(bsp), sdktrace.WithResource(
-		resource.Merge(
+
+	res, err := resource.Merge(
 			resource.Default(),
-			resource.NewWithAttributes(
+			resource.NewSchemaless(
 				semconv.ServiceNamespaceKey.String("1995parham"),
 				semconv.ServiceNameKey.String("koochooloo"),
 			),
-		),
-	))
+		)
+		if err != nil {
+			panic(err)
+		}
+
+	bsp := sdktrace.NewBatchSpanProcessor(exporter)
+	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(bsp), sdktrace.WithResource(res))
 
 	otel.SetTracerProvider(tp)
 
