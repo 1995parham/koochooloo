@@ -1,4 +1,4 @@
-package store
+package url
 
 import (
 	"context"
@@ -21,21 +21,12 @@ var (
 	ErrDuplicateKey = errors.New("given key is exist")
 )
 
-type (
-	// URL stores and retrieves urls.
-	URL interface {
-		Inc(ctx context.Context, key string) error
-		Set(ctx context.Context, key, url string, expire *time.Time, count int) (string, error)
-		Get(ctx context.Context, key string) (string, error)
-		Count(ctx context.Context, key string) (int, error)
-	}
-	// MongoURL communicate with url collections in MongoDB.
-	MongoURL struct {
-		DB     *mongo.Database
-		Tracer trace.Tracer
-		Usage
-	}
-)
+// MongoURL communicate with url collections in MongoDB.
+type MongoURL struct {
+	DB      *mongo.Database
+	Tracer  trace.Tracer
+	Metrics Usage
+}
 
 // Collection is a name of the MongoDB collection for URLs.
 const (
@@ -47,9 +38,9 @@ const (
 // NewMongoURL creates new URL store.
 func NewMongoURL(db *mongo.Database, tracer trace.Tracer) *MongoURL {
 	return &MongoURL{
-		DB:     db,
-		Tracer: tracer,
-		Usage:  NewUsage("url"),
+		DB:      db,
+		Tracer:  tracer,
+		Metrics: NewUsage("mongo"),
 	}
 }
 
@@ -66,7 +57,9 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 
 	var url model.URL
 	if err := record.Decode(&url); err != nil {
-		return fmt.Errorf("%w", err)
+		span.RecordError(err)
+
+		return fmt.Errorf("mongodb failed: %w", err)
 	}
 
 	return nil
@@ -78,22 +71,21 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 	defer span.End()
 
 	if key == "" {
-		key = Key()
+		key = model.Key()
 	} else {
 		key = fmt.Sprintf("$%s", key)
 	}
 
-	s.InsertedCounter.Inc()
-
 	urls := s.DB.Collection(Collection)
 
-	_, err := urls.InsertOne(ctx, model.URL{
+	if _, err := urls.InsertOne(ctx, model.URL{
 		Key:        key,
 		URL:        url,
 		ExpireTime: expire,
 		Count:      count,
-	})
-	if err != nil {
+	}); err != nil {
+		span.RecordError(err)
+
 		var exp mongo.WriteException
 
 		if ok := errors.As(err, &exp); ok &&
@@ -105,8 +97,10 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 			return "", ErrDuplicateKey
 		}
 
-		return "", fmt.Errorf("%w", err)
+		return "", fmt.Errorf("mongodb failed: %w", err)
 	}
+
+	s.Metrics.InsertedCounter.Inc()
 
 	return key, nil
 }
@@ -134,14 +128,16 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 
 	var url model.URL
 	if err := record.Decode(&url); err != nil {
+		span.RecordError(err)
+
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return "", ErrKeyNotFound
 		}
 
-		return "", fmt.Errorf("%w", err)
+		return "", fmt.Errorf("mongodb failed: %w", err)
 	}
 
-	s.FetchedCounter.Inc()
+	s.Metrics.FetchedCounter.Inc()
 
 	return url.URL, nil
 }
@@ -172,11 +168,13 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 	}
 
 	if err := record.Decode(&count); err != nil {
+		span.RecordError(err)
+
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return 0, ErrKeyNotFound
 		}
 
-		return 0, fmt.Errorf("%w", err)
+		return 0, fmt.Errorf("mongodb failed: %w", err)
 	}
 
 	return count.Count, nil

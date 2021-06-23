@@ -11,7 +11,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/1995parham/koochooloo/internal/handler"
 	"github.com/1995parham/koochooloo/internal/metric"
-	"github.com/1995parham/koochooloo/internal/store"
+	"github.com/1995parham/koochooloo/internal/store/url"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel/trace"
@@ -29,7 +29,7 @@ func main(cfg config.Config, logger *zap.Logger, tracer trace.Tracer) {
 	}
 
 	handler.URL{
-		Store:  store.NewMongoURL(db, tracer),
+		Store:  url.NewMongoURL(db, tracer),
 		Logger: logger.Named("handler").Named("url"),
 		Tracer: tracer,
 	}.Register(app.Group("/api"))

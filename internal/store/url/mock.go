@@ -1,4 +1,4 @@
-package store
+package url
 
 import (
 	"context"
@@ -23,7 +23,7 @@ func (m MockURL) Inc(ctx context.Context, key string) error {
 
 func (m MockURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
 	if key == "" {
-		key = Key()
+		key = model.Key()
 	} else {
 		key = "$" + key
 	}

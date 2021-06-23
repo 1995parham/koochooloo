@@ -1,4 +1,4 @@
-package store
+package model
 
 import (
 	"crypto/rand"
@@ -11,7 +11,7 @@ const Length = 6
 
 const source = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 
-// Key generates a random key from the source.
+// Key generates a random key from the source characters.
 func Key() string {
 	b := make([]byte, Length)
 	for i := range b {

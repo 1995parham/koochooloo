@@ -11,7 +11,7 @@ import (
 
 	"github.com/1995parham/koochooloo/internal/handler"
 	"github.com/1995parham/koochooloo/internal/request"
-	"github.com/1995parham/koochooloo/internal/store"
+	store "github.com/1995parham/koochooloo/internal/store/url"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
 	"go.opentelemetry.io/otel/trace"
