@@ -14,10 +14,25 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-type MongoURLSuite struct {
+type CommonURLSuite struct {
 	suite.Suite
-	DB    *mongo.Database
 	Store url.URL
+}
+
+type MemoryURLSuite struct {
+	CommonURLSuite
+}
+
+func (suite *MemoryURLSuite) SetupSuite() {
+	suite.Store = url.NewMemoryURL()
+}
+
+func (suite *MemoryURLSuite) TearDownSuite() {
+}
+
+type MongoURLSuite struct {
+	CommonURLSuite
+	DB *mongo.Database
 }
 
 func (suite *MongoURLSuite) SetupSuite() {
@@ -37,7 +52,7 @@ func (suite *MongoURLSuite) TearDownSuite() {
 	suite.Require().NoError(suite.DB.Client().Disconnect(context.Background()))
 }
 
-func (suite *MongoURLSuite) TestIncCount() {
+func (suite *CommonURLSuite) TestIncCount() {
 	require := suite.Require()
 
 	cases := []struct {
@@ -70,7 +85,7 @@ func (suite *MongoURLSuite) TestIncCount() {
 }
 
 // nolint: funlen
-func (suite *MongoURLSuite) TestSetGetCount() {
+func (suite *CommonURLSuite) TestSetGetCount() {
 	require := suite.Require()
 
 	cases := []struct {
@@ -150,4 +165,9 @@ func (suite *MongoURLSuite) TestSetGetCount() {
 func TestMongoURLSuite(t *testing.T) {
 	t.Parallel()
 	suite.Run(t, new(MongoURLSuite))
+}
+
+func TestMemoryURLSuite(t *testing.T) {
+	t.Parallel()
+	suite.Run(t, new(MemoryURLSuite))
 }

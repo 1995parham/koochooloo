@@ -7,21 +7,29 @@ import (
 	"github.com/1995parham/koochooloo/internal/model"
 )
 
-type MockURL struct {
+type MemoryURL struct {
 	store map[string]model.URL
 }
 
-func NewMockURL() *MockURL {
-	return &MockURL{
+func NewMemoryURL() *MemoryURL {
+	return &MemoryURL{
 		store: make(map[string]model.URL),
 	}
 }
 
-func (m MockURL) Inc(ctx context.Context, key string) error {
+func (m MemoryURL) Inc(ctx context.Context, key string) error {
+	u, ok := m.store[key]
+	if !ok {
+		return ErrKeyNotFound
+	}
+
+	u.Count++
+	m.store[key] = u
+
 	return nil
 }
 
-func (m MockURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
+func (m MemoryURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
 	if key == "" {
 		key = model.Key()
 	} else {
@@ -42,7 +50,7 @@ func (m MockURL) Set(ctx context.Context, key string, url string, expire *time.T
 	return key, nil
 }
 
-func (m MockURL) Get(ctx context.Context, key string) (string, error) {
+func (m MemoryURL) Get(ctx context.Context, key string) (string, error) {
 	url := m.store[key]
 
 	if url.ExpireTime == nil || url.ExpireTime.After(time.Now()) {
@@ -54,7 +62,7 @@ func (m MockURL) Get(ctx context.Context, key string) (string, error) {
 	return "", ErrKeyNotFound
 }
 
-func (m MockURL) Count(ctx context.Context, key string) (int, error) {
+func (m MemoryURL) Count(ctx context.Context, key string) (int, error) {
 	url, found := m.store[key]
 	if !found {
 		return 0, ErrKeyNotFound
