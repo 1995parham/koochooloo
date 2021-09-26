@@ -28,7 +28,7 @@ func (suite *URLSuite) SetupSuite() {
 	suite.engine = echo.New()
 
 	url := handler.URL{
-		Store:  store.NewMockURL(),
+		Store:  store.NewMemoryURL(),
 		Logger: zap.NewNop(),
 		Tracer: trace.NewNoopTracerProvider().Tracer(""),
 	}
