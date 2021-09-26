@@ -51,9 +51,8 @@ func (m *MemoryURL) Set(ctx context.Context, key string, url string, expire *tim
 }
 
 func (m *MemoryURL) Get(ctx context.Context, key string) (string, error) {
-	url := m.store[key]
-
-	if url.ExpireTime == nil || url.ExpireTime.After(time.Now()) {
+	url, ok := m.store[key]
+	if ok && (url.ExpireTime == nil || url.ExpireTime.After(time.Now())) {
 		return url.URL, nil
 	}
 
@@ -61,10 +60,10 @@ func (m *MemoryURL) Get(ctx context.Context, key string) (string, error) {
 }
 
 func (m *MemoryURL) Count(ctx context.Context, key string) (int, error) {
-	url, found := m.store[key]
-	if !found {
-		return 0, ErrKeyNotFound
+	url, ok := m.store[key]
+	if ok && (url.ExpireTime == nil || url.ExpireTime.After(time.Now())) {
+		return url.Count, nil
 	}
 
-	return url.Count, nil
+	return 0, ErrKeyNotFound
 }
