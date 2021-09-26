@@ -17,7 +17,7 @@ func NewMemoryURL() *MemoryURL {
 	}
 }
 
-func (m MemoryURL) Inc(ctx context.Context, key string) error {
+func (m *MemoryURL) Inc(ctx context.Context, key string) error {
 	u, ok := m.store[key]
 	if !ok {
 		return ErrKeyNotFound
@@ -29,7 +29,7 @@ func (m MemoryURL) Inc(ctx context.Context, key string) error {
 	return nil
 }
 
-func (m MemoryURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
+func (m *MemoryURL) Set(ctx context.Context, key string, url string, expire *time.Time, count int) (string, error) {
 	if key == "" {
 		key = model.Key()
 	} else {
@@ -50,7 +50,7 @@ func (m MemoryURL) Set(ctx context.Context, key string, url string, expire *time
 	return key, nil
 }
 
-func (m MemoryURL) Get(ctx context.Context, key string) (string, error) {
+func (m *MemoryURL) Get(ctx context.Context, key string) (string, error) {
 	url := m.store[key]
 
 	if url.ExpireTime == nil || url.ExpireTime.After(time.Now()) {
@@ -60,7 +60,7 @@ func (m MemoryURL) Get(ctx context.Context, key string) (string, error) {
 	return "", ErrKeyNotFound
 }
 
-func (m MemoryURL) Count(ctx context.Context, key string) (int, error) {
+func (m *MemoryURL) Count(ctx context.Context, key string) (int, error) {
 	url, found := m.store[key]
 	if !found {
 		return 0, ErrKeyNotFound
