@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
         - name: migrate
-          image: 1995parham/koochooloo
+          image: ghcr.io/1995parham/koochooloo
           args:
             - migrate
           volumeMounts:
@@ -26,7 +26,7 @@ spec:
               readOnly: true
       containers:
         - name: koochooloo
-          image: 1995parham/koochooloo
+          image: ghcr.io/1995parham/koochooloo
           imagePullPolicy: Always
           ports:
             - containerPort: 1378
