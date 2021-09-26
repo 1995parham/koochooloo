@@ -54,8 +54,6 @@ func (m MemoryURL) Get(ctx context.Context, key string) (string, error) {
 	url := m.store[key]
 
 	if url.ExpireTime == nil || url.ExpireTime.After(time.Now()) {
-		url.Count++
-
 		return url.URL, nil
 	}
 
