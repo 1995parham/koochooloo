@@ -8,14 +8,19 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 const connectionTimeout = 10 * time.Second
 
 // New creates a new mongodb connection and tests it.
 func New(cfg Config) (*mongo.Database, error) {
+	opts := options.Client()
+	opts.Monitor = otelmongo.NewMonitor()
+	opts.ApplyURI(cfg.URL)
+
 	// create mongodb connection
-	client, err := mongo.NewClient(options.Client().ApplyURI(cfg.URL))
+	client, err := mongo.NewClient(opts)
 	if err != nil {
 		return nil, fmt.Errorf("db new client error: %w", err)
 	}
