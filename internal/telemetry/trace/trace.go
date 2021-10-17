@@ -23,7 +23,9 @@ func New(cfg config.Trace) trace.Tracer {
 		)
 	} else {
 		exporter, err = jaeger.New(
-			jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(cfg.URL + "/api/traces")))
+			jaeger.WithAgentEndpoint(jaeger.WithAgentHost(cfg.Agent.Host), jaeger.WithAgentPort(cfg.Agent.Port)),
+		)
+
 	}
 
 	if err != nil {
