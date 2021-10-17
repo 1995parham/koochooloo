@@ -25,7 +25,6 @@ func New(cfg config.Trace) trace.Tracer {
 		exporter, err = jaeger.New(
 			jaeger.WithAgentEndpoint(jaeger.WithAgentHost(cfg.Agent.Host), jaeger.WithAgentPort(cfg.Agent.Port)),
 		)
-
 	}
 
 	if err != nil {
