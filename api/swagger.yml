@@ -40,7 +40,7 @@ paths:
                   format: uri
                 name:
                   type: string
-                expite:
+                expire:
                   type: string
                   format: date-time
               required:
