@@ -1,0 +1,57 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\begin{document}
+
+\title{Developing a URL shortener system with Golang}
+\author{Snapp Team}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+
+URL shortener systems are used to create tiny URLs that will redirect to actual URLs.
+The main reason for their existence is to create shorter addresses that are \textbf{easier to remember} and \textbf{easier to share} like in tweets or SMSes.
+Some examples are \href{https://yun.ir/}{yun.ir} and \href{https://zaya.io/}{zaya}. Please go ahead and test their websites.
+
+\section{Requirements}
+
+\begin{enumerate}
+  \item Given a URL, the service should generate short URL.
+  \item When accessing a short URL, the service should redirect to the original address.
+  \item Users should have the option to pick their custom short URL.
+  \item Short URLs should be expired at some time. Users should be able to specify the expiration time.
+  \item Users should be able to check how many times their short URL is used.
+\end{enumerate}
+
+\section{Notes}
+
+\begin{enumerate}
+  \item Please create a GitHub repository and share it with us as soon as you start working on the assignment.
+  \item Try your best to have reasonable commits. Write meaningful commit messages.
+  \item Try your best to write unit tests for important parts of your application.
+  \item Write documentation about your functions as comments.
+  \item Provide a docker-compose file and include everything a user needs to run your application.
+  \item Provide a Dockerfile with \textit{two-stage} build for your application.
+  \item Write a README.md file and write documentation about your service in it.
+\end{enumerate}
+
+After you finished your work, please send us an email with the following information:
+
+\begin{enumerate}
+  \item How much time did you spend working on this assignment?
+  \item What did you learn by working on this assignment?
+\end{enumerate}
+
+Please be prepared to answer questions about your application. Feel free to ask us any questions you have about this assignment.
+
+Good Luck!
+Snapp! Team
+
+\vspace{1cm}
+\includegraphics[width=.25\textwidth]{./snapp.png}
+
+\end{document}
