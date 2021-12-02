@@ -46,10 +46,11 @@ func New() Config {
 		log.Printf("error loading config.yml: %s", err)
 	}
 
-	// load environment variables
+	// load environment variables with given prefix.
+	// logger__host_agent means host_agent in logger struct.
 	if err := k.Load(env.Provider(Prefix, ".", func(s string) string {
 		return strings.ReplaceAll(strings.ToLower(
-			strings.TrimPrefix(s, Prefix)), "_", ".")
+			strings.TrimPrefix(s, Prefix)), "__", ".")
 	}), nil); err != nil {
 		log.Printf("error loading environment variables: %s", err)
 	}

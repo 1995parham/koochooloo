@@ -80,7 +80,8 @@ if err := k.Unmarshal("", &instance); err != nil {
 
 ### Configuration
 
-The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables. [koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
+The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables.
+[koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
 
 - having a defined and typed structure for configuration
 - don't use global configuration. each module has its configuration defined in `config` module and it will pass to it in its initiation.
