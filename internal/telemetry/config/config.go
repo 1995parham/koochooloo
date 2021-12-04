@@ -1,7 +1,7 @@
 package config
 
 type Config struct {
-	Trace `koanf:"trace"`
+	Trace Trace `koanf:"trace"`
 }
 
 type Trace struct {
