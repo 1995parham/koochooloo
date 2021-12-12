@@ -8,6 +8,7 @@ import (
 	store "github.com/1995parham/koochooloo/internal/store/url"
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -29,12 +30,14 @@ func (h URL) Create(c echo.Context) error {
 
 	if err := c.Bind(&rq); err != nil {
 		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := rq.Validate(); err != nil {
 		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -44,6 +47,7 @@ func (h URL) Create(c echo.Context) error {
 	k, err := h.Store.Set(ctx, rq.Name, rq.URL, rq.Expire, 0)
 	if err != nil {
 		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
 
 		if errors.Is(err, store.ErrDuplicateKey) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
@@ -65,10 +69,16 @@ func (h URL) Retrieve(c echo.Context) error {
 
 	url, err := h.Store.Get(ctx, key)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
 	if err := h.Store.Inc(ctx, key); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
 		h.Logger.Error("increase counter for fetching url failed",
 			zap.Error(err),
 			zap.String("key", key),
@@ -89,6 +99,9 @@ func (h URL) Count(c echo.Context) error {
 
 	count, err := h.Store.Count(ctx, key)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
 		return echo.NewHTTPError(http.StatusNotFound, err.Error())
 	}
 
