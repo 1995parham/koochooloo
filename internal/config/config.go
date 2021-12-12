@@ -31,13 +31,13 @@ type (
 	}
 )
 
-// New reads configuration with viper.
+// New reads configuration with koanf.
 func New() Config {
 	var instance Config
 
 	k := koanf.New(".")
 
-	// load default configuration from file
+	// load default configuration from default function
 	if err := k.Load(structs.Provider(Default(), "koanf"), nil); err != nil {
 		log.Fatalf("error loading default: %s", err)
 	}
