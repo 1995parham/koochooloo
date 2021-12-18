@@ -14,6 +14,7 @@ import (
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/structs"
+	"github.com/tidwall/pretty"
 )
 
 const (
@@ -61,6 +62,7 @@ func New() Config {
 	}
 
 	indent, _ := json.MarshalIndent(instance, "", "\t")
+	indent = pretty.Color(indent, nil)
 	tmpl := `
 	================ Loaded Configuration ================
 	%s
