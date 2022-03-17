@@ -10,7 +10,7 @@ import (
 func TestNewCounter(t *testing.T) {
 	t.Parallel()
 
-	c1 := newCounter(prometheus.CounterOpts{
+	c1 := register(prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "parham",
 		Subsystem: "koochooloo",
 		Name:      "insert_total",
@@ -18,9 +18,9 @@ func TestNewCounter(t *testing.T) {
 		ConstLabels: map[string]string{
 			"store": "url",
 		},
-	})
+	}))
 
-	c2 := newCounter(prometheus.CounterOpts{
+	c2 := register(prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "parham",
 		Subsystem: "koochooloo",
 		Name:      "insert_total",
@@ -28,7 +28,7 @@ func TestNewCounter(t *testing.T) {
 		ConstLabels: map[string]string{
 			"store": "url",
 		},
-	})
+	}))
 
 	require.Equal(t, c1, c2)
 }
