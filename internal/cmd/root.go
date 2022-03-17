@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"os"
+	"runtime/debug"
 
 	"github.com/1995parham/koochooloo/internal/cmd/migrate"
 	"github.com/1995parham/koochooloo/internal/cmd/server"
@@ -28,6 +29,10 @@ func Execute() {
 	root := &cobra.Command{
 		Use:   "koochooloo",
 		Short: "Make your URLs shorter (smaller) and more memorable",
+	}
+
+	if bi, ok := debug.ReadBuildInfo(); ok {
+		root.Version = bi.Main.Version
 	}
 
 	server.Register(root, cfg, logger, tracer)
