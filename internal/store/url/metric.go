@@ -12,14 +12,11 @@ type Usage struct {
 	FetchedCounter  prometheus.Counter
 }
 
-// nolint: ireturn
-func newCounter(counterOpts prometheus.CounterOpts) prometheus.Counter {
-	ev := prometheus.NewCounter(counterOpts)
-
-	if err := prometheus.Register(ev); err != nil {
+func register[T prometheus.Collector](metric T) T {
+	if err := prometheus.Register(metric); err != nil {
 		var are prometheus.AlreadyRegisteredError
 		if ok := errors.As(err, &are); ok {
-			ev, ok = are.ExistingCollector.(prometheus.Counter)
+			metric, ok = are.ExistingCollector.(T)
 			if !ok {
 				panic("different metric type registration")
 			}
@@ -28,11 +25,11 @@ func newCounter(counterOpts prometheus.CounterOpts) prometheus.Counter {
 		}
 	}
 
-	return ev
+	return metric
 }
 
 func NewUsage(name string) Usage {
-	inserted := newCounter(prometheus.CounterOpts{
+	inserted := register(prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "koochooloo",
 		Name:      "inserted_total",
 		Help:      "total number of insert operations",
@@ -40,9 +37,9 @@ func NewUsage(name string) Usage {
 		ConstLabels: prometheus.Labels{
 			"store": name,
 		},
-	})
+	}))
 
-	fetched := newCounter(prometheus.CounterOpts{
+	fetched := register(prometheus.NewCounter(prometheus.CounterOpts{
 		Namespace: "koochooloo",
 		Name:      "fetched_total",
 		Help:      "total number of fetch operations",
@@ -50,7 +47,7 @@ func NewUsage(name string) Usage {
 		ConstLabels: prometheus.Labels{
 			"store": name,
 		},
-	})
+	}))
 
 	return Usage{
 		InsertedCounter: inserted,
