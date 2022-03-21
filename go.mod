@@ -8,7 +8,7 @@ require (
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/prometheus/client_golang v1.12.1
 	github.com/spf13/cobra v1.4.0
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/tchap/zapext/v2 v2.1.1
 	github.com/tidwall/pretty v1.2.0
 	go.mongodb.org/mongo-driver v1.8.4
