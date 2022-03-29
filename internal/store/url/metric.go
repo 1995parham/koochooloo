@@ -12,6 +12,7 @@ type Usage struct {
 	FetchedCounter  prometheus.Counter
 }
 
+// nolint: ireturn
 func register[T prometheus.Collector](metric T) T {
 	if err := prometheus.Register(metric); err != nil {
 		var are prometheus.AlreadyRegisteredError
