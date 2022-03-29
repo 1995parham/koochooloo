@@ -1,6 +1,9 @@
 # Start from the latest golang base image
 FROM golang:alpine AS builder
 
+# Install git command required for building with go1.18
+RUN apk add git
+
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
