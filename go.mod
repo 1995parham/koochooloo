@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/knadh/koanf v1.4.0
+	github.com/knadh/koanf v1.4.1
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/prometheus/client_golang v1.12.1
 	github.com/spf13/cobra v1.4.0
