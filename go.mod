@@ -11,7 +11,7 @@ require (
 	github.com/stretchr/testify v1.7.1
 	github.com/tchap/zapext/v2 v2.1.1
 	github.com/tidwall/pretty v1.2.0
-	go.mongodb.org/mongo-driver v1.8.4
+	go.mongodb.org/mongo-driver v1.9.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.31.0
 	go.opentelemetry.io/otel v1.6.1
 	go.opentelemetry.io/otel/exporters/jaeger v1.6.1
