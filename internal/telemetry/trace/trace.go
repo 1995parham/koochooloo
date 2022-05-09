@@ -13,7 +13,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-// nolint: ireturn
 func New(cfg config.Trace) trace.Tracer {
 	var exporter sdktrace.SpanExporter
 
