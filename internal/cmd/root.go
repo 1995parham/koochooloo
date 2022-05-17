@@ -25,7 +25,7 @@ func Execute() {
 
 	tracer := trace.New(cfg.Telemetry.Trace)
 
-	// nolint: exhaustivestruct
+	// nolint: exhaustruct
 	root := &cobra.Command{
 		Use:   "koochooloo",
 		Short: "Make your URLs shorter (smaller) and more memorable",

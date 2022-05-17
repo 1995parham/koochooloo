@@ -2,6 +2,8 @@
 linters:
   enable-all: true
   disable:
+    # we don't use json with camel-case
+    - tagliatelle
     # it should improve to support more known patterns
     - varnamelen
     - ireturn
@@ -10,3 +12,4 @@ linters:
     - scopelint
     - golint
     - interfacer
+    - exhaustivestruct

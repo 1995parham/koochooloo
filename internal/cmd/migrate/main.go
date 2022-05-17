@@ -37,7 +37,7 @@ func main(cfg config.Config, logger *zap.Logger) {
 // Register migrate command.
 func Register(root *cobra.Command, cfg config.Config, logger *zap.Logger) {
 	root.AddCommand(
-		// nolint: exhaustivestruct
+		// nolint: exhaustruct
 		&cobra.Command{
 			Use:   "migrate",
 			Short: "Setup database indices",
