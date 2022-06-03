@@ -1,6 +1,7 @@
 package trace
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/1995parham/koochooloo/internal/telemetry/config"
@@ -34,8 +35,8 @@ func New(cfg config.Trace) trace.Tracer {
 	res, err := resource.Merge(
 		resource.Default(),
 		resource.NewSchemaless(
-			semconv.ServiceNamespaceKey.String("1995parham"),
-			semconv.ServiceNameKey.String("koochooloo"),
+			semconv.ServiceNamespaceKey.String(cfg.Namespace),
+			semconv.ServiceNameKey.String(cfg.ServiceName),
 		),
 	)
 	if err != nil {
@@ -47,7 +48,7 @@ func New(cfg config.Trace) trace.Tracer {
 
 	otel.SetTracerProvider(tp)
 
-	tracer := otel.Tracer("1995parham.me/koochooloo")
+	tracer := otel.Tracer(fmt.Sprintf("%s/%s", cfg.Namespace, cfg.ServiceName))
 
 	return tracer
 }
