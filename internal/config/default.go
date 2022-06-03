@@ -34,6 +34,8 @@ func Default() Config {
 					Port: "6831",
 					Host: "127.0.0.1",
 				},
+				Namespace:   "1995parham",
+				ServiceName: "koochooloo",
 			},
 		},
 	}
