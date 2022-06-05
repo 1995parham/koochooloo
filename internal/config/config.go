@@ -10,7 +10,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/metric"
 	telemetry "github.com/1995parham/koochooloo/internal/telemetry/config"
 	"github.com/knadh/koanf"
-	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/env"
 	"github.com/knadh/koanf/providers/file"
 	"github.com/knadh/koanf/providers/structs"
@@ -44,7 +44,7 @@ func New() Config {
 	}
 
 	// load configuration from file
-	if err := k.Load(file.Provider("config.yml"), yaml.Parser()); err != nil {
+	if err := k.Load(file.Provider("config.toml"), toml.Parser()); err != nil {
 		log.Printf("error loading config.yml: %s", err)
 	}
 

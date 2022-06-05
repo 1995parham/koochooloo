@@ -1,0 +1,19 @@
+[logger]
+  level = "info"
+
+[database]
+  url = "mongodb://127.0.0.1:27017"
+  name = "koochooloo"
+
+[monitoring]
+  address = ":8080"
+  enabled = true
+
+[telemetry.trace]
+  enabled = true
+	namespace = "1995parham"
+	service_name = "koochooloo"
+
+[telemetry.trace.agent]
+  host = "127.0.0.1"
+  port = "6831"
