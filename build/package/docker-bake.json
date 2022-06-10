@@ -7,8 +7,7 @@
 
   "target": {
     "koochooloo": {
-      "dockerfile": "Dockerfile",
-      "context": "../../",
+      "dockerfile": "build/package/Dockerfile",
       "tags": ["ghcr.io/1995parham/koochooloo"]
     }
   }
