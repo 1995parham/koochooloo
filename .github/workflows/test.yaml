@@ -47,20 +47,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/metadata-action@v4
-        id: meta
+      - uses: docker/bake-action@v2
         with:
-          images: ghcr.io/1995parham/koochooloo
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-      - uses: docker/build-push-action@v3
-        with:
-          file: "build/package/Dockerfile"
-          context: .
-          platforms: linux/amd64
+          files: "build/package/docker-bake.json"
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
