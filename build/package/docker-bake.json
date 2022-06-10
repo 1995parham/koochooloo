@@ -6,7 +6,7 @@
   },
 
   "target": {
-    "mia": {
+    "koochooloo": {
       "dockerfile": "Dockerfile",
       "context": "../../",
       "tags": ["ghcr.io/1995parham/koochooloo"]
