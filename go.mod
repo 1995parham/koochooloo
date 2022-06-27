@@ -8,7 +8,7 @@ require (
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/prometheus/client_golang v1.12.2
 	github.com/spf13/cobra v1.5.0
-	github.com/stretchr/testify v1.7.2
+	github.com/stretchr/testify v1.7.5
 	github.com/tchap/zapext/v2 v2.1.1
 	github.com/tidwall/pretty v1.2.0
 	go.mongodb.org/mongo-driver v1.9.1
@@ -49,7 +49,6 @@ require (
 	github.com/prometheus/common v0.34.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/objx v0.3.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
