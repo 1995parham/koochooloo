@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"os"
-	"runtime/debug"
 
 	"github.com/1995parham/koochooloo/internal/cmd/migrate"
 	"github.com/1995parham/koochooloo/internal/cmd/server"
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/logger"
 	"github.com/1995parham/koochooloo/internal/telemetry/trace"
+	"github.com/carlmjohnson/versioninfo"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -27,12 +27,9 @@ func Execute() {
 
 	// nolint: exhaustruct
 	root := &cobra.Command{
-		Use:   "koochooloo",
-		Short: "Make your URLs shorter (smaller) and more memorable",
-	}
-
-	if bi, ok := debug.ReadBuildInfo(); ok {
-		root.Version = bi.Main.Version
+		Use:     "koochooloo",
+		Short:   "Make your URLs shorter (smaller) and more memorable",
+		Version: versioninfo.Short(),
 	}
 
 	server.Register(root, cfg, logger, tracer)
