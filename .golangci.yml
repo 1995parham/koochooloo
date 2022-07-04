@@ -13,3 +13,18 @@ linters:
     - golint
     - interfacer
     - exhaustivestruct
+linters-settings:
+  wrapcheck:
+    ignoreSigs:
+      - .JSON
+      - .NewHTTPError
+      - .Redirect
+      - .NoContent
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
