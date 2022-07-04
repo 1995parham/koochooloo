@@ -3,12 +3,13 @@ module github.com/1995parham/koochooloo
 go 1.18
 
 require (
+	github.com/carlmjohnson/versioninfo v0.22.4
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/knadh/koanf v1.4.2
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/prometheus/client_golang v1.12.2
 	github.com/spf13/cobra v1.5.0
-	github.com/stretchr/testify v1.7.5
+	github.com/stretchr/testify v1.8.0
 	github.com/tchap/zapext/v2 v2.1.1
 	github.com/tidwall/pretty v1.2.0
 	go.mongodb.org/mongo-driver v1.9.1
@@ -24,7 +25,6 @@ require (
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/carlmjohnson/versioninfo v0.22.4 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
