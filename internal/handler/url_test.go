@@ -140,7 +140,7 @@ func (suite *URLSuite) TestExpiration() {
 	}
 }
 
-//nolint: funlen
+// nolint: funlen
 func (suite *URLSuite) TestPostRetrieve() {
 	require := suite.Require()
 

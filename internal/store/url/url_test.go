@@ -84,7 +84,7 @@ func (suite *CommonURLSuite) TestIncCount() {
 	}
 }
 
-// nolint: funlen
+//nolint: funlen
 func (suite *CommonURLSuite) TestSetGetCount() {
 	require := suite.Require()
 
