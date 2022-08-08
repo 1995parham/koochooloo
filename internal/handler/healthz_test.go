@@ -31,7 +31,7 @@ func (suite *HealthzSuite) TestHandler() {
 	require := suite.Require()
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "/healthz", nil)
+	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.engine.ServeHTTP(w, req)

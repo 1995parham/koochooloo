@@ -41,7 +41,7 @@ func (suite *URLSuite) TestCountNotFound() {
 	key := "notexists"
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", fmt.Sprintf("/api/count/%s", key), nil)
+	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/count/%s", key), nil)
 
 	suite.engine.ServeHTTP(w, req)
 	require.Equal(http.StatusNotFound, w.Code)
@@ -61,7 +61,7 @@ func (suite *URLSuite) TestCount() {
 	require.NoError(err)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
+	req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.engine.ServeHTTP(w, req)
@@ -74,7 +74,7 @@ func (suite *URLSuite) TestCount() {
 
 	{
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", fmt.Sprintf("/api/count/%s", resp), nil)
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/count/%s", resp), nil)
 
 		suite.engine.ServeHTTP(w, req)
 		require.Equal(http.StatusOK, w.Code)
@@ -97,7 +97,7 @@ func (suite *URLSuite) TestBadRequest() {
 	require.NoError(err)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
+	req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
 
 	suite.engine.ServeHTTP(w, req)
 	require.Equal(http.StatusBadRequest, w.Code)
@@ -118,7 +118,7 @@ func (suite *URLSuite) TestExpiration() {
 	require.NoError(err)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
+	req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.engine.ServeHTTP(w, req)
@@ -133,14 +133,14 @@ func (suite *URLSuite) TestExpiration() {
 
 	{
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", fmt.Sprintf("/api/%s", resp), nil)
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/%s", resp), nil)
 
 		suite.engine.ServeHTTP(w, req)
 		require.Equal(http.StatusNotFound, w.Code)
 	}
 }
 
-// nolint: funlen
+//nolint: funlen
 func (suite *URLSuite) TestPostRetrieve() {
 	require := suite.Require()
 
@@ -203,7 +203,7 @@ func (suite *URLSuite) TestPostRetrieve() {
 			require.NoError(err)
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest("POST", "/api/urls", bytes.NewReader(b))
+			req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 			suite.engine.ServeHTTP(w, req)
@@ -218,7 +218,7 @@ func (suite *URLSuite) TestPostRetrieve() {
 				}
 
 				w := httptest.NewRecorder()
-				req := httptest.NewRequest("GET", fmt.Sprintf("/api/%s", resp), nil)
+				req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/%s", resp), nil)
 
 				suite.engine.ServeHTTP(w, req)
 				require.Equal(c.retrieve, w.Code)
