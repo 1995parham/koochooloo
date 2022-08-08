@@ -4,6 +4,7 @@ linters:
   disable:
     # we don't use json with camel-case
     - tagliatelle
+    - nolintlint
     # it should improve to support more known patterns
     - varnamelen
     - ireturn
