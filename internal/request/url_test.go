@@ -7,7 +7,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/request"
 )
 
-//nolint: funlen
+// nolint: funlen
 func TestURLValidation(t *testing.T) {
 	t.Parallel()
 

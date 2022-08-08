@@ -23,6 +23,7 @@ type Syslog struct {
 }
 
 // New creates a zap logger for console and also setup an output for syslog.
+// nolint: nosnakecase
 func New(cfg Config) *zap.Logger {
 	var lvl zapcore.Level
 	if err := lvl.Set(cfg.Level); err != nil {
@@ -56,6 +57,7 @@ func New(cfg Config) *zap.Logger {
 	return logger
 }
 
+// nolint: nosnakecase
 func getPriorityFromLevel(level string) syslog.Priority {
 	switch level {
 	case "debug":
