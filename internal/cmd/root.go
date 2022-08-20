@@ -1,13 +1,13 @@
 package cmd
 
 import (
+	"log"
 	"os"
 
 	"github.com/1995parham/koochooloo/internal/cmd/migrate"
 	"github.com/1995parham/koochooloo/internal/cmd/server"
 	"github.com/1995parham/koochooloo/internal/config"
-	"github.com/1995parham/koochooloo/internal/logger"
-	"github.com/1995parham/koochooloo/internal/telemetry/trace"
+
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -21,10 +21,6 @@ const ExitFailure = 1
 func Execute() {
 	cfg := config.New()
 
-	logger := logger.New(cfg.Logger)
-
-	tracer := trace.New(cfg.Telemetry.Trace)
-
 	//nolint: exhaustruct
 	root := &cobra.Command{
 		Use:     "koochooloo",
@@ -32,11 +28,11 @@ func Execute() {
 		Version: versioninfo.Short(),
 	}
 
-	server.Register(root, cfg, logger, tracer)
-	migrate.Register(root, cfg, logger)
+	server.Register(root, cfg)
+	migrate.Register(root, cfg)
 
 	if err := root.Execute(); err != nil {
-		logger.Error("failed to execute root command", zap.Error(err))
+		log.Fatalf("failed to execute root command", zap.Error(err))
 		os.Exit(ExitFailure)
 	}
 }
