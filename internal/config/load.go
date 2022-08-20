@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -15,7 +14,7 @@ import (
 
 const (
 	delimeter = "."
-	seperator = "__"
+	seprator  = "__"
 
 	// prefix indicates environment variables prefix.
 	prefix = "koochooloo_"
@@ -26,7 +25,6 @@ const (
 
 // New reads configuration with koanf.
 func New() *Config {
-
 	k := koanf.New(".")
 
 	// load default configuration from default function
@@ -39,9 +37,7 @@ func New() *Config {
 		log.Printf("error loading config.yml: %s", err)
 	}
 
-	if err := LoadEnv(k); err != nil {
-		log.Fatalf("error loading default values: %v", err)
-	}
+	LoadEnv(k)
 
 	var instance Config
 	if err := k.Unmarshal("", &instance); err != nil {
@@ -53,16 +49,15 @@ func New() *Config {
 	return &instance
 }
 
-func LoadEnv(k *koanf.Koanf) error {
+func LoadEnv(k *koanf.Koanf) {
 	callback := func(source string) string {
 		base := strings.ToLower(strings.TrimPrefix(source, prefix))
-		return strings.ReplaceAll(base, seperator, delimeter)
+
+		return strings.ReplaceAll(base, seprator, delimeter)
 	}
 
 	// load environment variables
 	if err := k.Load(env.Provider(prefix, delimeter, callback), nil); err != nil {
-		return fmt.Errorf("error loading environment variables: %s", err)
+		log.Printf("error loading environment variables: %s", err)
 	}
-
-	return nil
 }
