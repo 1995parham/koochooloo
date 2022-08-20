@@ -15,7 +15,7 @@ import (
 
 const enable = 1
 
-func main(cfg config.Config, logger *zap.Logger) {
+func main(cfg *config.Config, logger *zap.Logger) {
 	db, err := db.New(cfg.Database)
 	if err != nil {
 		logger.Fatal("database initiation failed", zap.Error(err))
@@ -35,7 +35,7 @@ func main(cfg config.Config, logger *zap.Logger) {
 }
 
 // Register migrate command.
-func Register(root *cobra.Command, cfg config.Config, logger *zap.Logger) {
+func Register(root *cobra.Command, cfg *config.Config, logger *zap.Logger) {
 	root.AddCommand(
 		//nolint: exhaustruct
 		&cobra.Command{
