@@ -18,7 +18,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func main(cfg config.Config, logger *zap.Logger, tracer trace.Tracer) {
+func main(cfg *config.Config, logger *zap.Logger, tracer trace.Tracer) {
 	metric.NewServer(cfg.Monitoring).Start(logger.Named("metrics"))
 
 	app := echo.New()
@@ -49,7 +49,7 @@ func main(cfg config.Config, logger *zap.Logger, tracer trace.Tracer) {
 }
 
 // Register server command.
-func Register(root *cobra.Command, cfg config.Config, logger *zap.Logger, tracer trace.Tracer) {
+func Register(root *cobra.Command, cfg *config.Config, logger *zap.Logger, tracer trace.Tracer) {
 	root.AddCommand(
 		//nolint: exhaustruct
 		&cobra.Command{
