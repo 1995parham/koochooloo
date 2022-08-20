@@ -14,7 +14,7 @@ import (
 const connectionTimeout = 10 * time.Second
 
 // New creates a new mongodb connection and tests it.
-func New(cfg Config) (*mongo.Database, error) {
+func New(cfg *Config) (*mongo.Database, error) {
 	opts := options.Client()
 	opts.Monitor = otelmongo.NewMonitor()
 	opts.ApplyURI(cfg.URL)
