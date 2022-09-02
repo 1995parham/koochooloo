@@ -38,6 +38,7 @@ func NewServer(cfg Config) Server {
 // Start creates and run a metric server for prometheus in new go routine.
 func (s Server) Start(logger *zap.Logger) {
 	go func() {
+		// nolint: gosec
 		if err := http.ListenAndServe(s.address, s.srv); !errors.Is(err, http.ErrServerClosed) {
 			logger.Error("metric server initiation failed", zap.Error(err))
 		}
