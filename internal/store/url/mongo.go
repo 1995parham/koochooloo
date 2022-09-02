@@ -14,13 +14,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-var (
-	// ErrKeyNotFound indicates that given key does not exist on database.
-	ErrKeyNotFound = errors.New("given key does not exist or expired")
-	// ErrDuplicateKey indicates that given key is exists on database.
-	ErrDuplicateKey = errors.New("given key is exist")
-)
-
 // MongoURL communicate with url collections in MongoDB.
 type MongoURL struct {
 	DB      *mongo.Database
@@ -30,9 +23,8 @@ type MongoURL struct {
 
 // Collection is a name of the MongoDB collection for URLs.
 const (
-	Collection                   = "urls"
-	one                          = 1
-	mongodbDuplicateKeyErrorCode = 11000
+	Collection = "urls"
+	one        = 1
 )
 
 // NewMongoURL creates new URL store.
@@ -86,11 +78,9 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 	}); err != nil {
 		span.RecordError(err)
 
-		var exp mongo.WriteException
-
-		if ok := errors.As(err, &exp); ok &&
-			exp.WriteErrors[0].Code == mongodbDuplicateKeyErrorCode {
+		if mongo.IsDuplicateKeyError(err) {
 			if !strings.HasPrefix(key, "$") {
+				// call set again to generate another random key.
 				return s.Set(ctx, "", url, expire, 0)
 			}
 

@@ -34,7 +34,7 @@ func New() *Config {
 
 	// load configuration from file
 	if err := k.Load(file.Provider("config.toml"), toml.Parser()); err != nil {
-		log.Printf("error loading config.yml: %s", err)
+		log.Printf("error loading config.toml: %s", err)
 	}
 
 	LoadEnv(k)
