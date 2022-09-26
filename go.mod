@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/tchap/zapext/v2 v2.1.1
 	go.mongodb.org/mongo-driver v1.10.2
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.35.0
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.36.0
 	go.opentelemetry.io/otel v1.10.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.10.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.10.0
