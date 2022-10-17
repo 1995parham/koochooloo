@@ -9,7 +9,7 @@ require (
 	github.com/knadh/koanf v1.4.3
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/prometheus/client_golang v1.13.0
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.0
 	github.com/stretchr/testify v1.8.0
 	github.com/tchap/zapext/v2 v2.1.1
 	go.mongodb.org/mongo-driver v1.10.3
