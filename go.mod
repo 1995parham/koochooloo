@@ -8,7 +8,7 @@ require (
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/knadh/koanf v1.4.4
 	github.com/labstack/echo/v4 v4.9.1
-	github.com/prometheus/client_golang v1.13.0
+	github.com/prometheus/client_golang v1.13.1
 	github.com/spf13/cobra v1.6.1
 	github.com/stretchr/testify v1.8.1
 	github.com/tchap/zapext/v2 v2.1.1
