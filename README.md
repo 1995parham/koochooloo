@@ -8,7 +8,7 @@
 >
 > Urban Dictionary
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/1995parham/koochooloo/test?label=test&logo=github&style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/1995parham/koochooloo/test.yaml?label=test&logo=github&style=flat-square&branch=main)
 [![Codecov](https://img.shields.io/codecov/c/gh/1995parham/koochooloo?logo=codecov&style=flat-square)](https://codecov.io/gh/1995parham/koochooloo)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/1995parham/koochooloo)](https://pkg.go.dev/github.com/1995parham/koochooloo)
 ![GitHub repo size](https://img.shields.io/github/repo-size/1995parham/koochooloo?style=flat-square)
