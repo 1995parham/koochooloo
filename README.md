@@ -164,13 +164,12 @@ By using the named logger you can easily find you module logs in your log aggreg
 
 This project only requires MongoDB, and you can run it with provided `docker-compose`.
 
-```sh
-go build
-docker-compose up -d
-./koochooloo
+```bash
+cd deployments && docker-compose up -d
+cd cmd/koochooloo/ && go build && ./koochooloo
 ```
 
-```sh
+```bash
 curl -X POST -d '{"url": "https://elahe-dastan.github.io"}' -H 'Content-Type: application/json' 127.0.0.1:1378/api/urls
 curl -L 127.0.0.1:1378/api/CKaniA
 ```
