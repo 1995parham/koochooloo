@@ -1,4 +1,4 @@
-# koochooloo :chestnut:
+# koochooloo 🌰
 
 <p align="center">
 <img src="./assets/koochooloo.png" height="250px">
@@ -39,42 +39,42 @@ Here is an example for register function:
 ```go
 // Register server command.
 func Register(root *cobra.Command, cfg config.Config) {
-	root.AddCommand(
-		&cobra.Command{
-			Use:   "server",
-			Short: "Run server to serve the requests",
-			Run: func(cmd *cobra.Command, args []string) {
-				main(cfg)
-			},
-		},
-	)
+ root.AddCommand(
+  &cobra.Command{
+   Use:   "server",
+   Short: "Run server to serve the requests",
+   Run: func(cmd *cobra.Command, args []string) {
+    main(cfg)
+   },
+  },
+ )
 }
 ```
 
-Again each command registers its flag by itself so we have sepration from other commands.
+Again each command registers its flag by itself, so we have separation from other commands.
 Sometimes we need to have shared flags between commands, then it is better to have them in config.
 For the later case, `koanf` can help us with the structure as below:
 
 ```go
 func Register(fs *pflag.FlagSet) {
-	fs.StringP(
-		"url", "u",
-		nats.DefaultURL,
-		fmt.Sprintf("nats server url(s) e.g. %s", nats.DefaultURL),
-	)
+ fs.StringP(
+  "url", "u",
+  nats.DefaultURL,
+  fmt.Sprintf("nats server url(s) e.g. %s", nats.DefaultURL),
+ )
 }
 ```
 
-This function register shared flags and then we load configuration based on them with the following function:
+This function register shared flags, and then we load configuration based on them with the following function:
 
 ```go
 k := koanf.New(".")
 if err := k.Load(posflag.Provider(fs, ".", k), nil); err != nil {
-	log.Errorf("error loading config.yml: %s", err)
+ log.Errorf("error loading config.yml: %s", err)
 }
 
 if err := k.Unmarshal("", &instance); err != nil {
-	log.Fatalf("error unmarshalling config: %s", err)
+ log.Fatalf("error unmarshalling config: %s", err)
 }
 
 ```
@@ -84,9 +84,9 @@ if err := k.Unmarshal("", &instance); err != nil {
 The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables.
 [koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
 
-- having a defined and typed structure for configuration
-- don't use global configuration. each module has its configuration defined in `config` module and it will pass to it in its initiation.
-- print loaded configuration at startup so everyone can validate the applied configuration.
+- Having a defined and typed structure for configuration
+- Don't use global configuration. each module has its configuration defined in `config` module and it will pass to it in its initiation.
+- Print loaded configuration at startup, so everyone can validate the applied configuration.
 
 P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://github.com/spf13/viper) for having typed configuration.
 By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
@@ -116,12 +116,12 @@ type Healthz struct {
 
 // Handle shows server is up and running.
 func (h Healthz) Handle(c echo.Context) error {
-	return c.NoContent(http.StatusNoContent)
+ return c.NoContent(http.StatusNoContent)
 }
 
 // Register registers the routes of healthz handler on given echo group.
 func (h Healthz) Register(g *echo.Group) {
-	g.GET("/healthz", h.Handle)
+ g.GET("/healthz", h.Handle)
 }
 ```
 
