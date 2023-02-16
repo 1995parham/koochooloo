@@ -146,7 +146,7 @@ For having better controller on metrics endpoint there is another HTTP server th
 
 ### Request/Response
 
-It is good to have sperated pakcages for requests and responses. These packages also contain validation logic.
+It is good to have separated packages for requests and responses. These packages also contain validation logic.
 One of the good validation pakcages in Go is [ozzo-validator](https://github.com/go-ozzo/ozzo-validation).
 After providing validate method, after getting request you can validate it with its method with ease.
 
