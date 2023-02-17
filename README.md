@@ -127,7 +127,10 @@ func (h Healthz) Register(g *echo.Group) {
 
 ### Metrics
 
-All metrics are gathered using [prometheus](https://prometheus.io/). Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them. For migrating from prmotheus you just need to change `metric.go`. Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for prometheus metrics.
+All metrics are gathered using [Prometheus](https://prometheus.io/).
+Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them.
+For migrating from Prometheus to another service you just need to change `metric.go`.
+Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for Prometheus metrics.
 
 ```go
 // my_mertic is a prometheus.Counter
@@ -139,6 +142,27 @@ if err := prometheus.Register(my_metric); err != nil {
     } else {
         panic(err)
     }
+}
+```
+
+Also, you can use the following generic function for registration:
+
+```go
+// nolint: ireturn
+func register[T prometheus.Collector](metric T) T {
+ if err := prometheus.Register(metric); err != nil {
+  var are prometheus.AlreadyRegisteredError
+  if ok := errors.As(err, &are); ok {
+   metric, ok = are.ExistingCollector.(T)
+   if !ok {
+    panic("different metric type registration")
+   }
+  } else {
+   panic(err)
+  }
+ }
+
+ return metric
 }
 ```
 
