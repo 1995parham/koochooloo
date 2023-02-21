@@ -82,7 +82,7 @@ if err := k.Unmarshal("", &instance); err != nil {
 ### Configuration
 
 The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables.
-[koanf](https://github.com/knadh/koanf) has all of them. The main points here are:
+[Koanf](https://github.com/knadh/koanf) has all of them in a one beautiful package. The main points here are:
 
 - Having a defined and typed structure for configuration
 - Don't use global configuration. each module has its configuration defined in `config` module and it will pass to it in its initiation.
@@ -90,6 +90,18 @@ The main part of each application is its configuration. There are many ways for 
 
 P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://github.com/spf13/viper) for having typed configuration.
 By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
+
+For installing [koanf](https://github.com/knadh/koanf) you can use the following commands:
+
+```bash
+go get -u github.com/knadh/koanf/v2
+
+go get -u github.com/knadh/koanf/providers/file
+go get -u github.com/knadh/koanf/providers/env
+go get -u github.com/knadh/koanf/providers/structs
+
+go get -u github.com/knadh/koanf/parsers/toml
+```
 
 ### Database
 
