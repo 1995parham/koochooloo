@@ -1,17 +1,18 @@
-# koochooloo 🌰
+<h1 align="center">koochooloo 🌰</h1>
 
 <p align="center">
 <img src="./assets/koochooloo.png" height="250px">
 </p>
 
+<p align="center">
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/1995parham/koochooloo/test.yaml?logo=github&style=for-the-badge">
+<img alt="Codecov" src="https://img.shields.io/codecov/c/github/1995parham/koochooloo?logo=codecov&style=for-the-badge">
+<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/1995parham/koochooloo?logo=github&style=for-the-badge">
+ </p>
+
 > a Persian word which means "small" or "li'l". It is often used to refer to a girl when flirting, (with the meaning, li'l girl)
 >
 > Urban Dictionary
-
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/1995parham/koochooloo/test.yaml?label=test&logo=github&style=flat-square&branch=main)
-[![Codecov](https://img.shields.io/codecov/c/gh/1995parham/koochooloo?logo=codecov&style=flat-square)](https://codecov.io/gh/1995parham/koochooloo)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/1995parham/koochooloo)](https://pkg.go.dev/github.com/1995parham/koochooloo)
-![GitHub repo size](https://img.shields.io/github/repo-size/1995parham/koochooloo?style=flat-square)
 
 ## Introduction
 
