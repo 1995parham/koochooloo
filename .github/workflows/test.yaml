@@ -28,7 +28,7 @@ jobs:
       - run: cd deployments && docker-compose up -d
       - run: cd cmd/koochooloo && go run main.go migrate
       - run: go test -v ./... -covermode=atomic -coverprofile=coverage.out
-      - uses: codecov/codecov-action@v3.1.1
+      - uses: codecov/codecov-action@v3.1.2
         with:
           files: coverage.out
 
