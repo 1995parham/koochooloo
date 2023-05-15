@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.2
 	github.com/tchap/zapext/v2 v2.1.1
-	go.mongodb.org/mongo-driver v1.11.4
+	go.mongodb.org/mongo-driver v1.11.6
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.41.1
 	go.opentelemetry.io/otel v1.15.1
 	go.opentelemetry.io/otel/exporters/jaeger v1.15.1
