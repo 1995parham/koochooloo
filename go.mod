@@ -20,8 +20,8 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.41.1
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.15.1
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.15.1
-	go.opentelemetry.io/otel/sdk v1.15.1
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.16.0
+	go.opentelemetry.io/otel/sdk v1.16.0
 	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/zap v1.24.0
 )
