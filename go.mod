@@ -17,11 +17,11 @@ require (
 	github.com/stretchr/testify v1.8.3
 	github.com/tchap/zapext/v2 v2.1.1
 	go.mongodb.org/mongo-driver v1.11.6
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.41.1
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo v0.42.0
 	go.opentelemetry.io/otel v1.16.0
-	go.opentelemetry.io/otel/exporters/jaeger v1.15.1
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.15.1
-	go.opentelemetry.io/otel/sdk v1.15.1
+	go.opentelemetry.io/otel/exporters/jaeger v1.16.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.16.0
+	go.opentelemetry.io/otel/sdk v1.16.0
 	go.opentelemetry.io/otel/trace v1.16.0
 	go.uber.org/zap v1.24.0
 )
@@ -51,8 +51,8 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.4.0 // indirect
-	github.com/prometheus/common v0.43.0 // indirect
-	github.com/prometheus/procfs v0.9.0 // indirect
+	github.com/prometheus/common v0.44.0 // indirect
+	github.com/prometheus/procfs v0.10.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
