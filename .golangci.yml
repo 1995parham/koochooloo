@@ -2,6 +2,7 @@
 linters:
   enable-all: true
   disable:
+    - depguard
     # we don't use json with camel-case
     - tagliatelle
     - nolintlint
