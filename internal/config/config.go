@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/1995parham/koochooloo/internal/logger"
-	telemetry "github.com/1995parham/koochooloo/internal/telemetry/config"
+	"github.com/1995parham/koochooloo/internal/telemetry"
 )
 
 // Config holds all configurations.

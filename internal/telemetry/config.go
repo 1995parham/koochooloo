@@ -1,4 +1,4 @@
-package config
+package telemetry
 
 type Config struct {
 	Trace       Trace  `koanf:"trace"`
