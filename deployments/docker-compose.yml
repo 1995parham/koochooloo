@@ -25,6 +25,7 @@ services:
       - extensions:/root/.vscode-server/extensions
       - gocache:/go/pkg/mod
       - golangci-lint-cache:/golangci-lint-cache
+
   database:
     image: mongo:latest
     ports:

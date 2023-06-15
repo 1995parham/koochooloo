@@ -23,7 +23,7 @@ func Default() Config {
 			URL:  "mongodb://127.0.0.1:27017",
 		},
 		Telemetry: telemetry.Config{
-			Namespace:   "1995parham",
+			Namespace:   "1995parham.me",
 			ServiceName: "koochooloo",
 			Meter: telemetry.Meter{
 				Address: ":8080",
