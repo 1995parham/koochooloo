@@ -11,7 +11,6 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/prometheus"
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
@@ -31,7 +30,7 @@ type Telemetery struct {
 	meterProvider *sdkmetric.MeterProvider
 }
 
-func New(cfg config.Config) Telemetery {
+func setupTraceExporter(cfg config.Config) sdktrace.SpanExporter {
 	var exporter sdktrace.SpanExporter
 	{
 		var err error
@@ -51,15 +50,19 @@ func New(cfg config.Config) Telemetery {
 		}
 	}
 
-	var reader sdkmetric.Reader
-	var srv *http.ServeMux
+	return exporter
+}
+
+func setupMeterExporter(cfg config.Config) (sdkmetric.Reader, *http.ServeMux) {
+	var (
+		reader sdkmetric.Reader
+		srv    *http.ServeMux
+	)
 	{
 		var err error
 
 		if !cfg.Meter.Enabled {
-			exporter, err = stdoutmetric.New(
-				stdoutmetric.WithPrettyPrint(),
-			)
+			reader = sdkmetric.NewManualReader()
 		} else {
 			reader, err = prometheus.New(prometheus.WithNamespace(cfg.Namespace))
 
@@ -71,6 +74,13 @@ func New(cfg config.Config) Telemetery {
 			log.Fatalf("failed to initialize reader pipeline for metrics: %v", err)
 		}
 	}
+
+	return reader, srv
+}
+
+func New(cfg config.Config) Telemetery {
+	reader, srv := setupMeterExporter(cfg)
+	exporter := setupTraceExporter(cfg)
 
 	res, err := resource.Merge(
 		resource.Default(),
