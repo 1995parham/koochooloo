@@ -1,14 +1,14 @@
 package config
 
 type Config struct {
-	Trace Trace `koanf:"trace"`
+	Trace       Trace  `koanf:"trace"`
+	Namespace   string `koanf:"namespace"`
+	ServiceName string `koanf:"service_name"`
 }
 
 type Trace struct {
-	Enabled     bool   `koanf:"enabled"`
-	Agent       Agent  `koanf:"agent"`
-	Namespace   string `koanf:"namespace"`
-	ServiceName string `koanf:"service_name"`
+	Enabled bool  `koanf:"enabled"`
+	Agent   Agent `koanf:"agent"`
 }
 
 type Agent struct {
