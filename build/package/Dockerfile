@@ -1,7 +1,6 @@
 FROM golang:latest as dev
 
-RUN apt-get install --no-install-recommends -y neovim && \
-  go install -v golang.org/x/tools/gopls@latest
+RUN go install -v golang.org/x/tools/gopls@latest
 
 FROM golang:alpine as builder
 
