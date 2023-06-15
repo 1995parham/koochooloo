@@ -19,7 +19,7 @@ import (
 type MongoURL struct {
 	DB      *mongo.Database
 	Tracer  trace.Tracer
-	Metrics Usage
+	Metrics Metrics
 }
 
 // Collection is a name of the MongoDB collection for URLs.
@@ -33,7 +33,7 @@ func NewMongoURL(db *mongo.Database, tracer trace.Tracer, meter metric.Meter) *M
 	return &MongoURL{
 		DB:      db,
 		Tracer:  tracer,
-		Metrics: NewUsage(meter, "mongo"),
+		Metrics: Metrics{Usage: NewUsage(meter, "mongo"), Latency: NewLatency(meter)},
 	}
 }
 
@@ -71,6 +71,8 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 
 	urls := s.DB.Collection(Collection)
 
+	start := time.Now()
+
 	if _, err := urls.InsertOne(ctx, model.URL{
 		Key:        key,
 		URL:        url,
@@ -92,6 +94,7 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 	}
 
 	s.Metrics.InsertedCounter.Add(ctx, 1)
+	s.Metrics.InsertLatency.Record(ctx, time.Since(start).Seconds())
 
 	return key, nil
 }

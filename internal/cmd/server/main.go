@@ -11,18 +11,16 @@ import (
 	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/1995parham/koochooloo/internal/handler"
 	"github.com/1995parham/koochooloo/internal/store/url"
+	"github.com/1995parham/koochooloo/internal/telemetry"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
-	otelmetric "go.opentelemetry.io/otel/metric"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel"
 	"go.uber.org/zap"
 )
 
 func main(
 	cfg *config.Config,
 	logger *zap.Logger,
-	tracer trace.Tracer,
-	meter otelmetric.Meter,
 ) {
 	app := echo.New()
 
@@ -32,14 +30,14 @@ func main(
 	}
 
 	handler.URL{
-		Store:  url.NewMongoURL(db, tracer, meter),
+		Store:  url.NewMongoURL(db, otel.GetTracerProvider().Tracer("store.url"), otel.GetMeterProvider().Meter("store.url")),
 		Logger: logger.Named("handler").Named("url"),
-		Tracer: tracer,
+		Tracer: otel.GetTracerProvider().Tracer("handler.url"),
 	}.Register(app.Group("/api"))
 
 	handler.Healthz{
 		Logger: logger.Named("handler").Named("healthz"),
-		Tracer: tracer,
+		Tracer: otel.GetTracerProvider().Tracer("handler.healthz"),
 	}.Register(app.Group(""))
 
 	if err := app.Start(":1378"); !errors.Is(err, http.ErrServerClosed) {
@@ -56,16 +54,20 @@ func Register(
 	root *cobra.Command,
 	cfg *config.Config,
 	logger *zap.Logger,
-	tracer trace.Tracer,
-	meter otelmetric.Meter,
 ) {
+	tele := telemetry.New(cfg.Telemetry)
+	tele.Run()
+
 	root.AddCommand(
 		//nolint: exhaustruct
 		&cobra.Command{
 			Use:   "server",
 			Short: "Run server to serve the requests",
 			Run: func(cmd *cobra.Command, args []string) {
-				main(cfg, logger, tracer, meter)
+				main(cfg, logger)
+			},
+			PersistentPostRun: func(cmd *cobra.Command, args []string) {
+				tele.Shutdown(cmd.Context())
 			},
 		},
 	)

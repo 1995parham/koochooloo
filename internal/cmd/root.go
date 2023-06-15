@@ -7,7 +7,6 @@ import (
 	"github.com/1995parham/koochooloo/internal/cmd/server"
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/logger"
-	"github.com/1995parham/koochooloo/internal/telemetry"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -23,22 +22,14 @@ func Execute() {
 
 	logger := logger.New(cfg.Logger)
 
-	tele := telemetry.New(cfg.Telemetry)
-	tele.Run()
-	tracer := tele.Trace()
-	meter := tele.Meter()
-
 	//nolint: exhaustruct
 	root := &cobra.Command{
 		Use:     "koochooloo",
 		Short:   "Make your URLs shorter (smaller) and more memorable",
 		Version: versioninfo.Short(),
-		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			tele.Shutdown(cmd.Context())
-		},
 	}
 
-	server.Register(root, cfg, logger, tracer, meter)
+	server.Register(root, cfg, logger)
 	migrate.Register(root, cfg, logger)
 
 	if err := root.Execute(); err != nil {
