@@ -3,7 +3,6 @@ package config
 import (
 	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/1995parham/koochooloo/internal/logger"
-	"github.com/1995parham/koochooloo/internal/metric"
 	telemetry "github.com/1995parham/koochooloo/internal/telemetry/config"
 )
 
@@ -23,19 +22,19 @@ func Default() Config {
 			Name: "koochooloo",
 			URL:  "mongodb://127.0.0.1:27017",
 		},
-		Monitoring: metric.Config{
-			Address: ":8080",
-			Enabled: true,
-		},
 		Telemetry: telemetry.Config{
+			Namespace:   "1995parham",
+			ServiceName: "koochooloo",
+			Meter: telemetry.Meter{
+				Address: ":8080",
+				Enabled: true,
+			},
 			Trace: telemetry.Trace{
 				Enabled: false,
 				Agent: telemetry.Agent{
 					Port: "6831",
 					Host: "127.0.0.1",
 				},
-				Namespace:   "1995parham",
-				ServiceName: "koochooloo",
 			},
 		},
 	}

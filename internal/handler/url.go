@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -18,6 +19,7 @@ type URL struct {
 	Store  store.URL
 	Logger *zap.Logger
 	Tracer trace.Tracer
+	Meter  metric.Meter
 }
 
 // Create generates short URL and save it on database.

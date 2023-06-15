@@ -1,54 +1,33 @@
 package url
 
 import (
-	"errors"
+	"fmt"
 
-	"github.com/prometheus/client_golang/prometheus"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // Usage contains metrics to meter database insert/retrieve.
 type Usage struct {
-	InsertedCounter prometheus.Counter
-	FetchedCounter  prometheus.Counter
+	InsertedCounter metric.Int64Counter
+	FetchedCounter  metric.Int64Counter
 }
 
-// nolint: ireturn
-func register[T prometheus.Collector](metric T) T {
-	if err := prometheus.Register(metric); err != nil {
-		var are prometheus.AlreadyRegisteredError
-		if ok := errors.As(err, &are); ok {
-			metric, ok = are.ExistingCollector.(T)
-			if !ok {
-				panic("different metric type registration")
-			}
-		} else {
-			panic(err)
-		}
+func NewUsage(meter metric.Meter, name string) Usage {
+	inserted, err := meter.Int64Counter(
+		fmt.Sprintf("store.url.%s.inserted", name),
+		metric.WithDescription("total number of insert operations"),
+	)
+	if err != nil {
+		panic(err)
 	}
 
-	return metric
-}
-
-func NewUsage(name string) Usage {
-	inserted := register(prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: "koochooloo",
-		Name:      "inserted_total",
-		Help:      "total number of insert operations",
-		Subsystem: "url_store",
-		ConstLabels: prometheus.Labels{
-			"store": name,
-		},
-	}))
-
-	fetched := register(prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: "koochooloo",
-		Name:      "fetched_total",
-		Help:      "total number of fetch operations",
-		Subsystem: "url_store",
-		ConstLabels: prometheus.Labels{
-			"store": name,
-		},
-	}))
+	fetched, err := meter.Int64Counter(
+		fmt.Sprintf("store.url.%s.fetched", name),
+		metric.WithDescription("total number of fetch operations"),
+	)
+	if err != nil {
+		panic(err)
+	}
 
 	return Usage{
 		InsertedCounter: inserted,

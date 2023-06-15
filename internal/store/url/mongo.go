@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -28,11 +29,11 @@ const (
 )
 
 // NewMongoURL creates new URL store.
-func NewMongoURL(db *mongo.Database, tracer trace.Tracer) *MongoURL {
+func NewMongoURL(db *mongo.Database, tracer trace.Tracer, meter metric.Meter) *MongoURL {
 	return &MongoURL{
 		DB:      db,
 		Tracer:  tracer,
-		Metrics: NewUsage("mongo"),
+		Metrics: NewUsage(meter, "mongo"),
 	}
 }
 
@@ -90,7 +91,7 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 		return "", fmt.Errorf("mongodb failed: %w", err)
 	}
 
-	s.Metrics.InsertedCounter.Inc()
+	s.Metrics.InsertedCounter.Add(ctx, 1)
 
 	return key, nil
 }
@@ -127,7 +128,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 		return "", fmt.Errorf("mongodb failed: %w", err)
 	}
 
-	s.Metrics.FetchedCounter.Inc()
+	s.Metrics.FetchedCounter.Add(ctx, 1)
 
 	return url.URL, nil
 }
