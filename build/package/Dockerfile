@@ -1,5 +1,9 @@
-# Start from the latest golang base image
-FROM golang:alpine AS builder
+FROM golang:latest as dev
+
+RUN apt-get install --no-install-recommends -y neovim && \
+  go install -v golang.org/x/tools/gopls@latest
+
+FROM golang:alpine as builder
 
 # Install git command required for building with go1.18
 RUN apk add git
@@ -20,7 +24,7 @@ COPY . .
 WORKDIR /app/cmd/koochooloo
 RUN go build -o /koochooloo
 
-FROM alpine:latest
+FROM alpine:latest as release
 
 # Add Maintainer Info
 LABEL maintainer="Parham Alvani <parham.alvani@gmail.com>"
