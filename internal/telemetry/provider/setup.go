@@ -1,4 +1,4 @@
-package trace
+package provider
 
 import (
 	"fmt"
@@ -8,13 +8,15 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	"go.opentelemetry.io/otel/metric"
+	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func New(cfg config.Trace) trace.Tracer {
+func New(cfg config.Trace) (trace.Tracer, metric.Meter) {
 	var exporter sdktrace.SpanExporter
 
 	var err error
@@ -45,10 +47,13 @@ func New(cfg config.Trace) trace.Tracer {
 
 	bsp := sdktrace.NewBatchSpanProcessor(exporter)
 	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(bsp), sdktrace.WithResource(res))
+	mp := sdkmetric.NewMeterProvider(sdkmetric.WithResource(res))
 
 	otel.SetTracerProvider(tp)
+	otel.SetMeterProvider(mp)
 
 	tracer := otel.Tracer(fmt.Sprintf("%s/%s", cfg.Namespace, cfg.ServiceName))
+	meter := otel.Meter(fmt.Sprintf("%s/%s", cfg.Namespace, cfg.ServiceName))
 
-	return tracer
+	return tracer, meter
 }
