@@ -2,7 +2,6 @@ package telemetry
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -11,12 +10,10 @@ import (
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
-	"go.opentelemetry.io/otel/metric"
-	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
+	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
-	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
-	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/net/context"
 )
 
@@ -25,12 +22,12 @@ type Telemetery struct {
 	namespace     string
 	metricSrv     *http.ServeMux
 	metricAddr    string
-	traceProvider *sdktrace.TracerProvider
-	meterProvider *sdkmetric.MeterProvider
+	traceProvider *trace.TracerProvider
+	meterProvider *metric.MeterProvider
 }
 
-func setupTraceExporter(cfg Config) sdktrace.SpanExporter {
-	var exporter sdktrace.SpanExporter
+func setupTraceExporter(cfg Config) trace.SpanExporter {
+	var exporter trace.SpanExporter
 	{
 		var err error
 
@@ -52,16 +49,16 @@ func setupTraceExporter(cfg Config) sdktrace.SpanExporter {
 	return exporter
 }
 
-func setupMeterExporter(cfg Config) (sdkmetric.Reader, *http.ServeMux) {
+func setupMeterExporter(cfg Config) (metric.Reader, *http.ServeMux) {
 	var (
-		reader sdkmetric.Reader
+		reader metric.Reader
 		srv    *http.ServeMux
 	)
 	{
 		var err error
 
 		if !cfg.Meter.Enabled {
-			reader = sdkmetric.NewManualReader()
+			reader = metric.NewManualReader()
 		} else {
 			reader, err = prometheus.New(prometheus.WithNamespace(cfg.Namespace))
 
@@ -92,10 +89,10 @@ func New(cfg Config) Telemetery {
 		panic(err)
 	}
 
-	bsp := sdktrace.NewBatchSpanProcessor(exporter)
-	tp := sdktrace.NewTracerProvider(sdktrace.WithSpanProcessor(bsp), sdktrace.WithResource(res))
+	bsp := trace.NewBatchSpanProcessor(exporter)
+	tp := trace.NewTracerProvider(trace.WithSpanProcessor(bsp), trace.WithResource(res))
 
-	mp := sdkmetric.NewMeterProvider(sdkmetric.WithResource(res), sdkmetric.WithReader(reader))
+	mp := metric.NewMeterProvider(metric.WithResource(res), metric.WithReader(reader))
 
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(mp)
@@ -119,14 +116,6 @@ func (t Telemetery) Run() {
 			}
 		}()
 	}
-}
-
-func (t Telemetery) Meter() metric.Meter {
-	return otel.Meter(fmt.Sprintf("%s/%s", t.namespace, t.serviceName))
-}
-
-func (t Telemetery) Trace() trace.Tracer {
-	return otel.Tracer(fmt.Sprintf("%s/%s", t.namespace, t.serviceName))
 }
 
 func (t Telemetery) Shutdown(ctx context.Context) {
