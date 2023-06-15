@@ -1,31 +1,6 @@
 ---
 version: "3"
 services:
-  dev:
-    build:
-      context: .
-      dockerfile: ../build/package/Dockerfile
-      target: dev
-    command: sleep infinity
-    stop_grace_period: 1s
-    stop_signal: "SIGKILL"
-    working_dir: /app
-    ports:
-      - "1378:1378"
-    environment:
-      VIRTUALIZED: "true"
-      DEV_ENABLED: "true"
-      TERM:
-      GOFLAGS: "-mod=mod" # See: https://github.com/google/wire/issues/299#issuecomment-864570870
-      GOLANGCI_LINT_CACHE: /golangci-lint-cache
-      TWILIO_ACCOUNT_SID:
-      TWILIO_AUTH_TOKEN:
-    volumes:
-      - ../:/app
-      - extensions:/root/.vscode-server/extensions
-      - gocache:/go/pkg/mod
-      - golangci-lint-cache:/golangci-lint-cache
-
   database:
     image: mongo:latest
     ports:
@@ -42,8 +17,3 @@ services:
       - target: 14268
         published: 14268
         protocol: tcp
-
-volumes:
-  extensions:
-  gocache:
-  golangci-lint-cache:
