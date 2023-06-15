@@ -7,7 +7,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/cmd/server"
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/logger"
-	"github.com/1995parham/koochooloo/internal/telemetry/provider"
+	"github.com/1995parham/koochooloo/internal/telemetry"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -23,7 +23,7 @@ func Execute() {
 
 	logger := logger.New(cfg.Logger)
 
-	tele := provider.New(cfg.Telemetry)
+	tele := telemetry.New(cfg.Telemetry)
 	tele.Run()
 	tracer := tele.Trace()
 	meter := tele.Meter()

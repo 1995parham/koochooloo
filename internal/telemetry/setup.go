@@ -1,4 +1,4 @@
-package provider
+package telemetry
 
 import (
 	"errors"
@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/1995parham/koochooloo/internal/telemetry/config"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -30,7 +29,7 @@ type Telemetery struct {
 	meterProvider *sdkmetric.MeterProvider
 }
 
-func setupTraceExporter(cfg config.Config) sdktrace.SpanExporter {
+func setupTraceExporter(cfg Config) sdktrace.SpanExporter {
 	var exporter sdktrace.SpanExporter
 	{
 		var err error
@@ -53,7 +52,7 @@ func setupTraceExporter(cfg config.Config) sdktrace.SpanExporter {
 	return exporter
 }
 
-func setupMeterExporter(cfg config.Config) (sdkmetric.Reader, *http.ServeMux) {
+func setupMeterExporter(cfg Config) (sdkmetric.Reader, *http.ServeMux) {
 	var (
 		reader sdkmetric.Reader
 		srv    *http.ServeMux
@@ -78,7 +77,7 @@ func setupMeterExporter(cfg config.Config) (sdkmetric.Reader, *http.ServeMux) {
 	return reader, srv
 }
 
-func New(cfg config.Config) Telemetery {
+func New(cfg Config) Telemetery {
 	reader, srv := setupMeterExporter(cfg)
 	exporter := setupTraceExporter(cfg)
 
