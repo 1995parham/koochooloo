@@ -9,6 +9,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/exporters/prometheus"
+	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -27,51 +28,49 @@ type Telemetery struct {
 }
 
 func setupTraceExporter(cfg Config) trace.SpanExporter {
-	var exporter trace.SpanExporter
-	{
-		var err error
-
-		if !cfg.Trace.Enabled {
-			exporter, err = stdouttrace.New(
-				stdouttrace.WithPrettyPrint(),
-			)
-		} else {
-			exporter, err = jaeger.New(
-				jaeger.WithAgentEndpoint(jaeger.WithAgentHost(cfg.Trace.Agent.Host), jaeger.WithAgentPort(cfg.Trace.Agent.Port)),
-			)
-		}
-
+	if !cfg.Trace.Enabled {
+		exporter, err := stdouttrace.New(
+			stdouttrace.WithPrettyPrint(),
+		)
 		if err != nil {
-			log.Fatalf("failed to initialize export pipeline for traces: %v", err)
+			log.Fatalf("failed to initialize export pipeline for traces (stdout): %v", err)
 		}
+
+		return exporter
+	}
+
+	exporter, err := jaeger.New(
+		jaeger.WithAgentEndpoint(
+			jaeger.WithAgentHost(cfg.Trace.Agent.Host),
+			jaeger.WithAgentPort(cfg.Trace.Agent.Port),
+		),
+	)
+	if err != nil {
+		log.Fatalf("failed to initialize export pipeline for traces (jeager): %v", err)
 	}
 
 	return exporter
 }
 
 func setupMeterExporter(cfg Config) (metric.Reader, *http.ServeMux) {
-	var (
-		reader metric.Reader
-		srv    *http.ServeMux
-	)
-	{
-		var err error
-
-		if !cfg.Meter.Enabled {
-			reader = metric.NewManualReader()
-		} else {
-			reader, err = prometheus.New(prometheus.WithNamespace(cfg.Namespace))
-
-			srv = http.NewServeMux()
-			srv.Handle("/metrics", promhttp.Handler())
-		}
-
+	if !cfg.Meter.Enabled {
+		exporter, err := stdoutmetric.New()
 		if err != nil {
-			log.Fatalf("failed to initialize reader pipeline for metrics: %v", err)
+			log.Fatalf("failed to initialize reader pipeline for metrics (stdout): %v", err)
 		}
+
+		return metric.NewPeriodicReader(exporter), nil
 	}
 
-	return reader, srv
+	exporter, err := prometheus.New(prometheus.WithNamespace(cfg.Namespace))
+	if err != nil {
+		log.Fatalf("failed to initialize reader pipeline for metrics (prometheus): %v", err)
+	}
+
+	srv := http.NewServeMux()
+	srv.Handle("/metrics", promhttp.Handler())
+
+	return exporter, srv
 }
 
 func New(cfg Config) Telemetery {
