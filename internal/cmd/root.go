@@ -23,16 +23,22 @@ func Execute() {
 
 	logger := logger.New(cfg.Logger)
 
-	tracer := provider.New(cfg.Telemetry.Trace)
+	tele := provider.New(cfg.Telemetry)
+	tele.Run()
+	tracer := tele.Trace()
+	meter := tele.Meter()
 
 	//nolint: exhaustruct
 	root := &cobra.Command{
 		Use:     "koochooloo",
 		Short:   "Make your URLs shorter (smaller) and more memorable",
 		Version: versioninfo.Short(),
+		PersistentPostRun: func(cmd *cobra.Command, args []string) {
+			tele.Shutdown(cmd.Context())
+		},
 	}
 
-	server.Register(root, cfg, logger, tracer)
+	server.Register(root, cfg, logger, tracer, meter)
 	migrate.Register(root, cfg, logger)
 
 	if err := root.Execute(); err != nil {
