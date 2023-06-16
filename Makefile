@@ -27,7 +27,7 @@ dev-down:
 
 test: dev-up
 	go run cmd/koochooloo/main.go migrate
-	go test -v ./...
+	go test -v ./... -covermode=atomic -coverprofile=coverage.out
 
 lint:
 	golangci-lint run -c .golangci.yml
