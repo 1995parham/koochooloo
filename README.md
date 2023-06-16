@@ -140,46 +140,13 @@ func (h Healthz) Register(g *echo.Group) {
 
 ### Metrics
 
-All metrics are gathered using [Prometheus](https://prometheus.io/).
+All metrics are gathered using [Prometheus](https://prometheus.io/)
+based on [open-telemetry](https://github.com/open-telemetry/opentelemetry-go).
 Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them.
 For migrating from Prometheus to another service you just need to change `metric.go`.
-Metrics aren't global and they created for each instance seperately and with the following code there is no issue with duplicate registration for Prometheus metrics.
-
-```go
-// my_mertic is a prometheus.Counter
-
-if err := prometheus.Register(my_metric); err != nil {
-    var are prometheus.AlreadyRegisteredError
-    if ok := errors.As(err, &are); ok {
-        my_metric = are.ExistingCollector.(prometheus.Counter)
-    } else {
-        panic(err)
-    }
-}
-```
-
-Also, you can use the following generic function for registration:
-
-```go
-// nolint: ireturn
-func register[T prometheus.Collector](metric T) T {
- if err := prometheus.Register(metric); err != nil {
-  var are prometheus.AlreadyRegisteredError
-  if ok := errors.As(err, &are); ok {
-   metric, ok = are.ExistingCollector.(T)
-   if !ok {
-    panic("different metric type registration")
-   }
-  } else {
-   panic(err)
-  }
- }
-
- return metric
-}
-```
-
-For having better controller on metrics endpoint there is another HTTP server that is defined in `metric` package for monitoring.
+Metrics aren't global and they created for each instance seperately thanks to Open Telemetry design.
+For having better controller on metrics endpoint there is another HTTP server that is defined in `telemetry`
+package for monitoring.
 
 ### Request/Response
 
