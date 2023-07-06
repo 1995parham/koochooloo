@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/1995parham/koochooloo/internal/cmd/migrate"
+	"github.com/1995parham/koochooloo/internal/cmd/seed"
 	"github.com/1995parham/koochooloo/internal/cmd/server"
 	"github.com/1995parham/koochooloo/internal/config"
 	"github.com/1995parham/koochooloo/internal/logger"
@@ -31,6 +32,7 @@ func Execute() {
 
 	server.Register(root, cfg, logger)
 	migrate.Register(root, cfg, logger)
+	seed.Register(root, cfg, logger)
 
 	if err := root.Execute(); err != nil {
 		logger.Error("failed to execute root command", zap.Error(err))
