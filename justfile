@@ -24,8 +24,13 @@ dev cmd *flags:
 
 # run tests in the dev environment
 test $koochooloo_telemetry__meter__enabled="false": (dev "up")
-  go run ./cmd/koochooloo/main.go migrate
+  just seed
   go test -v ./... -covermode=atomic -coverprofile=coverage.out
+
+seed $koochooloo_telemetry__meter__enabled="false": (dev "up")
+  go run ./cmd/koochooloo/main.go migrate
+  go run ./cmd/koochooloo/main.go seed
+
 
 # connect into the dev environment database
 database: (dev "up") (dev "exec" "database mongosh koochooloo")
