@@ -27,6 +27,9 @@ test $koochooloo_telemetry__meter__enabled="false": (dev "up")
   go run ./cmd/koochooloo/main.go migrate
   go test -v ./... -covermode=atomic -coverprofile=coverage.out
 
+# connect into the dev environment database
+database: (dev "up") (dev "exec" "database mongosh koochooloo")
+
 # run golangci-lint
 lint:
   golangci-lint run -c .golangci.yml
