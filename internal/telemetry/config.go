@@ -1,23 +1,23 @@
 package telemetry
 
 type Config struct {
-	Trace       Trace  `koanf:"trace"`
-	Meter       Meter  `koanf:"meter"`
-	Namespace   string `koanf:"namespace"`
-	ServiceName string `koanf:"service_name"`
+	Trace       Trace  `json:"trace,omitempty"        koanf:"trace"`
+	Meter       Meter  `json:"meter,omitempty"        koanf:"meter"`
+	Namespace   string `json:"namespace,omitempty"    koanf:"namespace"`
+	ServiceName string `json:"service_name,omitempty" koanf:"service_name"`
 }
 
 type Meter struct {
-	Address string `koanf:"address"`
-	Enabled bool   `koanf:"enabled"`
+	Address string `json:"address,omitempty" koanf:"address"`
+	Enabled bool   `json:"enabled,omitempty" koanf:"enabled"`
 }
 
 type Trace struct {
-	Enabled bool  `koanf:"enabled"`
-	Agent   Agent `koanf:"agent"`
+	Enabled bool  `json:"enabled,omitempty" koanf:"enabled"`
+	Agent   Agent `json:"agent,omitempty"   koanf:"agent"`
 }
 
 type Agent struct {
-	Host string `koanf:"host"`
-	Port string `koanf:"port"`
+	Host string `json:"host,omitempty" koanf:"host"`
+	Port string `json:"port,omitempty" koanf:"port"`
 }

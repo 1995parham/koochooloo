@@ -11,15 +11,15 @@ import (
 )
 
 type Config struct {
-	Level  string `koanf:"level"`
-	Syslog `koanf:"syslog"`
+	Level  string `json:"level"  koanf:"level"`
+	Syslog Syslog `json:"syslog" koanf:"syslog"`
 }
 
 type Syslog struct {
-	Enabled bool   `koanf:"enabled"`
-	Network string `koanf:"network"`
-	Address string `koanf:"address"`
-	Tag     string `koanf:"tag"`
+	Enabled bool   `json:"enabled" koanf:"enabled"`
+	Network string `json:"network" koanf:"network"`
+	Address string `json:"address" koanf:"address"`
+	Tag     string `json:"tag"     koanf:"tag"`
 }
 
 // New creates a zap logger for console and also setup an output for syslog.

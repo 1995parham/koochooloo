@@ -8,7 +8,7 @@ import (
 
 // Config holds all configurations.
 type Config struct {
-	Database  db.Config        `koanf:"database"`
-	Logger    logger.Config    `koanf:"logger"`
-	Telemetry telemetry.Config `koanf:"telemetry"`
+	Database  db.Config        `json:"database"  koanf:"database"`
+	Logger    logger.Config    `json:"logger"    koanf:"logger"`
+	Telemetry telemetry.Config `json:"telemetry" koanf:"telemetry"`
 }

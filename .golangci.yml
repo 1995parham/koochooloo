@@ -15,6 +15,7 @@ linters:
     - golint
     - interfacer
     - exhaustivestruct
+
 linters-settings:
   wrapcheck:
     ignoreSigs:
