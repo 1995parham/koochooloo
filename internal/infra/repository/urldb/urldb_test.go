@@ -54,7 +54,7 @@ func (suite *MongoURLSuite) SetupSuite() {
 		fx.Provide(db.Provide),
 		fx.Provide(telemetry.ProvideNull),
 		fx.Provide(
-			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
+			fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
 		),
 		fx.Invoke(func(repo urlrepo.Repository) {
 			suite.repo = repo

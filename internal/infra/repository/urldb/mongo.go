@@ -35,9 +35,12 @@ func ProvideDB(db *mongo.Database, tele telemetry.Telemetery) *MongoURL {
 	meter := tele.MeterProvider.Meter("urldb.db")
 
 	return &MongoURL{
-		DB:      db,
-		Tracer:  tracer,
-		Metrics: Metrics{Usage: NewUsage(meter, "mongo"), Latency: NewLatency(meter)},
+		DB:     db,
+		Tracer: tracer,
+		Metrics: Metrics{
+			Usage:   NewUsage(meter, "mongo"),
+			Latency: NewLatency(meter),
+		},
 	}
 }
 
