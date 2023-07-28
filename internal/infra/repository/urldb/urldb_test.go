@@ -18,16 +18,8 @@ import (
 
 type CommonURLSuite struct {
 	suite.Suite
-	options []fx.Option
-}
 
-func (s *CommonURLSuite) Invoke(f any) {
-	options := []fx.Option{
-		fx.Invoke(f),
-	}
-	options = append(options, s.options...)
-
-	fxtest.New(s.T(), options...).RequireStart().RequireStop()
+	repo urlrepo.Repository
 }
 
 type MemoryURLSuite struct {
@@ -35,7 +27,7 @@ type MemoryURLSuite struct {
 }
 
 func (suite *MemoryURLSuite) SetupSuite() {
-	suite.options = []fx.Option{
+	fxtest.New(suite.T(),
 		fx.Provide(config.Provide),
 		fx.Provide(logger.Provide),
 		fx.Provide(db.Provide),
@@ -43,7 +35,10 @@ func (suite *MemoryURLSuite) SetupSuite() {
 		fx.Provide(
 			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
 		),
-	}
+		fx.Invoke(func(repo urlrepo.Repository) {
+			suite.repo = repo
+		}),
+	).RequireStart().RequireStop()
 }
 
 func (suite *MemoryURLSuite) TearDownSuite() {}
@@ -53,22 +48,21 @@ type MongoURLSuite struct {
 }
 
 func (suite *MongoURLSuite) SetupSuite() {
-	suite.options = []fx.Option{
+	fxtest.New(suite.T(),
 		fx.Provide(config.Provide),
 		fx.Provide(logger.Provide),
 		fx.Provide(db.Provide),
 		fx.Provide(telemetry.ProvideNull),
 		fx.Provide(
-			fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
+			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
 		),
-	}
+		fx.Invoke(func(repo urlrepo.Repository) {
+			suite.repo = repo
+		}),
+	).RequireStart().RequireStop()
 }
 
 func (suite *CommonURLSuite) TestIncCount() {
-	suite.Invoke(suite.testIncCount)
-}
-
-func (suite *CommonURLSuite) testIncCount(repo urlrepo.Repository) {
 	require := suite.Require()
 
 	cases := []struct {
@@ -86,26 +80,22 @@ func (suite *CommonURLSuite) testIncCount(repo urlrepo.Repository) {
 	for _, c := range cases {
 		c := c
 		suite.Run(c.name, func() {
-			key, err := repo.Set(context.Background(), "", "https://elahe-dastan.github.io", nil, c.count)
+			key, err := suite.repo.Set(context.Background(), "", "https://elahe-dastan.github.io", nil, c.count)
 			require.NoError(err)
 
 			for i := 0; i < c.inc; i++ {
-				require.NoError(repo.Inc(context.Background(), key))
+				require.NoError(suite.repo.Inc(context.Background(), key))
 			}
 
-			count, err := repo.Count(context.Background(), key)
+			count, err := suite.repo.Count(context.Background(), key)
 			require.NoError(err)
 			require.Equal(c.count+c.inc, count)
 		})
 	}
 }
 
-func (suite *CommonURLSuite) TestSetGetCount() {
-	suite.Invoke(suite.testSetGetCount)
-}
-
 // nolint: funlen
-func (suite *CommonURLSuite) testSetGetCount(repo urlrepo.Repository) {
+func (suite *CommonURLSuite) TestSetGetCount() {
 	require := suite.Require()
 
 	cases := []struct {
@@ -158,7 +148,7 @@ func (suite *CommonURLSuite) testSetGetCount(repo urlrepo.Repository) {
 				expire = nil
 			}
 
-			key, err := repo.Set(context.Background(), c.key, c.url, expire, 0)
+			key, err := suite.repo.Set(context.Background(), c.key, c.url, expire, 0)
 			require.Equal(c.expectedSetErr, err)
 
 			if c.expectedSetErr == nil {
@@ -166,13 +156,13 @@ func (suite *CommonURLSuite) testSetGetCount(repo urlrepo.Repository) {
 					require.Equal("$"+c.key, key)
 				}
 
-				url, err := repo.Get(context.Background(), key)
+				url, err := suite.repo.Get(context.Background(), key)
 				require.Equal(c.expectedGetErr, err)
 				if c.expectedGetErr == nil {
 					require.Equal(c.url, url)
 				}
 
-				count, err := repo.Count(context.Background(), key)
+				count, err := suite.repo.Count(context.Background(), key)
 				require.Equal(c.expectedGetErr, err)
 				if c.expectedGetErr == nil {
 					require.Equal(0, count)

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/1995parham/koochooloo/internal/request"
-	store "github.com/1995parham/koochooloo/internal/store/url"
+	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/infra/http/request"
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -15,7 +15,7 @@ import (
 
 // URL handles interaction with URLs.
 type URL struct {
-	Store  store.URL
+	Store  urlrepo.Repository
 	Logger *zap.Logger
 	Tracer trace.Tracer
 }
@@ -48,7 +48,7 @@ func (h URL) Create(c echo.Context) error {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
 
-		if errors.Is(err, store.ErrDuplicateKey) {
+		if errors.Is(err, urlrepo.ErrDuplicateKey) {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 

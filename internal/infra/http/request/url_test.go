@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/1995parham/koochooloo/internal/request"
+	"github.com/1995parham/koochooloo/internal/infra/http/request"
 )
 
 // nolint: funlen

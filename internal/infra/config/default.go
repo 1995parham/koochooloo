@@ -4,11 +4,13 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
+	"go.uber.org/fx"
 )
 
 // Default return default configuration.
 func Default() Config {
 	return Config{
+		Out: fx.Out{},
 		Logger: logger.Config{
 			Level: "debug",
 		},
