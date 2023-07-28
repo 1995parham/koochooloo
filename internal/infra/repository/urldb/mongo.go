@@ -1,4 +1,4 @@
-package url
+package urldb
 
 import (
 	"context"
@@ -7,11 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/1995parham/koochooloo/internal/model"
+	"github.com/1995parham/koochooloo/internal/domain/model"
+	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -29,7 +30,10 @@ const (
 )
 
 // NewMongoURL creates new URL store.
-func NewMongoURL(db *mongo.Database, tracer trace.Tracer, meter metric.Meter) *MongoURL {
+func ProvideDB(db *mongo.Database, tele telemetry.Telemetery) *MongoURL {
+	tracer := tele.TraceProvider.Tracer("urldb.db")
+	meter := tele.MeterProvider.Meter("urldb.db")
+
 	return &MongoURL{
 		DB:      db,
 		Tracer:  tracer,
@@ -87,7 +91,7 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 				return s.Set(ctx, "", url, expire, 0)
 			}
 
-			return "", ErrDuplicateKey
+			return "", urlrepo.ErrDuplicateKey
 		}
 
 		return "", fmt.Errorf("mongodb failed: %w", err)
@@ -125,7 +129,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 		span.RecordError(err)
 
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return "", ErrKeyNotFound
+			return "", urlrepo.ErrKeyNotFound
 		}
 
 		return "", fmt.Errorf("mongodb failed: %w", err)
@@ -165,7 +169,7 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 		span.RecordError(err)
 
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return 0, ErrKeyNotFound
+			return 0, urlrepo.ErrKeyNotFound
 		}
 
 		return 0, fmt.Errorf("mongodb failed: %w", err)

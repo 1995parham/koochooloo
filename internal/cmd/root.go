@@ -19,8 +19,6 @@ const ExitFailure = 1
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	cfg := config.New()
-
 	logger := logger.New(cfg.Logger)
 
 	//nolint: exhaustruct
@@ -30,9 +28,9 @@ func Execute() {
 		Version: versioninfo.Short(),
 	}
 
-	server.Register(root, cfg, logger)
-	migrate.Register(root, cfg, logger)
-	seed.Register(root, cfg, logger)
+	server.Register(root)
+	migrate.Register(root)
+	seed.Register(root)
 
 	if err := root.Execute(); err != nil {
 		logger.Error("failed to execute root command", zap.Error(err))

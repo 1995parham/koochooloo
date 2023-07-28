@@ -2,8 +2,11 @@ package telemetry
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"net"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
@@ -15,17 +18,9 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	"go.uber.org/fx"
 	"golang.org/x/net/context"
 )
-
-type Telemetery struct {
-	serviceName   string
-	namespace     string
-	metricSrv     *http.ServeMux
-	metricAddr    string
-	traceProvider *trace.TracerProvider
-	meterProvider *metric.MeterProvider
-}
 
 func setupTraceExporter(cfg Config) trace.SpanExporter {
 	if !cfg.Trace.Enabled {
@@ -52,7 +47,7 @@ func setupTraceExporter(cfg Config) trace.SpanExporter {
 	return exporter
 }
 
-func setupMeterExporter(cfg Config) (metric.Reader, *http.ServeMux) {
+func setupMeterExporter(cfg Config) (metric.Reader, *http.Server) {
 	if !cfg.Meter.Enabled {
 		exporter, err := stdoutmetric.New()
 		if err != nil {
@@ -70,10 +65,25 @@ func setupMeterExporter(cfg Config) (metric.Reader, *http.ServeMux) {
 	srv := http.NewServeMux()
 	srv.Handle("/metrics", promhttp.Handler())
 
-	return exporter, srv
+	return exporter, &http.Server{
+		Addr:                         cfg.Meter.Address,
+		Handler:                      srv,
+		DisableGeneralOptionsHandler: false,
+		TLSConfig:                    nil,
+		ReadTimeout:                  time.Second,
+		ReadHeaderTimeout:            time.Second,
+		WriteTimeout:                 time.Second,
+		IdleTimeout:                  time.Second,
+		MaxHeaderBytes:               0,
+		TLSNextProto:                 nil,
+		ConnState:                    nil,
+		ErrorLog:                     nil,
+		BaseContext:                  nil,
+		ConnContext:                  nil,
+	}
 }
 
-func New(cfg Config) Telemetery {
+func Provide(lc fx.Lifecycle, cfg Config) Telemetery {
 	reader, srv := setupMeterExporter(cfg)
 	exporter := setupTraceExporter(cfg)
 
@@ -96,33 +106,45 @@ func New(cfg Config) Telemetery {
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(mp)
 
-	return Telemetery{
+	tel := Telemetery{
 		serviceName:   cfg.ServiceName,
 		namespace:     cfg.Namespace,
 		metricSrv:     srv,
-		metricAddr:    cfg.Meter.Address,
-		traceProvider: tp,
-		meterProvider: mp,
+		TraceProvider: tp,
+		MeterProvider: mp,
 	}
+
+	lc.Append(
+		fx.Hook{
+			OnStart: tel.run,
+			OnStop:  tel.shutdown,
+		},
+	)
+
+	return tel
 }
 
-func (t Telemetery) Run() {
+func (t Telemetery) run(_ context.Context) error {
 	if t.metricSrv != nil {
+		l, err := net.Listen("tcp", t.metricSrv.Addr)
+		if err != nil {
+			return fmt.Errorf("metric server listen failed: %w", err)
+		}
+
 		go func() {
-			// nolint: gosec
-			if err := http.ListenAndServe(t.metricAddr, t.metricSrv); !errors.Is(err, http.ErrServerClosed) {
+			if err := t.metricSrv.Serve(l); !errors.Is(err, http.ErrServerClosed) {
 				log.Fatalf("metric server initiation failed: %v", err)
 			}
 		}()
 	}
+
+	return nil
 }
 
-func (t Telemetery) Shutdown(ctx context.Context) {
-	if err := t.meterProvider.Shutdown(ctx); err != nil {
-		log.Fatalf("cannot shutdown the meter provider: %v", err)
+func (t Telemetery) shutdown(ctx context.Context) error {
+	if err := t.metricSrv.Shutdown(ctx); err != nil {
+		return fmt.Errorf("cannot shutdown the metric server %w", err)
 	}
 
-	if err := t.traceProvider.Shutdown(ctx); err != nil {
-		log.Fatalf("cannot shutdown the trace provider: %v", err)
-	}
+	return nil
 }

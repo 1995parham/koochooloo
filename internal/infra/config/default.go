@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/1995parham/koochooloo/internal/db"
-	"github.com/1995parham/koochooloo/internal/logger"
-	"github.com/1995parham/koochooloo/internal/telemetry"
+	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/logger"
+	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 )
 
 // Default return default configuration.
@@ -11,12 +11,6 @@ func Default() Config {
 	return Config{
 		Logger: logger.Config{
 			Level: "debug",
-			Syslog: logger.Syslog{
-				Enabled: false,
-				Network: "",
-				Address: "",
-				Tag:     "",
-			},
 		},
 		Database: db.Config{
 			Name: "koochooloo",

@@ -9,12 +9,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
+	"go.uber.org/fx"
 )
 
 const connectionTimeout = 10 * time.Second
 
 // New creates a new mongodb connection and tests it.
-func New(cfg Config) (*mongo.Database, error) {
+func Provide(lc fx.Lifecycle, cfg Config) (*mongo.Database, error) {
 	opts := options.Client()
 	opts.Monitor = otelmongo.NewMonitor()
 	opts.ApplyURI(cfg.URL)
@@ -37,6 +38,10 @@ func New(cfg Config) (*mongo.Database, error) {
 			return nil, fmt.Errorf("db ping error: %w", err)
 		}
 	}
+
+	lc.Append(
+		fx.StopHook(client.Disconnect),
+	)
 
 	return client.Database(cfg.Name), nil
 }
