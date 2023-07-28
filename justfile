@@ -23,11 +23,11 @@ dev cmd *flags:
     fi
 
 # run tests in the dev environment
-test $koochooloo_telemetry__meter__enabled="false": (dev "up")
+test: (dev "up")
     just seed
     go test -v ./... -covermode=atomic -coverprofile=coverage.out
 
-seed $koochooloo_telemetry__meter__enabled="false": (dev "up")
+seed: (dev "up")
     go run ./cmd/koochooloo/main.go migrate
     go run ./cmd/koochooloo/main.go seed
 
