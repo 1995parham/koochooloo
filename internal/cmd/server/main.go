@@ -11,15 +11,15 @@ import (
 	"github.com/1995parham/koochooloo/internal/db"
 	"github.com/1995parham/koochooloo/internal/handler"
 	"github.com/1995parham/koochooloo/internal/store/url"
-	"github.com/1995parham/koochooloo/internal/telemetry"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.opentelemetry.io/otel"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
 func main(
-	cfg *config.Config,
+	cfg config.Config,
 	logger *zap.Logger,
 ) {
 	app := echo.New()
@@ -52,22 +52,17 @@ func main(
 // Register server command.
 func Register(
 	root *cobra.Command,
-	cfg *config.Config,
-	logger *zap.Logger,
 ) {
-	tele := telemetry.New(cfg.Telemetry)
-	tele.Run()
-
 	root.AddCommand(
 		//nolint: exhaustruct
 		&cobra.Command{
 			Use:   "server",
 			Short: "Run server to serve the requests",
-			Run: func(cmd *cobra.Command, args []string) {
-				main(cfg, logger)
-			},
-			PersistentPostRun: func(cmd *cobra.Command, args []string) {
-				tele.Shutdown(cmd.Context())
+			Run: func(_ *cobra.Command, _ []string) {
+				fx.New(
+					fx.Provide(config.Provide),
+					fx.Invoke(main),
+				).Run()
 			},
 		},
 	)

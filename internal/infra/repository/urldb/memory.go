@@ -1,17 +1,18 @@
-package url
+package urldb
 
 import (
 	"context"
 	"time"
 
-	"github.com/1995parham/koochooloo/internal/model"
+	"github.com/1995parham/koochooloo/internal/domain/model"
+	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 )
 
 type MemoryURL struct {
 	store map[string]model.URL
 }
 
-func NewMemoryURL() *MemoryURL {
+func ProvideMemory() *MemoryURL {
 	return &MemoryURL{
 		store: make(map[string]model.URL),
 	}
@@ -20,7 +21,7 @@ func NewMemoryURL() *MemoryURL {
 func (m *MemoryURL) Inc(_ context.Context, key string) error {
 	u, ok := m.store[key]
 	if !ok {
-		return ErrKeyNotFound
+		return urlrepo.ErrKeyNotFound
 	}
 
 	u.Count++
@@ -37,7 +38,7 @@ func (m *MemoryURL) Set(_ context.Context, key string, url string, expire *time.
 	}
 
 	if _, ok := m.store[key]; ok {
-		return "", ErrDuplicateKey
+		return "", urlrepo.ErrDuplicateKey
 	}
 
 	m.store[key] = model.URL{
@@ -56,7 +57,7 @@ func (m *MemoryURL) Get(_ context.Context, key string) (string, error) {
 		return url.URL, nil
 	}
 
-	return "", ErrKeyNotFound
+	return "", urlrepo.ErrKeyNotFound
 }
 
 func (m *MemoryURL) Count(_ context.Context, key string) (int, error) {
@@ -65,5 +66,5 @@ func (m *MemoryURL) Count(_ context.Context, key string) (int, error) {
 		return url.Count, nil
 	}
 
-	return 0, ErrKeyNotFound
+	return 0, urlrepo.ErrKeyNotFound
 }
