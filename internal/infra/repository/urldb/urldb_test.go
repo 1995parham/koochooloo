@@ -2,6 +2,7 @@ package urldb_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -12,6 +13,8 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/stretchr/testify/suite"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
@@ -20,6 +23,7 @@ type CommonURLSuite struct {
 	suite.Suite
 
 	repo urlrepo.Repository
+	app  *fxtest.App
 }
 
 type MemoryURLSuite struct {
@@ -27,10 +31,9 @@ type MemoryURLSuite struct {
 }
 
 func (suite *MemoryURLSuite) SetupSuite() {
-	fxtest.New(suite.T(),
+	suite.app = fxtest.New(suite.T(),
 		fx.Provide(config.Provide),
 		fx.Provide(logger.Provide),
-		fx.Provide(db.Provide),
 		fx.Provide(telemetry.ProvideNull),
 		fx.Provide(
 			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
@@ -38,20 +41,31 @@ func (suite *MemoryURLSuite) SetupSuite() {
 		fx.Invoke(func(repo urlrepo.Repository) {
 			suite.repo = repo
 		}),
-	).RequireStart().RequireStop()
+	).RequireStart()
 }
 
-func (suite *MemoryURLSuite) TearDownSuite() {}
+func (suite *MemoryURLSuite) TearDownSuite() {
+	suite.app.RequireStop()
+}
 
 type MongoURLSuite struct {
 	CommonURLSuite
 }
 
 func (suite *MongoURLSuite) SetupSuite() {
-	fxtest.New(suite.T(),
+	suite.app = fxtest.New(suite.T(),
 		fx.Provide(config.Provide),
 		fx.Provide(logger.Provide),
-		fx.Provide(db.Provide),
+		fx.Provide(
+			fx.Annotate(db.Provide, fx.OnStop(func(ctx context.Context, db *mongo.Database) error {
+				_, err := db.Collection(urldb.Collection).DeleteMany(ctx, bson.M{})
+				if err != nil {
+					return fmt.Errorf("failed to flush records %w", err)
+				}
+
+				return nil
+			})),
+		),
 		fx.Provide(telemetry.ProvideNull),
 		fx.Provide(
 			fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
@@ -59,7 +73,11 @@ func (suite *MongoURLSuite) SetupSuite() {
 		fx.Invoke(func(repo urlrepo.Repository) {
 			suite.repo = repo
 		}),
-	).RequireStart().RequireStop()
+	).RequireStart()
+}
+
+func (suite *MongoURLSuite) TearDownSuite() {
+	suite.app.RequireStop()
 }
 
 func (suite *CommonURLSuite) TestIncCount() {
@@ -149,7 +167,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 			}
 
 			key, err := suite.repo.Set(context.Background(), c.key, c.url, expire, 0)
-			require.Equal(c.expectedSetErr, err)
+			require.ErrorIs(err, c.expectedSetErr)
 
 			if c.expectedSetErr == nil {
 				if c.key != "" {
@@ -157,7 +175,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 				}
 
 				url, err := suite.repo.Get(context.Background(), key)
-				require.Equal(c.expectedGetErr, err)
+				require.ErrorIs(err, c.expectedGetErr)
 				if c.expectedGetErr == nil {
 					require.Equal(c.url, url)
 				}
