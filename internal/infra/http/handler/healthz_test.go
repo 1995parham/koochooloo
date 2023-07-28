@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/1995parham/koochooloo/internal/handler"
+	"github.com/1995parham/koochooloo/internal/infra/http/handler"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
 	"go.opentelemetry.io/otel/trace"

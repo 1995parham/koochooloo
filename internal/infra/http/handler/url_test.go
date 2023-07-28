@@ -9,12 +9,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/1995parham/koochooloo/internal/handler"
-	"github.com/1995parham/koochooloo/internal/request"
-	store "github.com/1995parham/koochooloo/internal/store/url"
+	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/infra/config"
+	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/http/handler"
+	"github.com/1995parham/koochooloo/internal/infra/http/request"
+	"github.com/1995parham/koochooloo/internal/infra/logger"
+	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
+	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
-	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxtest"
 	"go.uber.org/zap"
 )
 
@@ -27,12 +33,23 @@ type URLSuite struct {
 func (suite *URLSuite) SetupSuite() {
 	suite.engine = echo.New()
 
-	url := handler.URL{
-		Store:  store.NewMemoryURL(),
-		Logger: zap.NewNop(),
-		Tracer: trace.NewNoopTracerProvider().Tracer(""),
-	}
-	url.Register(suite.engine.Group("/api"))
+	fxtest.New(suite.T(),
+		fx.Provide(config.Provide),
+		fx.Provide(logger.Provide),
+		fx.Provide(db.Provide),
+		fx.Provide(telemetry.ProvideNull),
+		fx.Provide(
+			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
+		),
+		fx.Invoke(func(repo urlrepo.Repository, tele telemetry.Telemetery) {
+			url := handler.URL{
+				Store:  repo,
+				Logger: zap.NewNop(),
+				Tracer: tele.TraceProvider.Tracer(""),
+			}
+			url.Register(suite.engine.Group("/api"))
+		}),
+	).RequireStart().RequireStop()
 }
 
 func (suite *URLSuite) TestCountNotFound() {

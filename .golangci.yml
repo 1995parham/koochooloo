@@ -16,6 +16,10 @@ linters:
     - ifshort
     - interfacer
     - exhaustivestruct
+    - nosnakecase
+    - varcheck
+    - deadcode
+    - structcheck
 
 linters-settings:
   wrapcheck:

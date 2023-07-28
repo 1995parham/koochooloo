@@ -3,23 +3,18 @@ package seed
 import (
 	"context"
 
-	"github.com/1995parham/koochooloo/internal/config"
-	"github.com/1995parham/koochooloo/internal/db"
-	store "github.com/1995parham/koochooloo/internal/store/url"
+	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/infra/config"
+	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/logger"
+	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
+	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/spf13/cobra"
-	"go.opentelemetry.io/otel/metric/noop"
-	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
-func main(cfg *config.Config, logger *zap.Logger) {
-	db, err := db.New(cfg.Database)
-	if err != nil {
-		logger.Fatal("database initiation failed", zap.Error(err))
-	}
-
-	str := store.NewMongoURL(db, trace.NewNoopTracerProvider().Tracer(""), noop.NewMeterProvider().Meter(""))
-
+func main(logger *zap.Logger, repo urlrepo.Repository, shutdowner fx.Shutdowner) {
 	urls := []string{
 		"https://1995parham.me",
 		"https://elahe-dastan.github.io",
@@ -28,21 +23,33 @@ func main(cfg *config.Config, logger *zap.Logger) {
 	}
 
 	for _, url := range urls {
-		if _, err := str.Set(context.Background(), "", url, nil, 0); err != nil {
+		if _, err := repo.Set(context.Background(), "", url, nil, 0); err != nil {
 			logger.Fatal("database insertion failed", zap.Error(err))
 		}
 	}
+
+	_ = shutdowner.Shutdown()
 }
 
 // Register migrate command.
-func Register(root *cobra.Command, cfg *config.Config, logger *zap.Logger) {
+func Register(root *cobra.Command) {
 	root.AddCommand(
 		//nolint: exhaustruct
 		&cobra.Command{
 			Use:   "seed",
 			Short: "Add records into database",
 			Run: func(_ *cobra.Command, _ []string) {
-				main(cfg, logger)
+				fx.New(
+					fx.Provide(config.Provide),
+					fx.Provide(logger.Provide),
+					fx.Provide(db.Provide),
+					fx.Provide(telemetry.ProvideNull),
+					fx.Provide(
+						fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
+					),
+					fx.NopLogger,
+					fx.Invoke(main),
+				).Run()
 			},
 		},
 	)
