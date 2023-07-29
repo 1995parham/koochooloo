@@ -50,6 +50,18 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 
 	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx, bson.M{
 		"key": key,
+		"$or": bson.A{
+			bson.M{
+				"expire_time": bson.M{
+					"$eq": nil,
+				},
+			},
+			bson.M{
+				"expire_time": bson.M{
+					"$gte": time.Now(),
+				},
+			},
+		},
 	}, bson.M{
 		"$inc": bson.M{"count": one},
 	})
@@ -57,6 +69,10 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 	var url model.URL
 	if err := record.Decode(&url); err != nil {
 		span.RecordError(err)
+
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return urlrepo.ErrKeyNotFound
+		}
 
 		return fmt.Errorf("mongodb failed: %w", err)
 	}
