@@ -9,6 +9,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 	"github.com/1995parham/koochooloo/internal/infra/config"
 	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
@@ -24,6 +25,7 @@ type CommonURLSuite struct {
 
 	repo urlrepo.Repository
 	app  *fxtest.App
+	gen  generator.Generator
 }
 
 type MemoryURLSuite struct {
@@ -35,11 +37,13 @@ func (suite *MemoryURLSuite) SetupSuite() {
 		fx.Provide(config.Provide),
 		fx.Provide(logger.Provide),
 		fx.Provide(telemetry.ProvideNull),
+		fx.Provide(generator.Provide),
 		fx.Provide(
 			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
 		),
-		fx.Invoke(func(repo urlrepo.Repository) {
+		fx.Invoke(func(repo urlrepo.Repository, gen generator.Generator) {
 			suite.repo = repo
+			suite.gen = gen
 		}),
 	).RequireStart()
 }
@@ -66,12 +70,14 @@ func (suite *MongoURLSuite) SetupSuite() {
 				return nil
 			})),
 		),
+		fx.Provide(generator.Provide),
 		fx.Provide(telemetry.ProvideNull),
 		fx.Provide(
 			fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
 		),
-		fx.Invoke(func(repo urlrepo.Repository) {
+		fx.Invoke(func(repo urlrepo.Repository, gen generator.Generator) {
 			suite.repo = repo
+			suite.gen = gen
 		}),
 	).RequireStart()
 }
@@ -98,8 +104,9 @@ func (suite *CommonURLSuite) TestIncCount() {
 	for _, c := range cases {
 		c := c
 		suite.Run(c.name, func() {
-			key, err := suite.repo.Set(context.Background(), "", "https://elahe-dastan.github.io", nil, c.count)
-			require.NoError(err)
+			key := suite.gen.ShortURLKey()
+
+			require.NoError(suite.repo.Set(context.Background(), key, "https://elahe-dastan.github.io", nil, c.count))
 
 			for i := 0; i < c.inc; i++ {
 				require.NoError(suite.repo.Inc(context.Background(), key))
@@ -126,7 +133,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 	}{
 		{
 			name:           "Successful",
-			key:            "raha",
+			key:            "$raha",
 			url:            "https://elahe-dastan.github.io",
 			expire:         time.Time{},
 			expectedSetErr: nil,
@@ -134,7 +141,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 		},
 		{
 			name:           "Duplicate Key",
-			key:            "raha",
+			key:            "$raha",
 			url:            "https://elahe-dastan.github.io",
 			expire:         time.Time{},
 			expectedSetErr: urlrepo.ErrDuplicateKey,
@@ -166,14 +173,17 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 				expire = nil
 			}
 
-			key, err := suite.repo.Set(context.Background(), c.key, c.url, expire, 0)
-			require.ErrorIs(err, c.expectedSetErr)
+			key := c.key
+			if key == "" {
+				key = suite.gen.ShortURLKey()
+			}
+
+			require.ErrorIs(
+				suite.repo.Set(context.Background(), key, c.url, expire, 0),
+				c.expectedSetErr,
+			)
 
 			if c.expectedSetErr == nil {
-				if c.key != "" {
-					require.Equal("$"+c.key, key)
-				}
-
 				url, err := suite.repo.Get(context.Background(), key)
 				require.ErrorIs(err, c.expectedGetErr)
 				if c.expectedGetErr == nil {

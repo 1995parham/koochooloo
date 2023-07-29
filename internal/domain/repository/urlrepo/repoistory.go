@@ -16,7 +16,7 @@ var (
 // Repository stores and retrieves urls.
 type Repository interface {
 	Inc(context.Context, string) error
-	Set(context.Context, string, string, *time.Time, int) (string, error)
+	Set(context.Context, string, string, *time.Time, int) error
 	Get(context.Context, string) (string, error)
 	Count(context.Context, string) (int, error)
 }

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/infra/http/handler"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/labstack/echo/v4"
@@ -13,7 +13,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func Provide(lc fx.Lifecycle, store urlrepo.Repository, logger *zap.Logger, tele telemetry.Telemetery) {
+func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele telemetry.Telemetery) *echo.Echo {
 	app := echo.New()
 
 	handler.URL{
@@ -41,4 +41,6 @@ func Provide(lc fx.Lifecycle, store urlrepo.Repository, logger *zap.Logger, tele
 			OnStop: app.Shutdown,
 		},
 	)
+
+	return app
 }

@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/infra/config"
 	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
@@ -14,7 +16,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func main(logger *zap.Logger, repo urlrepo.Repository, shutdowner fx.Shutdowner) {
+func main(logger *zap.Logger, svc *urlsvc.URLSvc, shutdowner fx.Shutdowner) {
 	urls := []string{
 		"https://1995parham.me",
 		"https://elahe-dastan.github.io",
@@ -23,7 +25,7 @@ func main(logger *zap.Logger, repo urlrepo.Repository, shutdowner fx.Shutdowner)
 	}
 
 	for _, url := range urls {
-		if _, err := repo.Set(context.Background(), "", url, nil, 0); err != nil {
+		if _, err := svc.Set(context.Background(), "", url, nil, 0); err != nil {
 			logger.Fatal("database insertion failed", zap.Error(err))
 		}
 	}
@@ -44,6 +46,8 @@ func Register(root *cobra.Command) {
 					fx.Provide(logger.Provide),
 					fx.Provide(db.Provide),
 					fx.Provide(telemetry.ProvideNull),
+					fx.Provide(generator.Provide),
+					fx.Provide(urlsvc.Provide),
 					fx.Provide(
 						fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
 					),

@@ -10,8 +10,10 @@ import (
 	"time"
 
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/infra/config"
 	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/http/handler"
 	"github.com/1995parham/koochooloo/internal/infra/http/request"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
@@ -37,13 +39,15 @@ func (suite *URLSuite) SetupSuite() {
 		fx.Provide(config.Provide),
 		fx.Provide(logger.Provide),
 		fx.Provide(db.Provide),
+		fx.Provide(generator.Provide),
+		fx.Provide(urlsvc.Provide),
 		fx.Provide(telemetry.ProvideNull),
 		fx.Provide(
 			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
 		),
-		fx.Invoke(func(repo urlrepo.Repository, tele telemetry.Telemetery) {
+		fx.Invoke(func(store *urlsvc.URLSvc, tele telemetry.Telemetery) {
 			url := handler.URL{
-				Store:  repo,
+				Store:  store,
 				Logger: zap.NewNop(),
 				Tracer: tele.TraceProvider.Tracer(""),
 			}

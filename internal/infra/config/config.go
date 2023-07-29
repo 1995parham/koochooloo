@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/knadh/koanf/parsers/toml"
@@ -27,6 +28,7 @@ type Config struct {
 	Database  db.Config        `json:"database"  koanf:"database"`
 	Logger    logger.Config    `json:"logger"    koanf:"logger"`
 	Telemetry telemetry.Config `json:"telemetry" koanf:"telemetry"`
+	Generator generator.Config `json:"generator" koanf:"generator"`
 }
 
 func Provide() Config {

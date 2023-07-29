@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/1995parham/koochooloo/internal/domain/model"
@@ -65,16 +64,10 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 	return nil
 }
 
-// Set saves given url with a given key in database. if key is null it generates a random key and returns it.
-func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, count int) (string, error) {
+// Set saves given url with a given key in database.
+func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, count int) error {
 	ctx, span := s.Tracer.Start(ctx, "store.url.set")
 	defer span.End()
-
-	if key == "" {
-		key = model.Key()
-	} else {
-		key = fmt.Sprintf("$%s", key)
-	}
 
 	urls := s.DB.Collection(Collection)
 
@@ -89,21 +82,16 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 		span.RecordError(err)
 
 		if mongo.IsDuplicateKeyError(err) {
-			if !strings.HasPrefix(key, "$") {
-				// call set again to generate another random key.
-				return s.Set(ctx, "", url, expire, 0)
-			}
-
-			return "", urlrepo.ErrDuplicateKey
+			return urlrepo.ErrDuplicateKey
 		}
 
-		return "", fmt.Errorf("mongodb failed: %w", err)
+		return fmt.Errorf("mongodb failed: %w", err)
 	}
 
 	s.Metrics.InsertedCounter.Add(ctx, 1)
 	s.Metrics.InsertLatency.Record(ctx, time.Since(start).Seconds())
 
-	return key, nil
+	return nil
 }
 
 // Get retrieves url of the given key if it exists.
