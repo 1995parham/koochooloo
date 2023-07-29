@@ -191,7 +191,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 				}
 
 				count, err := suite.repo.Count(context.Background(), key)
-				require.Equal(c.expectedGetErr, err)
+				require.ErrorIs(err, c.expectedGetErr)
 				if c.expectedGetErr == nil {
 					require.Equal(0, count)
 				}
