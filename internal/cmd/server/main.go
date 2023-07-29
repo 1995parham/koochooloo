@@ -2,8 +2,10 @@ package server
 
 import (
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/infra/config"
 	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/http/server"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
@@ -35,9 +37,11 @@ func Register(
 					fx.Provide(logger.Provide),
 					fx.Provide(telemetry.Provide),
 					fx.Provide(db.Provide),
+					fx.Provide(generator.Provide),
 					fx.Provide(
 						fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
 					),
+					fx.Provide(urlsvc.Provide),
 					fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 						return &fxevent.ZapLogger{Logger: logger}
 					}),

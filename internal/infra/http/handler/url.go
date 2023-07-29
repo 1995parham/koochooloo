@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/infra/http/request"
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/attribute"
@@ -15,7 +16,7 @@ import (
 
 // URL handles interaction with URLs.
 type URL struct {
-	Store  urlrepo.Repository
+	Store  *urlsvc.URLSvc
 	Logger *zap.Logger
 	Tracer trace.Tracer
 }

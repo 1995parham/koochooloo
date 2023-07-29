@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"go.uber.org/fx"
@@ -13,6 +14,9 @@ func Default() Config {
 		Out: fx.Out{},
 		Logger: logger.Config{
 			Level: "debug",
+		},
+		Generator: generator.Config{
+			Type: "simple",
 		},
 		Database: db.Config{
 			Name: "koochooloo",

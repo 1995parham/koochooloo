@@ -30,15 +30,9 @@ func (m *MemoryURL) Inc(_ context.Context, key string) error {
 	return nil
 }
 
-func (m *MemoryURL) Set(_ context.Context, key string, url string, expire *time.Time, count int) (string, error) {
-	if key == "" {
-		key = model.Key()
-	} else {
-		key = "$" + key
-	}
-
+func (m *MemoryURL) Set(_ context.Context, key string, url string, expire *time.Time, count int) error {
 	if _, ok := m.store[key]; ok {
-		return "", urlrepo.ErrDuplicateKey
+		return urlrepo.ErrDuplicateKey
 	}
 
 	m.store[key] = model.URL{
@@ -48,7 +42,7 @@ func (m *MemoryURL) Set(_ context.Context, key string, url string, expire *time.
 		ExpireTime: expire,
 	}
 
-	return key, nil
+	return nil
 }
 
 func (m *MemoryURL) Get(_ context.Context, key string) (string, error) {
