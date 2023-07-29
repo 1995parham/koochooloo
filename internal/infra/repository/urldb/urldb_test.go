@@ -90,14 +90,25 @@ func (suite *CommonURLSuite) TestIncCount() {
 	require := suite.Require()
 
 	cases := []struct {
-		name  string
-		count int
-		inc   int
+		name   string
+		count  int
+		inc    int
+		expire time.Time
+		err    error
 	}{
 		{
-			name:  "Successful",
-			count: 2,
-			inc:   1,
+			name:   "Successful",
+			count:  2,
+			inc:    1,
+			expire: time.Time{},
+			err:    nil,
+		},
+		{
+			name:   "Expired",
+			count:  2,
+			inc:    1,
+			expire: time.Now().Add(-time.Minute),
+			err:    urlrepo.ErrKeyNotFound,
 		},
 	}
 
@@ -106,15 +117,30 @@ func (suite *CommonURLSuite) TestIncCount() {
 		suite.Run(c.name, func() {
 			key := suite.gen.ShortURLKey()
 
-			require.NoError(suite.repo.Set(context.Background(), key, "https://elahe-dastan.github.io", nil, c.count))
-
-			for i := 0; i < c.inc; i++ {
-				require.NoError(suite.repo.Inc(context.Background(), key))
+			expire := &c.expire
+			if c.expire.IsZero() {
+				expire = nil
 			}
 
-			count, err := suite.repo.Count(context.Background(), key)
-			require.NoError(err)
-			require.Equal(c.count+c.inc, count)
+			require.NoError(suite.repo.Set(context.Background(), key, "https://elahe-dastan.github.io", expire, c.count))
+
+			for i := 0; i < c.inc; i++ {
+				err := suite.repo.Inc(context.Background(), key)
+				if c.err == nil {
+					require.NoError(err)
+				} else {
+					require.ErrorIs(err, c.err)
+				}
+			}
+
+			if c.err == nil {
+				count, err := suite.repo.Count(context.Background(), key)
+				require.NoError(err)
+				require.Equal(c.count+c.inc, count)
+			} else {
+				_, err := suite.repo.Count(context.Background(), key)
+				require.ErrorIs(err, c.err)
+			}
 		})
 	}
 }

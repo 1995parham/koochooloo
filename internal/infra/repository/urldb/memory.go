@@ -20,7 +20,7 @@ func ProvideMemory() *MemoryURL {
 
 func (m *MemoryURL) Inc(_ context.Context, key string) error {
 	u, ok := m.store[key]
-	if !ok {
+	if !ok || (u.ExpireTime != nil && u.ExpireTime.Before(time.Now())) {
 		return urlrepo.ErrKeyNotFound
 	}
 
