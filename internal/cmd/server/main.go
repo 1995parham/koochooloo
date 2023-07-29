@@ -10,6 +10,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -18,6 +19,7 @@ import (
 
 func main(
 	logger *zap.Logger,
+	_ *echo.Echo,
 ) {
 	logger.Info("welcome to our server")
 }

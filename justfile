@@ -37,3 +37,7 @@ database: (dev "up") (dev "exec" "database mongosh koochooloo")
 # run golangci-lint
 lint:
     golangci-lint run -c .golangci.yml
+
+k6: (dev "up") build
+    ./koochooloo server > /dev/null 2>&1 &
+    k6 run ./api/k6/script.js
