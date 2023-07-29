@@ -3,6 +3,19 @@ import { check, group } from "k6";
 
 const baseURL = "http://127.0.0.1:1378";
 
+export let options = {
+  stages: [
+    {
+      target: 35,
+      duration: "2m",
+    },
+  ],
+  thresholds: {
+    http_req_duration: ["avg<10000", "p(100)<30000"],
+    http_req_failed: ["rate<0.01"],
+  },
+};
+
 export default function () {
   group("healthz", () => {
     let res = http.get(`${baseURL}/healthz`);
