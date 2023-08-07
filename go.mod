@@ -3,7 +3,7 @@ module github.com/1995parham/koochooloo
 go 1.20
 
 require (
-	github.com/carlmjohnson/versioninfo v0.22.4
+	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/knadh/koanf/parsers/toml v0.1.0
 	github.com/knadh/koanf/providers/env v0.1.0
