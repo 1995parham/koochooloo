@@ -1,5 +1,5 @@
 ---
-version: "3"
+name: "koochooloo"
 services:
   database:
     image: mongo:latest
