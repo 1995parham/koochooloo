@@ -17,22 +17,27 @@ func TestURLValidation(t *testing.T) {
 		isValid bool
 	}{
 		{
+			expire:  time.Time{},
 			url:     "",
 			isValid: false,
 		},
 		{
+			expire:  time.Time{},
 			url:     "hello",
 			isValid: false,
 		},
 		{
+			expire:  time.Time{},
 			url:     "hello.com",
 			isValid: false,
 		},
 		{
+			expire:  time.Time{},
 			url:     "www.hello.com",
 			isValid: false,
 		},
 		{
+			expire:  time.Time{},
 			url:     "http://www.hello.com",
 			isValid: true,
 		},
