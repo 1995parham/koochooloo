@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	Level string `json:"level"  koanf:"level"`
+	Level string `json:"level" koanf:"level"`
 }
 
 // New creates a zap logger for console and also setup an output for syslog.
