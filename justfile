@@ -17,14 +17,13 @@ dev cmd *flags:
       docker compose -f ./deployments/docker-compose.yml down
       docker compose -f ./deployments/docker-compose.yml rm
     elif [ {{ cmd }} = 'up' ]; then
-      docker compose -f ./deployments/docker-compose.yml up -d {{ flags }}
+      docker compose -f ./deployments/docker-compose.yml up --wait -d {{ flags }}
     else
       docker compose -f ./deployments/docker-compose.yml {{ cmd }} {{ flags }}
     fi
 
 # run tests in the dev environment
-test: (dev "up")
-    just seed
+test: seed
     go test -v ./... -covermode=atomic -coverprofile=coverage.out
 
 seed: (dev "up")
