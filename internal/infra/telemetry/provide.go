@@ -34,7 +34,10 @@ func setupTraceExporter(cfg Config) trace.SpanExporter {
 		return exporter
 	}
 
-	exporter, err := otlptracegrpc.New(context.Background(), otlptracegrpc.WithEndpoint(cfg.Trace.Endpoint), otlptracegrpc.WithInsecure())
+	exporter, err := otlptracegrpc.New(
+		context.Background(),
+		otlptracegrpc.WithEndpoint(cfg.Trace.Endpoint), otlptracegrpc.WithInsecure(),
+	)
 	if err != nil {
 		log.Fatalf("failed to initialize export pipeline for traces (otlp with grpc): %v", err)
 	}
