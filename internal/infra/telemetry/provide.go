@@ -10,7 +10,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/jaeger"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
@@ -34,14 +34,9 @@ func setupTraceExporter(cfg Config) trace.SpanExporter {
 		return exporter
 	}
 
-	exporter, err := jaeger.New(
-		jaeger.WithAgentEndpoint(
-			jaeger.WithAgentHost(cfg.Trace.Agent.Host),
-			jaeger.WithAgentPort(cfg.Trace.Agent.Port),
-		),
-	)
+	exporter, err := otlptracegrpc.New(context.Background(), otlptracegrpc.WithEndpoint(cfg.Trace.Endpoint))
 	if err != nil {
-		log.Fatalf("failed to initialize export pipeline for traces (jeager): %v", err)
+		log.Fatalf("failed to initialize export pipeline for traces (otlp with grpc): %v", err)
 	}
 
 	return exporter

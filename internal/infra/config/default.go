@@ -30,11 +30,8 @@ func Default() Config {
 				Enabled: true,
 			},
 			Trace: telemetry.Trace{
-				Enabled: false,
-				Agent: telemetry.Agent{
-					Port: "6831",
-					Host: "127.0.0.1",
-				},
+				Enabled:  true,
+				Endpoint: "127.0.0.1:4317",
 			},
 		},
 	}
