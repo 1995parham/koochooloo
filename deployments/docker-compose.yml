@@ -13,8 +13,6 @@ services:
       start_period: 5s
   jaeger:
     image: jaegertracing/all-in-one:latest
-    command:
-      - --collector.otlp.enabled=true
     ports:
       - target: 4317
         published: 4317
