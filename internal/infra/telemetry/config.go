@@ -13,11 +13,6 @@ type Meter struct {
 }
 
 type Trace struct {
-	Enabled bool  `json:"enabled,omitempty" koanf:"enabled"`
-	Agent   Agent `json:"agent,omitempty"   koanf:"agent"`
-}
-
-type Agent struct {
-	Host string `json:"host,omitempty" koanf:"host"`
-	Port string `json:"port,omitempty" koanf:"port"`
+	Enabled  bool   `json:"enabled,omitempty"  koanf:"enabled"`
+	Endpoint string `json:"endpoint,omitempty" koanf:"endpoint"`
 }

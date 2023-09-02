@@ -13,10 +13,12 @@ services:
       start_period: 5s
   jaeger:
     image: jaegertracing/all-in-one:latest
+    command:
+      - --collector.otlp.enabled=true
     ports:
-      - target: 6831
-        published: 6831
-        protocol: udp
+      - target: 4317
+        published: 4317
+        protocol: tcp
       - target: 16686
         published: 16686
         protocol: tcp
