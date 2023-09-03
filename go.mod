@@ -2,8 +2,6 @@ module github.com/1995parham/koochooloo
 
 go 1.21
 
-toolchain go1.21.0
-
 require (
 	github.com/carlmjohnson/versioninfo v0.22.5
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
