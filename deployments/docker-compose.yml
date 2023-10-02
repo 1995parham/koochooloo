@@ -13,6 +13,11 @@ services:
       start_period: 5s
   jaeger:
     image: jaegertracing/all-in-one:latest
+    healthcheck:
+      test: "/go/bin/all-in-one-linux status"
+      interval: 2s
+      timeout: 20s
+      retries: 10
     ports:
       - target: 4317
         published: 4317
