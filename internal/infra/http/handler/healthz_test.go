@@ -6,9 +6,11 @@ import (
 	"testing"
 
 	"github.com/1995parham/koochooloo/internal/infra/http/handler"
+	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/suite"
-	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/fx"
+	"go.uber.org/fx/fxtest"
 	"go.uber.org/zap"
 )
 
@@ -21,10 +23,16 @@ type HealthzSuite struct {
 func (suite *HealthzSuite) SetupSuite() {
 	suite.engine = echo.New()
 
-	handler.Healthz{
-		Logger: zap.NewNop(),
-		Tracer: trace.NewNoopTracerProvider().Tracer(""),
-	}.Register(suite.engine.Group(""))
+	fxtest.New(suite.T(),
+		fx.Provide(telemetry.ProvideNull),
+		fx.Invoke(func(tele telemetry.Telemetery) {
+			url := handler.Healthz{
+				Logger: zap.NewNop(),
+				Tracer: tele.TraceProvider.Tracer(""),
+			}
+			url.Register(suite.engine.Group(""))
+		}),
+	).RequireStart().RequireStop()
 }
 
 func (suite *HealthzSuite) TestHandler() {
