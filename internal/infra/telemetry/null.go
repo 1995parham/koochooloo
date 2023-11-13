@@ -1,8 +1,8 @@
 package telemetry
 
 import (
-	"go.opentelemetry.io/otel/metric/noop"
-	"go.opentelemetry.io/otel/trace"
+	mnoop "go.opentelemetry.io/otel/metric/noop"
+	tnoop "go.opentelemetry.io/otel/trace/noop"
 	"go.uber.org/fx"
 )
 
@@ -11,8 +11,8 @@ func ProvideNull(_ fx.Lifecycle) Telemetery {
 		serviceName:   "",
 		namespace:     "",
 		metricSrv:     nil,
-		TraceProvider: trace.NewNoopTracerProvider(),
-		MeterProvider: noop.NewMeterProvider(),
+		TraceProvider: tnoop.NewTracerProvider(),
+		MeterProvider: mnoop.NewMeterProvider(),
 	}
 
 	return tel
