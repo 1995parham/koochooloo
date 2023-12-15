@@ -1,5 +1,5 @@
-<h1 align="center">:panda_face: koochooloo :chestnut:</h1>
-<h6 align="center">I want to dedicate this project to my love :heart:</h6>
+<h1 align="center">🐼 koochooloo 🌰</h1>
+<h6 align="center">I want to dedicate this project to my love ❤️</h6>
 
 <p align="center">
 <img src="./assets/koochooloo.png" height="250px">
