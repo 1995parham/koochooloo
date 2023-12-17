@@ -17,16 +17,31 @@
 
 ## Introduction
 
-Here is a mini project for shortening your URLs.
-This sweet project shows how to write a simple lovely Golang's project that contains Database, Configuration, and, etc.
-You can use this project as a guidance to write your ReST applications in Golang.
-This project tries to be strongly typed, easy to read and easy to maintain therefore there is no global variable, `init` function and etc.
-We have used the singular name for package as a de-facto standard, and the structure is based on [project-layout](https://github.com/golang-standards/project-layout).
+Welcome to **Koochooloo**: an elegant, practical project crafted to streamline
+the development of Golang applications. Boasting a well-organized architecture, 
+**Koochooloo** integrates vital features such as database handling and configuration 
+management, exemplifying the best practices in building robust ReST applications with Go.
 
-The goal is have a project that you can add features into it easily and without struggling with the code base.
-Each package works independently from other packages and you can find easily what you need.
-This project used [fx](https://github.com/uber-go/fx) as dependency injection framework which doesn't need any code generation and also has
-support for being used in tests.
+### Features
+
+- **Strong Typing**: Unyielding commitment to strong typing, enhancing readability and maintainability.
+- **No Globals or `init` Functions**: Eschews globals and the complexities of `init` functions to keep things simple.
+- **Standardized Naming**: Adherence to the de-facto standard of singular package names, inspired by 'project-layout' principles.
+- **Independent Packages**: Each package is crafted to function independently, making the addition of new features seamless.
+- **Intuitive Structure**: Navigate with ease through a codebase that's designed for clarity.
+
+### Technology
+
+Leveraging `fx` as our dependency injection framework, **Koochooloo** delivers:
+
+- **No Code Generation**: Utilize powerful dependency injection without any code bloat from code generation.
+- **Test-Friendly**: An environment that supports and simplifies the use of `fx` in testing with the same ease as in production.
+
+### Your Development Companion
+
+Embark on a journey with **koochooloo** and redefine your approach to creating ReSTful applications in Go.
+Whether you're expanding your skillset or building a solid foundation for complex applications, 
+**Koochooloo** is your partner in efficient, clean, and scalable software design.
 
 ## Structure
 
