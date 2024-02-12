@@ -27,7 +27,7 @@ func (s *URLSvc) Set(ctx context.Context, key, url string, expire *time.Time, co
 	if key == "" {
 		key = s.gen.ShortURLKey()
 	} else {
-		key = fmt.Sprintf("$%s", key)
+		key = "$" + key
 	}
 
 	if err := s.repo.Set(ctx, key, url, expire, count); err != nil {

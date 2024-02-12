@@ -212,12 +212,14 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 			if c.expectedSetErr == nil {
 				url, err := suite.repo.Get(context.Background(), key)
 				require.ErrorIs(err, c.expectedGetErr)
+
 				if c.expectedGetErr == nil {
 					require.Equal(c.url, url)
 				}
 
 				count, err := suite.repo.Count(context.Background(), key)
 				require.ErrorIs(err, c.expectedGetErr)
+
 				if c.expectedGetErr == nil {
 					require.Equal(0, count)
 				}
