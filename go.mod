@@ -1,6 +1,6 @@
 module github.com/1995parham/koochooloo
 
-go 1.21
+go 1.22
 
 require (
 	github.com/carlmjohnson/versioninfo v0.22.5
