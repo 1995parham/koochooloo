@@ -3,7 +3,6 @@ package handler_test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -62,7 +61,7 @@ func (suite *URLSuite) TestCountNotFound() {
 	key := "notexists"
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/count/%s", key), nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/count/"+key, nil)
 
 	suite.engine.ServeHTTP(w, req)
 	require.Equal(http.StatusNotFound, w.Code)
@@ -95,12 +94,13 @@ func (suite *URLSuite) TestCount() {
 
 	{
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/count/%s", resp), nil)
+		req := httptest.NewRequest(http.MethodGet, "/api/count/"+resp, nil)
 
 		suite.engine.ServeHTTP(w, req)
 		require.Equal(http.StatusOK, w.Code)
 
 		var count int
+
 		require.NoError(json.NewDecoder(w.Body).Decode(&count))
 		require.Equal(0, count)
 	}
@@ -154,7 +154,7 @@ func (suite *URLSuite) TestExpiration() {
 
 	{
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/%s", resp), nil)
+		req := httptest.NewRequest(http.MethodGet, "/api/"+resp, nil)
 
 		suite.engine.ServeHTTP(w, req)
 		require.Equal(http.StatusNotFound, w.Code)
@@ -235,6 +235,7 @@ func (suite *URLSuite) TestPostRetrieve() {
 
 			if c.code == http.StatusOK {
 				var resp string
+
 				require.NoError(json.NewDecoder(w.Body).Decode(&resp))
 
 				if c.key != "" {
@@ -242,7 +243,7 @@ func (suite *URLSuite) TestPostRetrieve() {
 				}
 
 				w := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/%s", resp), nil)
+				req := httptest.NewRequest(http.MethodGet, "/api/"+resp, nil)
 
 				suite.engine.ServeHTTP(w, req)
 				require.Equal(c.retrieve, w.Code)

@@ -113,12 +113,14 @@ func (suite *URLSuite) TestSetGetCount() {
 
 				url, err := suite.svc.Get(context.Background(), key)
 				require.ErrorIs(err, c.expectedGetErr)
+
 				if c.expectedGetErr == nil {
 					require.Equal(c.url, url)
 				}
 
 				count, err := suite.svc.Count(context.Background(), key)
 				require.ErrorIs(err, c.expectedGetErr)
+
 				if c.expectedGetErr == nil {
 					require.Equal(0, count)
 				}
