@@ -1,6 +1,4 @@
-FROM golang:alpine as builder
-
-RUN apk add git
+FROM golang:1.22-bookworm as builder
 
 WORKDIR /app
 
@@ -13,7 +11,7 @@ COPY . .
 WORKDIR /app/cmd/koochooloo
 RUN go build -o /koochooloo
 
-FROM alpine:latest as release
+FROM gcr.io/distroless/base-debian12:nonroot as release
 
 LABEL maintainer="Parham Alvani <parham.alvani@gmail.com>"
 
