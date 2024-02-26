@@ -27,7 +27,7 @@ jobs:
         with:
           go-version: "1.22"
       - run: just test
-      - uses: codecov/codecov-action@v4.0.1
+      - uses: codecov/codecov-action@v4.0.2
         with:
           files: coverage.out
 
