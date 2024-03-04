@@ -27,7 +27,7 @@ jobs:
         with:
           go-version-file: "go.mod"
       - run: just test
-      - uses: codecov/codecov-action@v4.0.2
+      - uses: codecov/codecov-action@v4.1.0
         with:
           files: coverage.out
 
