@@ -30,6 +30,8 @@ jobs:
       - uses: codecov/codecov-action@v4.1.0
         with:
           files: coverage.out
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: 1995parham/koochoolooo
 
   docker:
     name: docker
