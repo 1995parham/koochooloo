@@ -212,9 +212,10 @@ func (suite *URLSuite) TestPostRetrieve() {
 	}
 
 	for _, c := range cases {
-		c := c
 		suite.Run(c.name, func() {
-			expire := &c.expire
+			expire := new(time.Time)
+
+			*expire = c.expire
 			if c.expire.IsZero() {
 				expire = nil
 			}

@@ -113,18 +113,18 @@ func (suite *CommonURLSuite) TestIncCount() {
 	}
 
 	for _, c := range cases {
-		c := c
 		suite.Run(c.name, func() {
 			key := suite.gen.ShortURLKey()
+			expire := new(time.Time)
 
-			expire := &c.expire
+			*expire = c.expire
 			if c.expire.IsZero() {
 				expire = nil
 			}
 
 			require.NoError(suite.repo.Set(context.Background(), key, "https://elahe-dastan.github.io", expire, c.count))
 
-			for i := 0; i < c.inc; i++ {
+			for range c.inc {
 				err := suite.repo.Inc(context.Background(), key)
 				if c.err == nil {
 					require.NoError(err)
@@ -192,9 +192,10 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 	}
 
 	for _, c := range cases {
-		c := c
 		suite.Run(c.name, func() {
-			expire := &c.expire
+			expire := new(time.Time)
+
+			*expire = c.expire
 			if c.expire.IsZero() {
 				expire = nil
 			}
