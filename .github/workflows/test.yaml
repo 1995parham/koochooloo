@@ -48,7 +48,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/bake-action@v4
+      - uses: docker/bake-action@v5
         with:
           files: "build/package/docker-bake.json"
           push: true
