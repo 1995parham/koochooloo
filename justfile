@@ -13,8 +13,8 @@ update:
 # set up the dev environment with docker-compose
 dev cmd *flags:
     #!/usr/bin/env bash
+    echo '{{ BOLD + YELLOW }}Development environment based on docker-compose{{ NORMAL }}'
     set -euxo pipefail
-    @echo '{{ BOLD + YELLOW }}Development environment based on docker-compose{{ NORMAL }}'
     if [ {{ cmd }} = 'down' ]; then
       docker compose -f ./deployments/docker-compose.yml down
       docker compose -f ./deployments/docker-compose.yml rm
