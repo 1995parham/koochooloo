@@ -3,6 +3,7 @@ default:
 
 # build koochooloo binary
 build:
+    @echo '{{ BOLD + CYAN }}Building Koochooloo!{{ NORMAL }}'
     go build -o koochooloo ./cmd/koochooloo
 
 # update go packages
@@ -13,6 +14,7 @@ update:
 dev cmd *flags:
     #!/usr/bin/env bash
     set -euxo pipefail
+    @echo '{{ BOLD + YELLOW }}Development environment based on docker-compose{{ NORMAL }}'
     if [ {{ cmd }} = 'down' ]; then
       docker compose -f ./deployments/docker-compose.yml down
       docker compose -f ./deployments/docker-compose.yml rm
