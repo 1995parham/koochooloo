@@ -10,7 +10,7 @@ require (
 	github.com/knadh/koanf/providers/file v1.1.2
 	github.com/knadh/koanf/providers/structs v0.1.0
 	github.com/knadh/koanf/v2 v2.1.2
-	github.com/labstack/echo/v4 v4.13.2
+	github.com/labstack/echo/v4 v4.13.3
 	github.com/prometheus/client_golang v1.20.5
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.10.0
@@ -28,7 +28,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.33.0
 	go.uber.org/fx v1.23.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/net v0.32.0
+	golang.org/x/net v0.33.0
 )
 
 require (
