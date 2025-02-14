@@ -78,6 +78,8 @@ func setupMeterExporter(cfg Config) (metric.Reader, *http.Server) {
 		ErrorLog:                     nil,
 		BaseContext:                  nil,
 		ConnContext:                  nil,
+		HTTP2:                        nil,
+		Protocols:                    nil,
 	}
 }
 
