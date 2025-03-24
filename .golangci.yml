@@ -15,7 +15,7 @@ linters:
 
   settings:
     wrapcheck:
-      ignoreSigs:
+      ignore-sigs:
         - .JSON
         - .NewHTTPError
         - .Redirect
