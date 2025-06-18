@@ -1,0 +1,14 @@
+### create
+
+# Create shorten URL
+POST 127.0.0.1:1378/api/urls HTTP/1.1
+Content-Type: application/json
+
+{
+  "url": "https://elahe-dastan.github.io"
+}
+
+###
+
+# Resolve shorten URL
+GET 127.0.0.1:1378/api/{{create.response.body.$}} HTTP/1.1
