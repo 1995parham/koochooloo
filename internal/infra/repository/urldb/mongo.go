@@ -28,7 +28,7 @@ const (
 	one        = 1
 )
 
-// NewMongoURL creates new URL store.
+// ProvideDB creates new URL mongodb store.
 func ProvideDB(db *mongo.Database, tele telemetry.Telemetery) *MongoURL {
 	tracer := tele.TraceProvider.Tracer("urldb.db")
 	meter := tele.MeterProvider.Meter("urldb.db")
@@ -43,7 +43,7 @@ func ProvideDB(db *mongo.Database, tele telemetry.Telemetery) *MongoURL {
 	}
 }
 
-// Inc increments counter of url record by one.
+// Inc increments counter of url record by one, means url got visited.
 func (s *MongoURL) Inc(ctx context.Context, key string) error {
 	ctx, span := s.Tracer.Start(ctx, "store.url.inc")
 	defer span.End()
