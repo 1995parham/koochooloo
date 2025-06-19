@@ -9,9 +9,9 @@ import (
 	"github.com/1995parham/koochooloo/internal/domain/model"
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.opentelemetry.io/otel/trace"
 )
 
