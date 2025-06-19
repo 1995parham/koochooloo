@@ -17,8 +17,7 @@ dev cmd *flags:
     set -eu
     set -o pipefail
     if [ {{ cmd }} = 'down' ]; then
-      docker compose -f ./deployments/docker-compose.yml down
-      docker compose -f ./deployments/docker-compose.yml rm
+      docker compose -f ./deployments/docker-compose.yml down --volumes --remove-orphans
     elif [ {{ cmd }} = 'up' ]; then
       docker compose -f ./deployments/docker-compose.yml up --wait -d {{ flags }}
     else
