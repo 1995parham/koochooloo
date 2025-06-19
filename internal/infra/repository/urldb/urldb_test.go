@@ -14,8 +14,8 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/stretchr/testify/suite"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 )
@@ -91,8 +91,8 @@ func (suite *CommonURLSuite) TestIncCount() {
 
 	cases := []struct {
 		name   string
-		count  int
-		inc    int
+		count  int // current number of visits
+		inc    int // expected increase in the number of visits
 		expire time.Time
 		err    error
 	}{
@@ -106,7 +106,7 @@ func (suite *CommonURLSuite) TestIncCount() {
 		{
 			name:   "Expired",
 			count:  2,
-			inc:    1,
+			inc:    0,
 			expire: time.Now().Add(-time.Minute),
 			err:    urlrepo.ErrKeyNotFound,
 		},
@@ -115,9 +115,8 @@ func (suite *CommonURLSuite) TestIncCount() {
 	for _, c := range cases {
 		suite.Run(c.name, func() {
 			key := suite.gen.ShortURLKey()
-			expire := new(time.Time)
 
-			*expire = c.expire
+			expire := &c.expire
 			if c.expire.IsZero() {
 				expire = nil
 			}
