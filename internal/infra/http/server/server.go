@@ -31,7 +31,8 @@ func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele tel
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
-					if err := app.Start(":1378"); !errors.Is(err, http.ErrServerClosed) {
+					err := app.Start(":1378")
+					if !errors.Is(err, http.ErrServerClosed) {
 						logger.Fatal("echo initiation failed", zap.Error(err))
 					}
 				}()

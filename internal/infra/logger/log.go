@@ -15,7 +15,9 @@ type Config struct {
 // Provide creates a zap logger for console.
 func Provide(lc fx.Lifecycle, cfg Config) *zap.Logger {
 	var lvl zapcore.Level
-	if err := lvl.Set(cfg.Level); err != nil {
+
+	err := lvl.Set(cfg.Level)
+	if err != nil {
 		log.Printf("cannot parse log level %s: %s", cfg.Level, err)
 
 		lvl = zapcore.WarnLevel

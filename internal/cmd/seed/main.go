@@ -25,7 +25,8 @@ func main(logger *zap.Logger, svc *urlsvc.URLSvc, shutdowner fx.Shutdowner) {
 	}
 
 	for _, url := range urls {
-		if _, err := svc.Set(context.Background(), "", url, nil, 0); err != nil {
+		_, err := svc.Set(context.Background(), "", url, nil, 0)
+		if err != nil {
 			logger.Fatal("database insertion failed", zap.Error(err))
 		}
 	}

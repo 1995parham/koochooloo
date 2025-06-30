@@ -28,7 +28,8 @@ func Execute() {
 	migrate.Register(root)
 	seed.Register(root)
 
-	if err := root.Execute(); err != nil {
+	err := root.Execute()
+	if err != nil {
 		log.Printf("failed to execute root command %s", err)
 		os.Exit(ExitFailure)
 	}
