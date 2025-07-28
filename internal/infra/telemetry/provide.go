@@ -124,9 +124,11 @@ func Provide(lc fx.Lifecycle, cfg Config) Telemetery {
 	return tel
 }
 
-func (t Telemetery) run(_ context.Context) error {
+func (t Telemetery) run(ctx context.Context) error {
 	if t.metricSrv != nil {
-		l, err := net.Listen("tcp", t.metricSrv.Addr)
+		lc := new(net.ListenConfig)
+
+		l, err := lc.Listen(ctx, "tcp", t.metricSrv.Addr)
 		if err != nil {
 			return fmt.Errorf("metric server listen failed: %w", err)
 		}
