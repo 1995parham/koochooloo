@@ -67,9 +67,7 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 	})
 
 	var url model.URL
-
-	err := record.Decode(&url)
-	if err != nil {
+	if err := record.Decode(&url); err != nil {
 		span.RecordError(err)
 
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -91,13 +89,12 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 
 	start := time.Now()
 
-	_, err := urls.InsertOne(ctx, model.URL{
+	if _, err := urls.InsertOne(ctx, model.URL{
 		Key:        key,
 		URL:        url,
 		ExpireTime: expire,
 		Count:      count,
-	})
-	if err != nil {
+	}); err != nil {
 		span.RecordError(err)
 
 		if mongo.IsDuplicateKeyError(err) {
@@ -135,9 +132,7 @@ func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
 	})
 
 	var url model.URL
-
-	err := record.Decode(&url)
-	if err != nil {
+	if err := record.Decode(&url); err != nil {
 		span.RecordError(err)
 
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -177,8 +172,7 @@ func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
 		Count int
 	}
 
-	err := record.Decode(&count)
-	if err != nil {
+	if err := record.Decode(&count); err != nil {
 		span.RecordError(err)
 
 		if errors.Is(err, mongo.ErrNoDocuments) {

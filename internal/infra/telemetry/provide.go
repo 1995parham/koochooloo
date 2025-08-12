@@ -134,8 +134,7 @@ func (t Telemetery) run(ctx context.Context) error {
 		}
 
 		go func() {
-			err := t.metricSrv.Serve(l)
-			if !errors.Is(err, http.ErrServerClosed) {
+			if err := t.metricSrv.Serve(l); !errors.Is(err, http.ErrServerClosed) {
 				log.Fatalf("metric server initiation failed: %v", err)
 			}
 		}()
@@ -145,8 +144,7 @@ func (t Telemetery) run(ctx context.Context) error {
 }
 
 func (t Telemetery) shutdown(ctx context.Context) error {
-	err := t.metricSrv.Shutdown(ctx)
-	if err != nil {
+	if err := t.metricSrv.Shutdown(ctx); err != nil {
 		return fmt.Errorf("cannot shutdown the metric server %w", err)
 	}
 

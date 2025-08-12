@@ -30,8 +30,7 @@ func (s *URLSvc) Set(ctx context.Context, key, url string, expire *time.Time, co
 		key = "$" + key
 	}
 
-	err := s.repo.Set(ctx, key, url, expire, count)
-	if err != nil {
+	if err := s.repo.Set(ctx, key, url, expire, count); err != nil {
 		if errors.Is(err, urlrepo.ErrDuplicateKey) {
 			if !strings.HasPrefix(key, "$") {
 				// call set again to generate another random key.
@@ -66,8 +65,7 @@ func (s *URLSvc) Count(ctx context.Context, key string) (int, error) {
 }
 
 func (s *URLSvc) Inc(ctx context.Context, key string) error {
-	err := s.repo.Inc(ctx, key)
-	if err != nil {
+	if err := s.repo.Inc(ctx, key); err != nil {
 		return fmt.Errorf("database inc count failed %w", err)
 	}
 

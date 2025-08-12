@@ -32,8 +32,7 @@ func Provide(lc fx.Lifecycle, cfg Config) (*mongo.Database, error) {
 		ctx, done := context.WithTimeout(context.Background(), connectionTimeout)
 		defer done()
 
-		err := client.Ping(ctx, readpref.Primary())
-		if err != nil {
+		if err := client.Ping(ctx, readpref.Primary()); err != nil {
 			return nil, fmt.Errorf("db ping error: %w", err)
 		}
 	}

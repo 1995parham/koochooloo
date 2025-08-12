@@ -17,11 +17,10 @@ type URL struct {
 
 // Validate URL request.
 func (r URL) Validate() error {
-	err := validation.ValidateStruct(&r,
+	if err := validation.ValidateStruct(&r,
 		validation.Field(&r.URL, validation.Required, is.RequestURI),
 		validation.Field(&r.Expire, validation.Min(time.Now())),
-	)
-	if err != nil {
+	); err != nil {
 		return fmt.Errorf("url request validation failed: %w", err)
 	}
 
