@@ -83,3 +83,5 @@ require (
 	google.golang.org/protobuf v1.36.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/prometheus/otlptranslator => github.com/prometheus/otlptranslator v0.0.1
