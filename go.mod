@@ -1,6 +1,6 @@
 module github.com/1995parham/koochooloo
 
-go 1.24
+go 1.25
 
 require (
 	github.com/carlmjohnson/versioninfo v0.22.5
@@ -16,7 +16,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/tidwall/pretty v1.2.1
 	go.mongodb.org/mongo-driver/v2 v2.3.0
-	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20250817153231-dd67aeb7f5d4
+	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20250818160639-c6de4c0d9e0b
 	go.opentelemetry.io/otel v1.37.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.37.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.59.1
