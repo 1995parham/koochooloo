@@ -13,19 +13,19 @@ require (
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/prometheus/client_golang v1.23.0
 	github.com/spf13/cobra v1.9.1
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/pretty v1.2.1
 	go.mongodb.org/mongo-driver/v2 v2.3.0
 	go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/v2/mongo/otelmongo v0.0.0-20250824192905-09874dfa121e
-	go.opentelemetry.io/otel v1.37.0
+	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.37.0
 	go.opentelemetry.io/otel/exporters/prometheus v0.59.1
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v1.37.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.37.0
-	go.opentelemetry.io/otel/metric v1.37.0
-	go.opentelemetry.io/otel/sdk v1.37.0
-	go.opentelemetry.io/otel/sdk/metric v1.37.0
-	go.opentelemetry.io/otel/trace v1.37.0
+	go.opentelemetry.io/otel/metric v1.38.0
+	go.opentelemetry.io/otel/sdk v1.38.0
+	go.opentelemetry.io/otel/sdk/metric v1.38.0
+	go.opentelemetry.io/otel/trace v1.38.0
 	go.uber.org/fx v1.24.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.43.0
