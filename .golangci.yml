@@ -13,8 +13,6 @@ linters:
     - revive
     - wrapcheck
     - noinlineerr
-    # temporary until fix happen in otel exporters
-    - gomoddirectives
 
   settings:
     wrapcheck:
