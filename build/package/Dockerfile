@@ -1,4 +1,4 @@
-FROM golang:1.25-bookworm as builder
+FROM golang:1.25-bookworm AS builder
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ COPY . .
 WORKDIR /app/cmd/koochooloo
 RUN go build -o /koochooloo
 
-FROM gcr.io/distroless/base-debian12:nonroot as release
+FROM gcr.io/distroless/base-debian12:nonroot AS release
 
 LABEL maintainer="Parham Alvani <parham.alvani@gmail.com>"
 
