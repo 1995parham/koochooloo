@@ -14,7 +14,7 @@ import (
 
 const connectionTimeout = 10 * time.Second
 
-// New creates a new mongodb connection and tests it.
+// Provide creates a new mongodb connection and tests it.
 func Provide(lc fx.Lifecycle, cfg Config) (*mongo.Database, error) {
 	opts := options.Client()
 	opts.Monitor = otelmongo.NewMonitor()
