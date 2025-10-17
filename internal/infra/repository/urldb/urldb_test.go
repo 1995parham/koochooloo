@@ -88,6 +88,7 @@ func (suite *MongoURLSuite) TearDownSuite() {
 
 func (suite *CommonURLSuite) TestIncCount() {
 	require := suite.Require()
+	context := suite.T().Context()
 
 	cases := []struct {
 		name   string
@@ -121,10 +122,10 @@ func (suite *CommonURLSuite) TestIncCount() {
 				expire = nil
 			}
 
-			require.NoError(suite.repo.Set(context.Background(), key, "https://elahe-dastan.github.io", expire, c.count))
+			require.NoError(suite.repo.Set(context, key, "https://elahe-dastan.github.io", expire, c.count))
 
 			for range c.inc {
-				err := suite.repo.Inc(context.Background(), key)
+				err := suite.repo.Inc(context, key)
 				if c.err == nil {
 					require.NoError(err)
 				} else {
@@ -133,11 +134,11 @@ func (suite *CommonURLSuite) TestIncCount() {
 			}
 
 			if c.err == nil {
-				count, err := suite.repo.Count(context.Background(), key)
+				count, err := suite.repo.Count(context, key)
 				require.NoError(err)
 				require.Equal(c.count+c.inc, count)
 			} else {
-				_, err := suite.repo.Count(context.Background(), key)
+				_, err := suite.repo.Count(context, key)
 				require.ErrorIs(err, c.err)
 			}
 		})
@@ -147,6 +148,7 @@ func (suite *CommonURLSuite) TestIncCount() {
 // nolint: funlen
 func (suite *CommonURLSuite) TestSetGetCount() {
 	require := suite.Require()
+	context := suite.T().Context()
 
 	cases := []struct {
 		name           string
@@ -205,19 +207,19 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 			}
 
 			require.ErrorIs(
-				suite.repo.Set(context.Background(), key, c.url, expire, 0),
+				suite.repo.Set(context, key, c.url, expire, 0),
 				c.expectedSetErr,
 			)
 
 			if c.expectedSetErr == nil {
-				url, err := suite.repo.Get(context.Background(), key)
+				url, err := suite.repo.Get(context, key)
 				require.ErrorIs(err, c.expectedGetErr)
 
 				if c.expectedGetErr == nil {
 					require.Equal(c.url, url)
 				}
 
-				count, err := suite.repo.Count(context.Background(), key)
+				count, err := suite.repo.Count(context, key)
 				require.ErrorIs(err, c.expectedGetErr)
 
 				if c.expectedGetErr == nil {
