@@ -50,8 +50,8 @@ func Provide() Config {
 	if err := k.Load(
 		// replace __ with . in environment variables so you can reference field a in struct b
 		// as a__b.
-		env.Provider(prefix, env.Opt{
-			Prefix: ".",
+		env.Provider(".", env.Opt{
+			Prefix: prefix,
 			TransformFunc: func(source string, value string) (string, any) {
 				base := strings.ToLower(strings.TrimPrefix(source, prefix))
 
