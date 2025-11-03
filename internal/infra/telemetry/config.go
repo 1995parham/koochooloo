@@ -1,8 +1,8 @@
 package telemetry
 
 type Config struct {
-	Trace       Trace  `json:"trace,omitempty"        koanf:"trace"`
-	Meter       Meter  `json:"meter,omitempty"        koanf:"meter"`
+	Trace       Trace  `json:"trace"                  koanf:"trace"`
+	Meter       Meter  `json:"meter"                  koanf:"meter"`
 	Namespace   string `json:"namespace,omitempty"    koanf:"namespace"`
 	ServiceName string `json:"service_name,omitempty" koanf:"service_name"`
 }
