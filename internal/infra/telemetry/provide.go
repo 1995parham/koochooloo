@@ -1,6 +1,7 @@
 package telemetry
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -19,7 +20,6 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.uber.org/fx"
-	"golang.org/x/net/context"
 )
 
 func setupTraceExporter(cfg Config) trace.SpanExporter {
