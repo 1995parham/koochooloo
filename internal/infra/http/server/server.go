@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/infra/http/handler"
@@ -28,8 +29,9 @@ func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele tel
 	}.Register(app.Group(""))
 
 	srv := &http.Server{
-		Addr:    ":1378",
-		Handler: app,
+		Addr:              ":1378",
+		Handler:           app,
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	lc.Append(
