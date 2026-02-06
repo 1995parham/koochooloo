@@ -8,7 +8,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/infra/http/handler"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -27,18 +27,23 @@ func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele tel
 		Tracer: tele.TraceProvider.Tracer("handler.healthz"),
 	}.Register(app.Group(""))
 
+	srv := &http.Server{
+		Addr:    ":1378",
+		Handler: app,
+	}
+
 	lc.Append(
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
 				go func() {
-					if err := app.Start(":1378"); !errors.Is(err, http.ErrServerClosed) {
+					if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 						logger.Fatal("echo initiation failed", zap.Error(err))
 					}
 				}()
 
 				return nil
 			},
-			OnStop: app.Shutdown,
+			OnStop: srv.Shutdown,
 		},
 	)
 

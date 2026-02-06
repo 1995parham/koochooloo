@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v5"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
@@ -14,7 +14,7 @@ type Healthz struct {
 }
 
 // Handle shows server is up and running.
-func (h Healthz) Handle(c echo.Context) error {
+func (h Healthz) Handle(c *echo.Context) error {
 	_, span := h.Tracer.Start(c.Request().Context(), "handler.healthz")
 	defer span.End()
 
