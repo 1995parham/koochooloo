@@ -14,6 +14,11 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	port               = ":1378"
+	readHeaderTimeout  = 10 * time.Second
+)
+
 func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele telemetry.Telemetery) *echo.Echo {
 	app := echo.New()
 
@@ -28,10 +33,11 @@ func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele tel
 		Tracer: tele.TraceProvider.Tracer("handler.healthz"),
 	}.Register(app.Group(""))
 
+	//nolint: exhaustruct
 	srv := &http.Server{
-		Addr:              ":1378",
+		Addr:              port,
 		Handler:           app,
-		ReadHeaderTimeout: 10 * time.Second,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	lc.Append(
