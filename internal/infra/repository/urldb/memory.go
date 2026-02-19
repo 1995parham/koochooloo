@@ -19,19 +19,6 @@ func ProvideMemory() *MemoryURL {
 	}
 }
 
-func (m *MemoryURL) live(key string) (model.URL, bool) {
-	u, ok := m.store[key]
-	if !ok {
-		return u, false
-	}
-
-	if u.ExpireTime != nil && u.ExpireTime.Before(time.Now()) {
-		return u, false
-	}
-
-	return u, true
-}
-
 // All returns an iterator over all non-expired URLs in the store.
 func (m *MemoryURL) All() iter.Seq2[string, model.URL] {
 	return func(yield func(string, model.URL) bool) {
@@ -86,4 +73,17 @@ func (m *MemoryURL) Count(_ context.Context, key string) (int, error) {
 	}
 
 	return 0, urlrepo.ErrKeyNotFound
+}
+
+func (m *MemoryURL) live(key string) (model.URL, bool) {
+	u, ok := m.store[key]
+	if !ok {
+		return u, false
+	}
+
+	if u.ExpireTime != nil && u.ExpireTime.Before(time.Now()) {
+		return u, false
+	}
+
+	return u, true
 }
