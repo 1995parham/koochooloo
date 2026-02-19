@@ -2,6 +2,7 @@ package seed
 
 import (
 	"context"
+	"slices"
 
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
@@ -24,7 +25,7 @@ func main(logger *zap.Logger, svc *urlsvc.URLSvc, shutdowner fx.Shutdowner) {
 		"https://github.com/elahe-dastan",
 	}
 
-	for _, url := range urls {
+	for url := range slices.Values(urls) {
 		if _, err := svc.Set(context.Background(), "", url, nil, 0); err != nil {
 			logger.Fatal("database insertion failed", zap.Error(err))
 		}

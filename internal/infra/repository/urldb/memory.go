@@ -2,6 +2,7 @@ package urldb
 
 import (
 	"context"
+	"iter"
 	"time"
 
 	"github.com/1995parham/koochooloo/internal/domain/model"
@@ -18,9 +19,35 @@ func ProvideMemory() *MemoryURL {
 	}
 }
 
-func (m *MemoryURL) Inc(_ context.Context, key string) error {
+func (m *MemoryURL) live(key string) (model.URL, bool) {
 	u, ok := m.store[key]
-	if !ok || (u.ExpireTime != nil && u.ExpireTime.Before(time.Now())) {
+	if !ok {
+		return u, false
+	}
+
+	if u.ExpireTime != nil && u.ExpireTime.Before(time.Now()) {
+		return u, false
+	}
+
+	return u, true
+}
+
+// All returns an iterator over all non-expired URLs in the store.
+func (m *MemoryURL) All() iter.Seq2[string, model.URL] {
+	return func(yield func(string, model.URL) bool) {
+		for k, v := range m.store {
+			if v.ExpireTime == nil || v.ExpireTime.After(time.Now()) {
+				if !yield(k, v) {
+					return
+				}
+			}
+		}
+	}
+}
+
+func (m *MemoryURL) Inc(_ context.Context, key string) error {
+	u, ok := m.live(key)
+	if !ok {
 		return urlrepo.ErrKeyNotFound
 	}
 
@@ -46,18 +73,16 @@ func (m *MemoryURL) Set(_ context.Context, key string, url string, expire *time.
 }
 
 func (m *MemoryURL) Get(_ context.Context, key string) (string, error) {
-	url, ok := m.store[key]
-	if ok && (url.ExpireTime == nil || url.ExpireTime.After(time.Now())) {
-		return url.URL, nil
+	if u, ok := m.live(key); ok {
+		return u.URL, nil
 	}
 
 	return "", urlrepo.ErrKeyNotFound
 }
 
 func (m *MemoryURL) Count(_ context.Context, key string) (int, error) {
-	url, ok := m.store[key]
-	if ok && (url.ExpireTime == nil || url.ExpireTime.After(time.Now())) {
-		return url.Count, nil
+	if u, ok := m.live(key); ok {
+		return u.Count, nil
 	}
 
 	return 0, urlrepo.ErrKeyNotFound
