@@ -66,26 +66,26 @@ func (h URL) Retrieve(c *echo.Context) error {
 
 	key := c.Param("key")
 
-	url, err := h.Store.Get(ctx, key)
+	u, err := h.Store.ResolveAndTrack(ctx, key)
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
 
-		return echo.NewHTTPError(http.StatusNotFound, err.Error())
-	}
+		if errors.Is(err, urlrepo.ErrKeyNotFound) {
+			return echo.NewHTTPError(http.StatusNotFound, err.Error())
+		}
 
-	if err := h.Store.Inc(ctx, key); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
-
-		h.Logger.Error("increase counter for fetching url failed",
+		h.Logger.Error("resolve and track failed",
 			zap.Error(err),
 			zap.String("key", key),
-			zap.String("url", url),
 		)
 	}
 
-	return c.Redirect(http.StatusFound, url)
+	if u.URL == "" {
+		return echo.NewHTTPError(http.StatusNotFound, "url not found")
+	}
+
+	return c.Redirect(http.StatusFound, u.URL)
 }
 
 // Count retrieves the access count for the given short URL.

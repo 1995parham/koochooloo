@@ -2,6 +2,7 @@ package urlsvc_test
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -112,11 +113,11 @@ func (suite *URLSuite) TestSetGetCount() {
 					require.Len(key, 6)
 				}
 
-				url, err := suite.svc.Get(context.Background(), key)
+				u, err := suite.svc.Get(context.Background(), key)
 				require.ErrorIs(err, c.expectedGetErr)
 
 				if c.expectedGetErr == nil {
-					require.Equal(c.url, url)
+					require.Equal(c.url, u.URL)
 				}
 
 				count, err := suite.svc.Count(context.Background(), key)
@@ -128,6 +129,119 @@ func (suite *URLSuite) TestSetGetCount() {
 			}
 		})
 	}
+}
+
+func (suite *URLSuite) TestResolveAndTrackIncrementsCount() {
+	require := suite.Require()
+	ctx := context.Background()
+
+	key, err := suite.svc.Set(ctx, "track", "https://track-me.com", nil, 0)
+	require.NoError(err)
+
+	const visits = 10
+
+	for range visits {
+		u, err := suite.svc.ResolveAndTrack(ctx, key)
+		require.NoError(err)
+		require.Equal("https://track-me.com", u.URL)
+	}
+
+	count, err := suite.svc.Count(ctx, key)
+	require.NoError(err)
+	require.Equal(visits, count)
+}
+
+func (suite *URLSuite) TestResolveAndTrackNotFound() {
+	require := suite.Require()
+
+	_, err := suite.svc.ResolveAndTrack(context.Background(), "ghost-key")
+	require.ErrorIs(err, urlrepo.ErrKeyNotFound)
+}
+
+func (suite *URLSuite) TestIncrementConsistency() {
+	require := suite.Require()
+	ctx := context.Background()
+
+	key, err := suite.svc.Set(ctx, "inc-test", "https://consistency.com", nil, 0)
+	require.NoError(err)
+
+	const increments = 25
+
+	for range increments {
+		require.NoError(suite.svc.Inc(ctx, key))
+	}
+
+	count, err := suite.svc.Count(ctx, key)
+	require.NoError(err)
+	require.Equal(increments, count)
+}
+
+func (suite *URLSuite) TestConcurrentIncrements() {
+	require := suite.Require()
+	ctx := context.Background()
+
+	key, err := suite.svc.Set(ctx, "concurrent", "https://parallel.com", nil, 0)
+	require.NoError(err)
+
+	const (
+		goroutines = 10
+		perWorker  = 20
+	)
+
+	var wg sync.WaitGroup
+
+	wg.Add(goroutines)
+
+	for range goroutines {
+		go func() {
+			defer wg.Done()
+
+			for range perWorker {
+				_ = suite.svc.Inc(ctx, key)
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	count, err := suite.svc.Count(ctx, key)
+	require.NoError(err)
+	require.Equal(goroutines*perWorker, count)
+}
+
+func (suite *URLSuite) TestConcurrentResolveAndTrack() {
+	require := suite.Require()
+	ctx := context.Background()
+
+	key, err := suite.svc.Set(ctx, "concurrent-rat", "https://resolve-parallel.com", nil, 0)
+	require.NoError(err)
+
+	const (
+		goroutines = 10
+		perWorker  = 10
+	)
+
+	var wg sync.WaitGroup
+
+	wg.Add(goroutines)
+
+	for range goroutines {
+		go func() {
+			defer wg.Done()
+
+			for range perWorker {
+				u, err := suite.svc.ResolveAndTrack(ctx, key)
+				require.NoError(err)
+				require.Equal("https://resolve-parallel.com", u.URL)
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	count, err := suite.svc.Count(ctx, key)
+	require.NoError(err)
+	require.Equal(goroutines*perWorker, count)
 }
 
 func TestURLSuite(t *testing.T) {

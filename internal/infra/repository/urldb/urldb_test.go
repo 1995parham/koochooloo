@@ -3,9 +3,12 @@ package urldb_test
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
+	domgen "github.com/1995parham/koochooloo/internal/domain/generator"
+	"github.com/1995parham/koochooloo/internal/domain/model"
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 	"github.com/1995parham/koochooloo/internal/infra/config"
 	"github.com/1995parham/koochooloo/internal/infra/db"
@@ -25,7 +28,7 @@ type CommonURLSuite struct {
 
 	repo urlrepo.Repository
 	app  *fxtest.App
-	gen  generator.Generator
+	gen  domgen.Generator
 }
 
 type MemoryURLSuite struct {
@@ -41,7 +44,7 @@ func (suite *MemoryURLSuite) SetupSuite() {
 		fx.Provide(
 			fx.Annotate(urldb.ProvideMemory, fx.As(new(urlrepo.Repository))),
 		),
-		fx.Invoke(func(repo urlrepo.Repository, gen generator.Generator) {
+		fx.Invoke(func(repo urlrepo.Repository, gen domgen.Generator) {
 			suite.repo = repo
 			suite.gen = gen
 		}),
@@ -75,7 +78,7 @@ func (suite *MongoURLSuite) SetupSuite() {
 		fx.Provide(
 			fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
 		),
-		fx.Invoke(func(repo urlrepo.Repository, gen generator.Generator) {
+		fx.Invoke(func(repo urlrepo.Repository, gen domgen.Generator) {
 			suite.repo = repo
 			suite.gen = gen
 		}),
@@ -122,10 +125,15 @@ func (suite *CommonURLSuite) TestIncCount() {
 				expire = nil
 			}
 
-			require.NoError(suite.repo.Set(context, key, "https://elahe-dastan.github.io", expire, c.count))
+			require.NoError(suite.repo.Save(context, model.URL{
+				Key:        key,
+				URL:        "https://elahe-dastan.github.io",
+				ExpireTime: expire,
+				Count:      c.count,
+			}))
 
 			for range c.inc {
-				err := suite.repo.Inc(context, key)
+				err := suite.repo.IncrementCount(context, key)
 				if c.err == nil {
 					require.NoError(err)
 				} else {
@@ -134,15 +142,117 @@ func (suite *CommonURLSuite) TestIncCount() {
 			}
 
 			if c.err == nil {
-				count, err := suite.repo.Count(context, key)
+				u, err := suite.repo.FindByKey(context, key)
 				require.NoError(err)
-				require.Equal(c.count+c.inc, count)
+				require.Equal(c.count+c.inc, u.Count)
 			} else {
-				_, err := suite.repo.Count(context, key)
+				_, err := suite.repo.FindByKey(context, key)
 				require.ErrorIs(err, c.err)
 			}
 		})
 	}
+}
+
+func (suite *CommonURLSuite) TestIncrementConsistency() {
+	require := suite.Require()
+	ctx := suite.T().Context()
+
+	suite.Run("MultipleIncrements", func() {
+		key := suite.gen.ShortURLKey()
+
+		require.NoError(suite.repo.Save(ctx, model.URL{
+			Key:   key,
+			URL:   "https://example.com",
+			Count: 0,
+		}))
+
+		const increments = 50
+
+		for range increments {
+			require.NoError(suite.repo.IncrementCount(ctx, key))
+		}
+
+		u, err := suite.repo.FindByKey(ctx, key)
+		require.NoError(err)
+		require.Equal(increments, u.Count)
+	})
+
+	suite.Run("IncrementPreservesFields", func() {
+		key := suite.gen.ShortURLKey()
+		originalURL := "https://preserve-me.com"
+
+		require.NoError(suite.repo.Save(ctx, model.URL{
+			Key:   key,
+			URL:   originalURL,
+			Count: 5,
+		}))
+
+		require.NoError(suite.repo.IncrementCount(ctx, key))
+
+		u, err := suite.repo.FindByKey(ctx, key)
+		require.NoError(err)
+		require.Equal(6, u.Count)
+		require.Equal(originalURL, u.URL)
+		require.Equal(key, u.Key)
+	})
+
+	suite.Run("IncrementNonExistentKey", func() {
+		err := suite.repo.IncrementCount(ctx, "does-not-exist")
+		require.ErrorIs(err, urlrepo.ErrKeyNotFound)
+	})
+
+	suite.Run("IncrementFromInitialCount", func() {
+		key := suite.gen.ShortURLKey()
+
+		require.NoError(suite.repo.Save(ctx, model.URL{
+			Key:   key,
+			URL:   "https://initial-count.com",
+			Count: 100,
+		}))
+
+		require.NoError(suite.repo.IncrementCount(ctx, key))
+		require.NoError(suite.repo.IncrementCount(ctx, key))
+		require.NoError(suite.repo.IncrementCount(ctx, key))
+
+		u, err := suite.repo.FindByKey(ctx, key)
+		require.NoError(err)
+		require.Equal(103, u.Count)
+	})
+
+	suite.Run("ConcurrentIncrements", func() {
+		key := suite.gen.ShortURLKey()
+
+		require.NoError(suite.repo.Save(ctx, model.URL{
+			Key:   key,
+			URL:   "https://concurrent.com",
+			Count: 0,
+		}))
+
+		const (
+			goroutines = 10
+			perWorker  = 20
+		)
+
+		var wg sync.WaitGroup
+
+		wg.Add(goroutines)
+
+		for range goroutines {
+			go func() {
+				defer wg.Done()
+
+				for range perWorker {
+					_ = suite.repo.IncrementCount(ctx, key)
+				}
+			}()
+		}
+
+		wg.Wait()
+
+		u, err := suite.repo.FindByKey(ctx, key)
+		require.NoError(err)
+		require.Equal(goroutines*perWorker, u.Count)
+	})
 }
 
 // nolint: funlen
@@ -207,23 +317,22 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 			}
 
 			require.ErrorIs(
-				suite.repo.Set(context, key, c.url, expire, 0),
+				suite.repo.Save(context, model.URL{
+					Key:        key,
+					URL:        c.url,
+					ExpireTime: expire,
+					Count:      0,
+				}),
 				c.expectedSetErr,
 			)
 
 			if c.expectedSetErr == nil {
-				url, err := suite.repo.Get(context, key)
+				u, err := suite.repo.FindByKey(context, key)
 				require.ErrorIs(err, c.expectedGetErr)
 
 				if c.expectedGetErr == nil {
-					require.Equal(c.url, url)
-				}
-
-				count, err := suite.repo.Count(context, key)
-				require.ErrorIs(err, c.expectedGetErr)
-
-				if c.expectedGetErr == nil {
-					require.Equal(0, count)
+					require.Equal(c.url, u.URL)
+					require.Equal(0, u.Count)
 				}
 			}
 		})

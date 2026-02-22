@@ -1,10 +1,10 @@
 package generator
 
-type Generator interface {
-	ShortURLKey() string
-}
+import (
+	domgen "github.com/1995parham/koochooloo/internal/domain/generator"
+)
 
-func Provide(cfg Config) Generator {
+func Provide(cfg Config) domgen.Generator {
 	// nolint: gocritic
 	switch cfg.Type {
 	case "simple":

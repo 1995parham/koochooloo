@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
+	"github.com/1995parham/koochooloo/internal/domain/generator"
+	"github.com/1995parham/koochooloo/internal/domain/model"
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
-	"github.com/1995parham/koochooloo/internal/infra/generator"
 )
 
 type URLSvc struct {
@@ -23,49 +23,84 @@ func Provide(repo urlrepo.Repository, gen generator.Generator) *URLSvc {
 	}
 }
 
-func (s *URLSvc) Set(ctx context.Context, key, url string, expire *time.Time, count int) (string, error) {
-	if key == "" {
-		key = s.gen.ShortURLKey()
-	} else {
-		key = "$" + key
-	}
+const maxRetries = 10
 
-	if err := s.repo.Set(ctx, key, url, expire, count); err != nil {
-		if errors.Is(err, urlrepo.ErrDuplicateKey) {
-			if !strings.HasPrefix(key, "$") {
-				// call set again to generate another random key.
-				return s.Set(ctx, "", url, expire, 0)
+func (s *URLSvc) Set(ctx context.Context, key, url string, expire *time.Time, count int) (string, error) {
+	if key != "" {
+		key = "$" + key
+
+		if err := s.repo.Save(ctx, model.URL{
+			Key:        key,
+			URL:        url,
+			ExpireTime: expire,
+			Count:      count,
+		}); err != nil {
+			if errors.Is(err, urlrepo.ErrDuplicateKey) {
+				return "", fmt.Errorf("specified key is duplicated %w", err)
 			}
 
-			return "", fmt.Errorf("specified key is duplicated %w", err)
+			return "", fmt.Errorf("database insertion failed %w", err)
 		}
 
-		return "", fmt.Errorf("database insertion failed %w", err)
+		return key, nil
 	}
 
-	return key, nil
+	for range maxRetries {
+		key = s.gen.ShortURLKey()
+
+		if err := s.repo.Save(ctx, model.URL{
+			Key:        key,
+			URL:        url,
+			ExpireTime: expire,
+			Count:      count,
+		}); err != nil {
+			if errors.Is(err, urlrepo.ErrDuplicateKey) {
+				continue
+			}
+
+			return "", fmt.Errorf("database insertion failed %w", err)
+		}
+
+		return key, nil
+	}
+
+	return "", fmt.Errorf("failed to generate unique key after %d attempts %w", maxRetries, urlrepo.ErrDuplicateKey)
 }
 
-func (s *URLSvc) Get(ctx context.Context, key string) (string, error) {
-	url, err := s.repo.Get(ctx, key)
+func (s *URLSvc) Get(ctx context.Context, key string) (model.URL, error) {
+	u, err := s.repo.FindByKey(ctx, key)
 	if err != nil {
-		return "", fmt.Errorf("database fetch failed %w", err)
+		return model.URL{}, fmt.Errorf("database fetch failed %w", err)
 	}
 
-	return url, nil
+	return u, nil
+}
+
+// ResolveAndTrack retrieves the URL and increments its access count atomically.
+func (s *URLSvc) ResolveAndTrack(ctx context.Context, key string) (model.URL, error) {
+	u, err := s.repo.FindByKey(ctx, key)
+	if err != nil {
+		return model.URL{}, fmt.Errorf("database fetch failed %w", err)
+	}
+
+	if err := s.repo.IncrementCount(ctx, key); err != nil {
+		return u, fmt.Errorf("database inc count failed %w", err)
+	}
+
+	return u, nil
 }
 
 func (s *URLSvc) Count(ctx context.Context, key string) (int, error) {
-	count, err := s.repo.Count(ctx, key)
+	u, err := s.repo.FindByKey(ctx, key)
 	if err != nil {
 		return 0, fmt.Errorf("database count failed %w", err)
 	}
 
-	return count, nil
+	return u.Count, nil
 }
 
 func (s *URLSvc) Inc(ctx context.Context, key string) error {
-	if err := s.repo.Inc(ctx, key); err != nil {
+	if err := s.repo.IncrementCount(ctx, key); err != nil {
 		return fmt.Errorf("database inc count failed %w", err)
 	}
 

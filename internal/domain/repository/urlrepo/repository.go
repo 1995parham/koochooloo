@@ -3,7 +3,8 @@ package urlrepo
 import (
 	"context"
 	"errors"
-	"time"
+
+	"github.com/1995parham/koochooloo/internal/domain/model"
 )
 
 var (
@@ -15,8 +16,7 @@ var (
 
 // Repository stores and retrieves urls.
 type Repository interface {
-	Inc(ctx context.Context, key string) error
-	Set(ctx context.Context, key string, url string, expire *time.Time, count int) error
-	Get(ctx context.Context, key string) (string, error)
-	Count(ctx context.Context, key string) (int, error)
+	Save(ctx context.Context, url model.URL) error
+	FindByKey(ctx context.Context, key string) (model.URL, error)
+	IncrementCount(ctx context.Context, key string) error
 }

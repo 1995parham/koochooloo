@@ -26,7 +26,7 @@ dev cmd *flags:
 
 # run tests in the dev environment
 test: seed
-    go test -v ./... -covermode=atomic -coverprofile=coverage.out
+    go test -race -v ./... -covermode=atomic -coverprofile=coverage.out
 
 seed: (dev "up")
     go run ./cmd/koochooloo/main.go migrate

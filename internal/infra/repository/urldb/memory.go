@@ -3,13 +3,14 @@ package urldb
 import (
 	"context"
 	"iter"
-	"time"
+	"sync"
 
 	"github.com/1995parham/koochooloo/internal/domain/model"
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 )
 
 type MemoryURL struct {
+	mu    sync.RWMutex
 	store map[string]model.URL
 }
 
@@ -22,8 +23,11 @@ func ProvideMemory() *MemoryURL {
 // All returns an iterator over all non-expired URLs in the store.
 func (m *MemoryURL) All() iter.Seq2[string, model.URL] {
 	return func(yield func(string, model.URL) bool) {
+		m.mu.RLock()
+		defer m.mu.RUnlock()
+
 		for k, v := range m.store {
-			if v.ExpireTime == nil || v.ExpireTime.After(time.Now()) {
+			if !v.IsExpired() {
 				if !yield(k, v) {
 					return
 				}
@@ -32,8 +36,11 @@ func (m *MemoryURL) All() iter.Seq2[string, model.URL] {
 	}
 }
 
-func (m *MemoryURL) Inc(_ context.Context, key string) error {
-	u, ok := m.live(key)
+func (m *MemoryURL) IncrementCount(_ context.Context, key string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	u, ok := m.liveLocked(key)
 	if !ok {
 		return urlrepo.ErrKeyNotFound
 	}
@@ -44,44 +51,38 @@ func (m *MemoryURL) Inc(_ context.Context, key string) error {
 	return nil
 }
 
-func (m *MemoryURL) Set(_ context.Context, key string, url string, expire *time.Time, count int) error {
-	if _, ok := m.store[key]; ok {
+func (m *MemoryURL) Save(_ context.Context, url model.URL) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, ok := m.store[url.Key]; ok {
 		return urlrepo.ErrDuplicateKey
 	}
 
-	m.store[key] = model.URL{
-		Key:        key,
-		URL:        url,
-		Count:      count,
-		ExpireTime: expire,
-	}
+	m.store[url.Key] = url
 
 	return nil
 }
 
-func (m *MemoryURL) Get(_ context.Context, key string) (string, error) {
-	if u, ok := m.live(key); ok {
-		return u.URL, nil
+func (m *MemoryURL) FindByKey(_ context.Context, key string) (model.URL, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	if u, ok := m.liveLocked(key); ok {
+		return u, nil
 	}
 
-	return "", urlrepo.ErrKeyNotFound
+	return model.URL{}, urlrepo.ErrKeyNotFound
 }
 
-func (m *MemoryURL) Count(_ context.Context, key string) (int, error) {
-	if u, ok := m.live(key); ok {
-		return u.Count, nil
-	}
-
-	return 0, urlrepo.ErrKeyNotFound
-}
-
-func (m *MemoryURL) live(key string) (model.URL, bool) {
+// liveLocked checks if a key exists and is not expired. Caller must hold mu.
+func (m *MemoryURL) liveLocked(key string) (model.URL, bool) {
 	u, ok := m.store[key]
 	if !ok {
 		return u, false
 	}
 
-	if u.ExpireTime != nil && u.ExpireTime.Before(time.Now()) {
+	if u.IsExpired() {
 		return u, false
 	}
 

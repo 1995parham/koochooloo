@@ -11,7 +11,6 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -43,31 +42,29 @@ func ProvideDB(db *mongo.Database, tele telemetry.Telemetery) *MongoURL {
 	}
 }
 
-// Inc increments counter of url record by one, means url got visited.
-func (s *MongoURL) Inc(ctx context.Context, key string) error {
+// liveFilter returns a BSON filter that matches a key only if it is not expired.
+func liveFilter(key string) bson.M {
+	return bson.M{
+		"key": key,
+		"$or": bson.A{
+			bson.M{"expire_time": bson.M{"$eq": nil}},
+			bson.M{"expire_time": bson.M{"$gte": time.Now()}},
+		},
+	}
+}
+
+// IncrementCount increments counter of url record by one, means url got visited.
+func (s *MongoURL) IncrementCount(ctx context.Context, key string) error {
 	ctx, span := s.Tracer.Start(ctx, "store.url.inc")
 	defer span.End()
 
-	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx, bson.M{
-		"key": key,
-		"$or": bson.A{
-			bson.M{
-				"expire_time": bson.M{
-					"$eq": nil,
-				},
-			},
-			bson.M{
-				"expire_time": bson.M{
-					"$gte": time.Now(),
-				},
-			},
-		},
-	}, bson.M{
-		"$inc": bson.M{"count": one},
-	})
+	record := s.DB.Collection(Collection).FindOneAndUpdate(ctx,
+		liveFilter(key),
+		bson.M{"$inc": bson.M{"count": one}},
+	)
 
-	var url model.URL
-	if err := record.Decode(&url); err != nil {
+	var doc urlDocument
+	if err := record.Decode(&doc); err != nil {
 		span.RecordError(err)
 
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -80,21 +77,16 @@ func (s *MongoURL) Inc(ctx context.Context, key string) error {
 	return nil
 }
 
-// Set saves given url with a given key in database.
-func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, count int) error {
-	ctx, span := s.Tracer.Start(ctx, "store.url.set")
+// Save saves given url in database.
+func (s *MongoURL) Save(ctx context.Context, url model.URL) error {
+	ctx, span := s.Tracer.Start(ctx, "store.url.save")
 	defer span.End()
 
 	urls := s.DB.Collection(Collection)
 
 	start := time.Now()
 
-	if _, err := urls.InsertOne(ctx, model.URL{
-		Key:        key,
-		URL:        url,
-		ExpireTime: expire,
-		Count:      count,
-	}); err != nil {
+	if _, err := urls.InsertOne(ctx, toDocument(url)); err != nil {
 		span.RecordError(err)
 
 		if mongo.IsDuplicateKeyError(err) {
@@ -110,77 +102,25 @@ func (s *MongoURL) Set(ctx context.Context, key, url string, expire *time.Time, 
 	return nil
 }
 
-// Get retrieves url of the given key if it exists.
-func (s *MongoURL) Get(ctx context.Context, key string) (string, error) {
-	ctx, span := s.Tracer.Start(ctx, "store.url.get")
+// FindByKey retrieves url of the given key if it exists.
+func (s *MongoURL) FindByKey(ctx context.Context, key string) (model.URL, error) {
+	ctx, span := s.Tracer.Start(ctx, "store.url.find_by_key")
 	defer span.End()
 
-	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
-		"key": key,
-		"$or": bson.A{
-			bson.M{
-				"expire_time": bson.M{
-					"$eq": nil,
-				},
-			},
-			bson.M{
-				"expire_time": bson.M{
-					"$gte": time.Now(),
-				},
-			},
-		},
-	})
+	record := s.DB.Collection(Collection).FindOne(ctx, liveFilter(key))
 
-	var url model.URL
-	if err := record.Decode(&url); err != nil {
+	var doc urlDocument
+	if err := record.Decode(&doc); err != nil {
 		span.RecordError(err)
 
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return "", urlrepo.ErrKeyNotFound
+			return model.URL{}, urlrepo.ErrKeyNotFound
 		}
 
-		return "", fmt.Errorf("mongodb failed: %w", err)
+		return model.URL{}, fmt.Errorf("mongodb failed: %w", err)
 	}
 
 	s.Metrics.FetchedCounter.Add(ctx, 1)
 
-	return url.URL, nil
-}
-
-// Count retrieves number of access for the url of the given key if it exists.
-func (s *MongoURL) Count(ctx context.Context, key string) (int, error) {
-	ctx, span := s.Tracer.Start(ctx, "store.url.count")
-	defer span.End()
-
-	record := s.DB.Collection(Collection).FindOne(ctx, bson.M{
-		"key": key,
-		"$or": bson.A{
-			bson.M{
-				"expire_time": bson.M{
-					"$eq": nil,
-				},
-			},
-			bson.M{
-				"expire_time": bson.M{
-					"$gte": time.Now(),
-				},
-			},
-		},
-	}, options.FindOne().SetProjection(bson.M{"count": true}))
-
-	var count struct {
-		Count int
-	}
-
-	if err := record.Decode(&count); err != nil {
-		span.RecordError(err)
-
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return 0, urlrepo.ErrKeyNotFound
-		}
-
-		return 0, fmt.Errorf("mongodb failed: %w", err)
-	}
-
-	return count.Count, nil
+	return toModel(doc), nil
 }
