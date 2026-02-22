@@ -13,6 +13,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
@@ -225,14 +226,16 @@ func (suite *URLSuite) TestConcurrentResolveAndTrack() {
 
 	wg.Add(goroutines)
 
+	t := suite.T()
+
 	for range goroutines {
 		go func() {
 			defer wg.Done()
 
 			for range perWorker {
 				u, err := suite.svc.ResolveAndTrack(ctx, key)
-				require.NoError(err)
-				require.Equal("https://resolve-parallel.com", u.URL)
+				assert.NoError(t, err)
+				assert.Equal(t, "https://resolve-parallel.com", u.URL)
 			}
 		}()
 	}

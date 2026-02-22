@@ -16,6 +16,7 @@ type MemoryURL struct {
 
 func ProvideMemory() *MemoryURL {
 	return &MemoryURL{
+		mu:    sync.RWMutex{},
 		store: make(map[string]model.URL),
 	}
 }

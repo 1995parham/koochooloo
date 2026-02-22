@@ -153,6 +153,7 @@ func (suite *CommonURLSuite) TestIncCount() {
 	}
 }
 
+// nolint: funlen
 func (suite *CommonURLSuite) TestIncrementConsistency() {
 	require := suite.Require()
 	ctx := suite.T().Context()
@@ -161,9 +162,10 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 		key := suite.gen.ShortURLKey()
 
 		require.NoError(suite.repo.Save(ctx, model.URL{
-			Key:   key,
-			URL:   "https://example.com",
-			Count: 0,
+			Key:        key,
+			URL:        "https://example.com",
+			Count:      0,
+			ExpireTime: nil,
 		}))
 
 		const increments = 50
@@ -182,9 +184,10 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 		originalURL := "https://preserve-me.com"
 
 		require.NoError(suite.repo.Save(ctx, model.URL{
-			Key:   key,
-			URL:   originalURL,
-			Count: 5,
+			Key:        key,
+			URL:        originalURL,
+			Count:      5,
+			ExpireTime: nil,
 		}))
 
 		require.NoError(suite.repo.IncrementCount(ctx, key))
@@ -205,9 +208,10 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 		key := suite.gen.ShortURLKey()
 
 		require.NoError(suite.repo.Save(ctx, model.URL{
-			Key:   key,
-			URL:   "https://initial-count.com",
-			Count: 100,
+			Key:        key,
+			URL:        "https://initial-count.com",
+			Count:      100,
+			ExpireTime: nil,
 		}))
 
 		require.NoError(suite.repo.IncrementCount(ctx, key))
@@ -223,9 +227,10 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 		key := suite.gen.ShortURLKey()
 
 		require.NoError(suite.repo.Save(ctx, model.URL{
-			Key:   key,
-			URL:   "https://concurrent.com",
-			Count: 0,
+			Key:        key,
+			URL:        "https://concurrent.com",
+			Count:      0,
+			ExpireTime: nil,
 		}))
 
 		const (
