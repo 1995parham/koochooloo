@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -39,7 +40,8 @@ func (suite *HealthzSuite) TestHandler() {
 	require := suite.Require()
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/healthz", nil)
+	require.NoError(err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.engine.ServeHTTP(w, req)

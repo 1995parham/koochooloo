@@ -2,6 +2,7 @@ package handler_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -61,7 +62,8 @@ func (suite *URLSuite) TestCountNotFound() {
 	key := "notexists"
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/api/count/"+key, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/count/"+key, nil)
+	require.NoError(err)
 
 	suite.engine.ServeHTTP(w, req)
 	require.Equal(http.StatusNotFound, w.Code)
@@ -81,7 +83,9 @@ func (suite *URLSuite) TestCount() {
 	require.NoError(err)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/urls", bytes.NewReader(b))
+	require.NoError(err)
+
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.engine.ServeHTTP(w, req)
@@ -94,7 +98,8 @@ func (suite *URLSuite) TestCount() {
 
 	{
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, "/api/count/"+resp, nil)
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/count/"+resp, nil)
+		require.NoError(err)
 
 		suite.engine.ServeHTTP(w, req)
 		require.Equal(http.StatusOK, w.Code)
@@ -118,7 +123,8 @@ func (suite *URLSuite) TestBadRequest() {
 	require.NoError(err)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/urls", bytes.NewReader(b))
+	require.NoError(err)
 
 	suite.engine.ServeHTTP(w, req)
 	require.Equal(http.StatusBadRequest, w.Code)
@@ -139,7 +145,9 @@ func (suite *URLSuite) TestExpiration() {
 	require.NoError(err)
 
 	w := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/urls", bytes.NewReader(b))
+	require.NoError(err)
+
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	suite.engine.ServeHTTP(w, req)
@@ -154,7 +162,8 @@ func (suite *URLSuite) TestExpiration() {
 
 	{
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, "/api/"+resp, nil)
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/"+resp, nil)
+		require.NoError(err)
 
 		suite.engine.ServeHTTP(w, req)
 		require.Equal(http.StatusNotFound, w.Code)
@@ -228,7 +237,9 @@ func (suite *URLSuite) TestPostRetrieve() {
 			require.NoError(err)
 
 			w := httptest.NewRecorder()
-			req := httptest.NewRequest(http.MethodPost, "/api/urls", bytes.NewReader(b))
+			req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/urls", bytes.NewReader(b))
+			require.NoError(err)
+
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 			suite.engine.ServeHTTP(w, req)
@@ -244,7 +255,8 @@ func (suite *URLSuite) TestPostRetrieve() {
 				}
 
 				w := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, "/api/"+resp, nil)
+				req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/"+resp, nil)
+				require.NoError(err)
 
 				suite.engine.ServeHTTP(w, req)
 				require.Equal(c.retrieve, w.Code)
