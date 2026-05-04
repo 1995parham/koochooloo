@@ -3,11 +3,11 @@ version: "2"
 linters:
   default: all
   disable:
+    - gomodguard
+    - wsl
     - depguard
-    # we don't use json with camel-case
     - tagliatelle
     - nolintlint
-    # it should improve to support more known patterns
     - varnamelen
     - ireturn
     - revive
@@ -29,3 +29,7 @@ linters:
         - .WithMessage(
         - .WithMessagef(
         - .WithStack(
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2

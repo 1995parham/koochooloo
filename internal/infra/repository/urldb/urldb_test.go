@@ -23,6 +23,8 @@ import (
 	"go.uber.org/fx/fxtest"
 )
 
+const testURL = "https://elahe-dastan.github.io"
+
 type CommonURLSuite struct {
 	suite.Suite
 
@@ -127,7 +129,7 @@ func (suite *CommonURLSuite) TestIncCount() {
 
 			require.NoError(suite.repo.Save(context, model.URL{
 				Key:        key,
-				URL:        "https://elahe-dastan.github.io",
+				URL:        testURL,
 				ExpireTime: expire,
 				Count:      c.count,
 			}))
@@ -276,7 +278,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 		{
 			name:           "Successful",
 			key:            "$raha",
-			url:            "https://elahe-dastan.github.io",
+			url:            testURL,
 			expire:         time.Time{},
 			expectedSetErr: nil,
 			expectedGetErr: nil,
@@ -284,7 +286,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 		{
 			name:           "Duplicate Key",
 			key:            "$raha",
-			url:            "https://elahe-dastan.github.io",
+			url:            testURL,
 			expire:         time.Time{},
 			expectedSetErr: urlrepo.ErrDuplicateKey,
 			expectedGetErr: nil,
