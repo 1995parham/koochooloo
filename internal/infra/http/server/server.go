@@ -4,7 +4,11 @@ package server
 import (
 	"context"
 	"errors"
+	"io/fs"
+	"mime"
 	"net/http"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/1995parham/koochooloo/internal/domain/model"
@@ -15,6 +19,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/http/middleware"
 	"github.com/1995parham/koochooloo/internal/infra/oidc"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
+	"github.com/1995parham/koochooloo/web"
 	"github.com/labstack/echo/v5"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -50,6 +55,7 @@ func Provide(
 	}.Register(app.Group(""))
 
 	registerAdmin(app, store, users, tokens, provider, logger, tele)
+	registerSPA(app)
 
 	//nolint: exhaustruct
 	srv := &http.Server{
@@ -127,4 +133,42 @@ func registerAdmin(
 	sec.POST("/users", userH.Create, middleware.RequireRole(model.RoleSuperAdmin))
 	sec.PUT("/users/:id/role", userH.SetRole, middleware.RequireRole(model.RoleSuperAdmin))
 	sec.DELETE("/users/:id", userH.Delete, middleware.RequireRole(model.RoleSuperAdmin))
+}
+
+// registerSPA serves the embedded admin single-page application under /admin,
+// falling back to index.html for client-side routes. Files are written
+// directly (rather than via http.FileServer) to avoid its canonical redirects
+// for index.html.
+func registerSPA(app *echo.Echo) {
+	assets := web.Dist()
+
+	serve := func(c *echo.Context) error {
+		name := strings.TrimPrefix(c.Request().URL.Path, "/admin")
+		name = strings.TrimPrefix(name, "/")
+
+		if name == "" {
+			name = "index.html"
+		}
+
+		data, err := fs.ReadFile(assets, name)
+		if err != nil {
+			// Unknown paths fall back to the SPA entrypoint (client-side routing).
+			data, err = fs.ReadFile(assets, "index.html")
+			if err != nil {
+				return echo.NewHTTPError(http.StatusNotFound, "spa not built")
+			}
+
+			name = "index.html"
+		}
+
+		ctype := mime.TypeByExtension(path.Ext(name))
+		if ctype == "" {
+			ctype = echo.MIMEOctetStream
+		}
+
+		return c.Blob(http.StatusOK, ctype, data)
+	}
+
+	app.GET("/admin", serve)
+	app.GET("/admin/*", serve)
 }

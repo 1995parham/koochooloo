@@ -1,0 +1,226 @@
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --border: #e3e6ea;
+  --text: #1c2024;
+  --muted: #6b7280;
+  --accent: #2f6feb;
+  --danger: #d64545;
+  --danger-bg: #fdeaea;
+  --error-bg: #fdecec;
+  --error-text: #a12626;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --card: #1c1f26;
+    --border: #2a2f3a;
+    --text: #e6e8eb;
+    --muted: #9aa4b2;
+    --accent: #5a8dff;
+    --danger: #e5715f;
+    --danger-bg: #3a2020;
+    --error-bg: #3a2020;
+    --error-text: #f0a8a8;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.center {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.login {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.login h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+.login p {
+  margin: 0 0 0.5rem;
+}
+.login .or {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+input,
+select {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+input:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+button,
+.btn {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  display: inline-block;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+button.secondary,
+.btn.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border);
+}
+button.danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: transparent;
+}
+button.danger:hover {
+  background: var(--danger-bg);
+}
+button.link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  padding: 0 0 0 0.4rem;
+  font-size: 0.8rem;
+}
+
+.error {
+  background: var(--error-bg);
+  color: var(--error-text);
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.25rem 1.25rem;
+}
+header .spacer {
+  flex: 1;
+}
+.brand strong {
+  font-size: 1.1rem;
+}
+
+.badge {
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.badge.role-admin {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.badge.role-superadmin {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.card h2 {
+  margin: 0 0 0.9rem;
+  font-size: 1.05rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.row input {
+  flex: 1;
+  min-width: 140px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+.truncate {
+  max-width: 340px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nowrap {
+  white-space: nowrap;
+}
+a {
+  color: var(--accent);
+}

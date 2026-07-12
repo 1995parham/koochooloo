@@ -1,7 +1,12 @@
 default:
     @just --list
 
-# build koochooloo binary
+# build the embedded admin-panel SPA (web/dist is committed; rerun after UI changes)
+web:
+    @echo '{{ BOLD + CYAN }}Building admin panel{{ NORMAL }}'
+    cd web && pnpm install && pnpm run build
+
+# build koochooloo binary (uses the committed web/dist embed)
 build:
     @echo '{{ BOLD + CYAN }}Building Koochooloo!{{ NORMAL }}'
     go build -o koochooloo ./cmd/koochooloo

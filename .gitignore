@@ -29,3 +29,8 @@
 *.db
 *.db-journal
 *.sqlite
+
+# Frontend (web/dist is committed so the Go embed builds without Node)
+/web/node_modules/
+/web/*.tsbuildinfo
+/web/.vite/
