@@ -1,0 +1,27 @@
+---
+name: frontend
+on:
+  push:
+    paths:
+      - "web/**"
+      - ".github/workflows/frontend.yaml"
+jobs:
+  biome:
+    name: biome
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: enable pnpm
+        run: corepack enable
+      - name: install
+        run: pnpm install --frozen-lockfile
+      - name: lint (biome)
+        run: pnpm run lint
+      - name: typecheck
+        run: pnpm exec tsc -b --noEmit
