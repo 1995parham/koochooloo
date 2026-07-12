@@ -1,7 +1,6 @@
 package urldb_test
 
 import (
-	"context"
 	"fmt"
 	"sync"
 	"testing"
@@ -11,16 +10,15 @@ import (
 	"github.com/1995parham/koochooloo/internal/domain/model"
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 	"github.com/1995parham/koochooloo/internal/infra/config"
-	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
+	"github.com/glebarez/sqlite"
 	"github.com/stretchr/testify/suite"
-	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
+	"gorm.io/gorm"
 )
 
 const testURL = "https://elahe-dastan.github.io"
@@ -57,24 +55,41 @@ func (suite *MemoryURLSuite) TearDownSuite() {
 	suite.app.RequireStop()
 }
 
-type MongoURLSuite struct {
+type SQLURLSuite struct {
 	CommonURLSuite
 }
 
-func (suite *MongoURLSuite) SetupSuite() {
+// provideTestDB opens an in-memory SQLite database for the SQL-backed suite.
+// MaxOpenConns(1) pins every query to the same in-memory database and
+// serialises writes so the concurrency test is deterministic.
+func provideTestDB(lc fx.Lifecycle) (*gorm.DB, error) {
+	//nolint:exhaustruct // only TranslateError is relevant here.
+	gdb, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{TranslateError: true})
+	if err != nil {
+		return nil, fmt.Errorf("open sqlite: %w", err)
+	}
+
+	sqlDB, err := gdb.DB()
+	if err != nil {
+		return nil, fmt.Errorf("db handle: %w", err)
+	}
+
+	sqlDB.SetMaxOpenConns(1)
+
+	if err := urldb.Migrate(gdb); err != nil {
+		return nil, fmt.Errorf("migrate: %w", err)
+	}
+
+	lc.Append(fx.StopHook(sqlDB.Close))
+
+	return gdb, nil
+}
+
+func (suite *SQLURLSuite) SetupSuite() {
 	suite.app = fxtest.New(suite.T(),
 		fx.Provide(config.Provide),
 		fx.Provide(logger.Provide),
-		fx.Provide(
-			fx.Annotate(db.Provide, fx.OnStop(func(ctx context.Context, db *mongo.Database) error {
-				_, err := db.Collection(urldb.Collection).DeleteMany(ctx, bson.M{})
-				if err != nil {
-					return fmt.Errorf("failed to flush records %w", err)
-				}
-
-				return nil
-			})),
-		),
+		fx.Provide(provideTestDB),
 		fx.Provide(generator.Provide),
 		fx.Provide(telemetry.ProvideNull),
 		fx.Provide(
@@ -87,7 +102,7 @@ func (suite *MongoURLSuite) SetupSuite() {
 	).RequireStart()
 }
 
-func (suite *MongoURLSuite) TearDownSuite() {
+func (suite *SQLURLSuite) TearDownSuite() {
 	suite.app.RequireStop()
 }
 
@@ -346,9 +361,9 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 	}
 }
 
-func TestMongoURLSuite(t *testing.T) {
+func TestSQLURLSuite(t *testing.T) {
 	t.Parallel()
-	suite.Run(t, new(MongoURLSuite))
+	suite.Run(t, new(SQLURLSuite))
 }
 
 func TestMemoryURLSuite(t *testing.T) {

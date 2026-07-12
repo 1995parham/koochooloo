@@ -1,3 +1,3 @@
-// Package urldb contains implementation for the URL repository.
-// implementations are in-memory and mongodb.
+// Package urldb contains implementations for the URL repository.
+// Implementations are in-memory and SQL (GORM: sqlite, postgres, mysql).
 package urldb

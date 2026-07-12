@@ -1,34 +1,22 @@
 package migrate
 
 import (
-	"context"
-
 	"github.com/1995parham/koochooloo/internal/infra/config"
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/spf13/cobra"
-	"go.mongodb.org/mongo-driver/v2/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
-const enable = 1
-
-func main(logger *zap.Logger, db *mongo.Database, shutdonwer fx.Shutdowner) {
-	idx, err := db.Collection(urldb.Collection).Indexes().CreateOne(
-		context.Background(),
-		mongo.IndexModel{
-			Keys:    bson.M{"key": enable},
-			Options: options.Index().SetUnique(true),
-		})
-	if err != nil {
+func main(logger *zap.Logger, gdb *gorm.DB, shutdonwer fx.Shutdowner) {
+	if err := urldb.Migrate(gdb); err != nil {
 		panic(err)
 	}
 
-	logger.Info("database index", zap.Any("index", idx))
+	logger.Info("database migrated")
 
 	_ = shutdonwer.Shutdown()
 }
@@ -39,7 +27,7 @@ func Register(root *cobra.Command) {
 		//nolint: exhaustruct
 		&cobra.Command{
 			Use:   "migrate",
-			Short: "Setup database indices",
+			Short: "Setup database schema",
 			Run: func(_ *cobra.Command, _ []string) {
 				fx.New(
 					fx.Provide(config.Provide),

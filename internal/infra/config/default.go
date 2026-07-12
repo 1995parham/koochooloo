@@ -19,8 +19,8 @@ func Default() Config {
 			Type: "simple",
 		},
 		Database: db.Config{
-			Name: "koochooloo",
-			URL:  "mongodb://127.0.0.1:27017",
+			Dialect: "sqlite",
+			URL:     "koochooloo.db",
 		},
 		Telemetry: telemetry.Config{
 			Namespace:   "1995parham.me",

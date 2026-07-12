@@ -6,15 +6,22 @@ import (
 	"github.com/1995parham/koochooloo/internal/domain/model"
 )
 
-type urlDocument struct {
-	Key        string     `bson:"key"`
-	URL        string     `bson:"url"`
-	Count      int        `bson:"count"`
-	ExpireTime *time.Time `bson:"expire_time"`
+// urlRecord is the GORM persistence model for a URL. The domain model stays
+// free of ORM tags; mapping happens through toRecord/toModel.
+type urlRecord struct {
+	Key        string     `gorm:"column:key;primaryKey;size:255"`
+	URL        string     `gorm:"column:url;not null"`
+	Count      int        `gorm:"column:count;not null;default:0"`
+	ExpireTime *time.Time `gorm:"column:expire_time;index"`
 }
 
-func toDocument(u model.URL) urlDocument {
-	return urlDocument{
+// TableName pins the table name so every dialect uses the same one.
+func (urlRecord) TableName() string {
+	return "urls"
+}
+
+func toRecord(u model.URL) urlRecord {
+	return urlRecord{
 		Key:        u.Key,
 		URL:        u.URL,
 		Count:      u.Count,
@@ -22,11 +29,11 @@ func toDocument(u model.URL) urlDocument {
 	}
 }
 
-func toModel(d urlDocument) model.URL {
+func toModel(r urlRecord) model.URL {
 	return model.URL{
-		Key:        d.Key,
-		URL:        d.URL,
-		Count:      d.Count,
-		ExpireTime: d.ExpireTime,
+		Key:        r.Key,
+		URL:        r.URL,
+		Count:      r.Count,
+		ExpireTime: r.ExpireTime,
 	}
 }
