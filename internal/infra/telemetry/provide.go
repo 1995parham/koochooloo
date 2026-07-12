@@ -144,6 +144,12 @@ func (t Telemetery) run(ctx context.Context) error {
 }
 
 func (t Telemetery) shutdown(ctx context.Context) error {
+	// metricSrv is nil when the meter is disabled (see setupMeterExporter),
+	// mirroring the guard in run.
+	if t.metricSrv == nil {
+		return nil
+	}
+
 	if err := t.metricSrv.Shutdown(ctx); err != nil {
 		return fmt.Errorf("cannot shutdown the metric server %w", err)
 	}
