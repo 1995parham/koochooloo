@@ -13,6 +13,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/auth"
 	"github.com/1995parham/koochooloo/internal/infra/http/handler"
 	"github.com/1995parham/koochooloo/internal/infra/http/middleware"
+	"github.com/1995parham/koochooloo/internal/infra/oidc"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/labstack/echo/v5"
 	"go.uber.org/fx"
@@ -31,6 +32,7 @@ func Provide(
 	store *urlsvc.URLSvc,
 	users *usersvc.UserSvc,
 	tokens *auth.TokenService,
+	provider *oidc.Service,
 	logger *zap.Logger,
 	tele telemetry.Telemetery,
 ) *echo.Echo {
@@ -47,7 +49,7 @@ func Provide(
 		Tracer: tele.TraceProvider.Tracer("handler.healthz"),
 	}.Register(app.Group(""))
 
-	registerAdmin(app, store, users, tokens, logger, tele)
+	registerAdmin(app, store, users, tokens, provider, logger, tele)
 
 	//nolint: exhaustruct
 	srv := &http.Server{
@@ -82,16 +84,18 @@ func registerAdmin(
 	store *urlsvc.URLSvc,
 	users *usersvc.UserSvc,
 	tokens *auth.TokenService,
+	provider *oidc.Service,
 	logger *zap.Logger,
 	tele telemetry.Telemetery,
 ) {
 	tracer := tele.TraceProvider.Tracer("handler.admin")
 
 	authH := handler.Auth{
-		Users:  users,
-		Tokens: tokens,
-		Logger: logger.Named("handler").Named("auth"),
-		Tracer: tracer,
+		Users:    users,
+		Tokens:   tokens,
+		Provider: provider,
+		Logger:   logger.Named("handler").Named("auth"),
+		Tracer:   tracer,
 	}
 	urlH := handler.AdminURL{
 		Store:  store,
@@ -106,6 +110,9 @@ func registerAdmin(
 
 	api := app.Group("/admin/api")
 	api.POST("/auth/login", authH.Login)
+	api.GET("/auth/info", authH.AuthInfo)
+	api.GET("/auth/oidc/login", authH.OIDCLogin)
+	api.GET("/auth/oidc/callback", authH.OIDCCallback)
 
 	authMw := middleware.Auth{Tokens: tokens}
 	sec := api.Group("", authMw.Authenticate)

@@ -10,18 +10,21 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/http/middleware"
 	"github.com/1995parham/koochooloo/internal/infra/http/request"
 	"github.com/1995parham/koochooloo/internal/infra/http/response"
+	"github.com/1995parham/koochooloo/internal/infra/oidc"
 	"github.com/labstack/echo/v5"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
-// Auth handles authentication: local login and the current-user endpoint.
+// Auth handles authentication: local login, the current-user endpoint and the
+// OIDC authorization-code flow.
 type Auth struct {
-	Users  *usersvc.UserSvc
-	Tokens *auth.TokenService
-	Logger *zap.Logger
-	Tracer trace.Tracer
+	Users    *usersvc.UserSvc
+	Tokens   *auth.TokenService
+	Provider *oidc.Service
+	Logger   *zap.Logger
+	Tracer   trace.Tracer
 }
 
 // Login verifies credentials and returns a signed session token.

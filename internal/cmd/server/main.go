@@ -11,6 +11,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/http/server"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
+	"github.com/1995parham/koochooloo/internal/infra/oidc"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/repository/userdb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
@@ -45,6 +46,7 @@ func Register(
 					fx.Provide(db.Provide),
 					fx.Provide(generator.Provide),
 					fx.Provide(auth.Provide),
+					fx.Provide(oidc.Provide),
 					fx.Provide(
 						fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
 					),
