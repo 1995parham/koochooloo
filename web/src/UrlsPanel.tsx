@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { api, atLeast, errMessage, type Url, type User } from './api'
 
 export function UrlsPanel({ user }: { user: User }) {
@@ -49,9 +49,7 @@ export function UrlsPanel({ user }: { user: User }) {
 
   return (
     <section className="card">
-      <h2>
-        Short URLs {isAdmin && <span className="muted">· all users</span>}
-      </h2>
+      <h2>Short URLs {isAdmin && <span className="muted">· all users</span>}</h2>
       {error && <div className="error">{error}</div>}
       <form className="row" onSubmit={create}>
         <input
@@ -60,7 +58,11 @@ export function UrlsPanel({ user }: { user: User }) {
           onChange={(e) => setUrl(e.target.value)}
           required
         />
-        <input placeholder="custom name (optional)" value={name} onChange={(e) => setName(e.target.value)} />
+        <input
+          placeholder="custom name (optional)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
         <input type="datetime-local" value={expire} onChange={(e) => setExpire(e.target.value)} />
         <button type="submit">Create</button>
       </form>
@@ -82,6 +84,7 @@ export function UrlsPanel({ user }: { user: User }) {
                   {u.key}
                 </a>
                 <button
+                  type="button"
                   className="link"
                   onClick={() => void navigator.clipboard.writeText(`${origin}/api/${u.key}`)}
                 >
@@ -92,7 +95,7 @@ export function UrlsPanel({ user }: { user: User }) {
               <td>{u.count}</td>
               {isAdmin && <td>{u.owner_id ?? '—'}</td>}
               <td>
-                <button className="danger" onClick={() => void remove(u.key)}>
+                <button type="button" className="danger" onClick={() => void remove(u.key)}>
                   delete
                 </button>
               </td>

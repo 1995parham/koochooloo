@@ -114,9 +114,9 @@ export const api = {
   },
 
   createUrl(url: string, name: string, expire: string | null): Promise<{ key: string }> {
-    const body: Record<string, string> = { url }
-    if (name) body['name'] = name
-    if (expire) body['expire'] = expire
+    const body: { url: string; name?: string; expire?: string } = { url }
+    if (name) body.name = name
+    if (expire) body.expire = expire
     return request('/urls', { method: 'POST', body: JSON.stringify(body) }).then((r) =>
       parse(r, CreatedKeySchema, 'failed to create url'),
     )
@@ -139,7 +139,10 @@ export const api = {
   },
 
   async setRole(id: number, role: Role): Promise<void> {
-    const res = await request(`/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) })
+    const res = await request(`/users/${id}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    })
     if (!res.ok) await fail(res, 'failed to change role')
   },
 

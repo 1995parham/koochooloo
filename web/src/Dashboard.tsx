@@ -17,7 +17,7 @@ export function Dashboard({ user, onLogout }: Props) {
         <div className="spacer" />
         <span className="badge">{user.username}</span>
         <span className={`badge role-${user.role}`}>{user.role}</span>
-        <button className="secondary" onClick={onLogout}>
+        <button type="button" className="secondary" onClick={onLogout}>
           Logout
         </button>
       </header>

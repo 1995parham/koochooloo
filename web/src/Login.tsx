@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import { api, errMessage, setToken, type User } from './api'
 
 interface Props {
@@ -45,7 +45,6 @@ export function Login({ flash, onLoggedIn }: Props) {
           placeholder="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          autoFocus
         />
         <input
           placeholder="password"

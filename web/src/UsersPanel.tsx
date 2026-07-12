@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { api, atLeast, errMessage, type Role, type User } from './api'
 
 const ROLES: readonly Role[] = ['user', 'admin', 'superadmin']
@@ -63,7 +63,12 @@ export function UsersPanel({ user }: { user: User }) {
       {error && <div className="error">{error}</div>}
       {isSuper && (
         <form className="row" onSubmit={create}>
-          <input placeholder="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+          <input
+            placeholder="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
           <input
             placeholder="password (min 8)"
             type="password"
@@ -98,7 +103,10 @@ export function UsersPanel({ user }: { user: User }) {
               <td>{u.username}</td>
               <td>
                 {isSuper && u.id !== user.id ? (
-                  <select value={u.role} onChange={(e) => void changeRole(u.id, e.target.value as Role)}>
+                  <select
+                    value={u.role}
+                    onChange={(e) => void changeRole(u.id, e.target.value as Role)}
+                  >
                     {ROLES.map((r) => (
                       <option key={r} value={r}>
                         {r}
@@ -113,7 +121,11 @@ export function UsersPanel({ user }: { user: User }) {
               {isSuper && (
                 <td>
                   {u.id !== user.id && (
-                    <button className="danger" onClick={() => void remove(u.id, u.username)}>
+                    <button
+                      type="button"
+                      className="danger"
+                      onClick={() => void remove(u.id, u.username)}
+                    >
                       delete
                     </button>
                   )}

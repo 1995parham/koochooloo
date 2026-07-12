@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api, clearToken, getToken, setToken, type User } from './api'
-import { Login } from './Login'
 import { Dashboard } from './Dashboard'
+import { Login } from './Login'
 
 export function App() {
   const [user, setUser] = useState<User | null>(null)
@@ -16,7 +16,7 @@ export function App() {
       setToken(decodeURIComponent(hash.slice('#token='.length)))
       window.history.replaceState(null, '', '/admin/')
     } else if (hash.startsWith('#error=')) {
-      setFlash('SSO login failed: ' + decodeURIComponent(hash.slice('#error='.length)))
+      setFlash(`SSO login failed: ${decodeURIComponent(hash.slice('#error='.length))}`)
       window.history.replaceState(null, '', '/admin/')
     }
   }, [])
