@@ -216,6 +216,57 @@ curl -X POST -d '{"url": "https://elahe-dastan.github.io"}' -H 'Content-Type: ap
 curl -L 127.0.0.1:1378/api/CKaniA
 ```
 
+## Admin panel & users
+
+koochooloo ships with an embedded admin panel (a React SPA, built into the
+binary via `go:embed`) served at **`/admin`**, backed by a JWT-guarded API under
+`/admin/api`.
+
+### Roles
+
+Three tiers, increasing in privilege: `user` < `admin` < `superadmin`.
+
+- **user** — manages only their own short URLs.
+- **admin** — manages every short URL and can view users.
+- **superadmin** — additionally creates users, changes roles and deletes users.
+
+Each short URL created through the panel is owned by its creator; anonymous
+shorts made via the public `POST /api/urls` have no owner.
+
+### Creating the first admin
+
+There is no public sign-up. Bootstrap accounts with the CLI:
+
+```bash
+./koochooloo user create --username root --superadmin   # prompts for a password
+./koochooloo user list
+./koochooloo user set-role --id 2 --role admin
+```
+
+Then sign in at `http://127.0.0.1:1378/admin`.
+
+### Authentication
+
+Two mechanisms coexist:
+
+- **Local** — username + password (bcrypt), issuing a session JWT.
+- **OIDC** — optional federated login (e.g. Keycloak). Enable it under
+  `[auth.oidc]` in the config (see `configs/config.example.toml`). On first
+  login an account is provisioned just-in-time, with its role mapped from a
+  configurable token claim (e.g. Keycloak's `realm_access.roles`). Both paths
+  end up with the same koochooloo JWT.
+
+Set a strong `auth.jwt_secret` in production.
+
+### Rebuilding the SPA
+
+`web/dist` is committed so `go build` needs no Node toolchain. After changing
+anything under `web/src`, rebuild with:
+
+```bash
+just web   # cd web && pnpm install && pnpm run build
+```
+
 ## Load Testing
 
 ```
