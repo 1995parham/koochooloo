@@ -195,11 +195,20 @@ By using the named logger you can easily find you module logs in your log aggreg
 
 ## Up and Running
 
-This project only requires MongoDB, and you can run it with provided `docker-compose`.
+This project talks to its database through [GORM](https://gorm.io), so it runs on
+SQLite, PostgreSQL, or MySQL — pick the engine with `database.dialect` (and the
+matching `database.url` DSN) in your config. The default is a zero-config SQLite
+file, so no external service is needed to get started:
 
 ```bash
-cd deployments && docker-compose up -d
-cd cmd/koochooloo/ && go build && ./koochooloo
+cd cmd/koochooloo/ && go build && ./koochooloo migrate && ./koochooloo server
+```
+
+To run against the containerised PostgreSQL instead, bring up the provided
+`docker-compose` and point the config at it (see `configs/config.example.toml`):
+
+```bash
+docker compose -f deployments/docker-compose.yml up -d
 ```
 
 ```bash
