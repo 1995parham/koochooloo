@@ -14,6 +14,7 @@ import (
 	"github.com/tidwall/pretty"
 	"go.uber.org/fx"
 
+	"github.com/1995parham/koochooloo/internal/infra/auth"
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
@@ -31,6 +32,7 @@ type Config struct {
 	Logger    logger.Config    `json:"logger"    koanf:"logger"`
 	Telemetry telemetry.Config `json:"telemetry" koanf:"telemetry"`
 	Generator generator.Config `json:"generator" koanf:"generator"`
+	Auth      auth.Config      `json:"auth"      koanf:"auth"`
 }
 
 func Provide() Config {

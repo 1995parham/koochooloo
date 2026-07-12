@@ -15,6 +15,25 @@ url = "koochooloo.db"
 # dialect = "mysql"
 # url = "koochooloo:secret@tcp(127.0.0.1:3306)/koochooloo?charset=utf8mb4&parseTime=True&loc=Local"
 
+[auth]
+# HMAC secret used to sign admin session tokens. CHANGE THIS in production.
+jwt_secret = "koochooloo-development-secret-change-me"
+# token lifetime as a Go duration string
+token_ttl = "24h"
+
+# optional OpenID Connect login (e.g. Keycloak). Local password login always works.
+[auth.oidc]
+enabled = false
+issuer = "https://keycloak.example.com/realms/koochooloo"
+client_id = "koochooloo"
+client_secret = ""
+redirect_url = "http://127.0.0.1:1378/admin/api/auth/oidc/callback"
+scopes = ["openid", "profile", "email"]
+# claim inspected for roles; dotted paths supported (Keycloak: "realm_access.roles")
+roles_claim = "groups"
+admin_values = ["koochooloo-admin"]
+superadmin_values = ["koochooloo-superadmin"]
+
 [telemetry]
 namespace = "1995parham"
 service_name = "koochooloo"

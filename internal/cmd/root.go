@@ -7,6 +7,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/cmd/migrate"
 	"github.com/1995parham/koochooloo/internal/cmd/seed"
 	"github.com/1995parham/koochooloo/internal/cmd/server"
+	"github.com/1995parham/koochooloo/internal/cmd/user"
 	"github.com/carlmjohnson/versioninfo"
 	"github.com/spf13/cobra"
 )
@@ -27,6 +28,7 @@ func Execute() {
 	server.Register(root)
 	migrate.Register(root)
 	seed.Register(root)
+	user.Register(root)
 
 	if err := root.Execute(); err != nil {
 		log.Printf("failed to execute root command %s", err)

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/1995parham/koochooloo/internal/infra/auth"
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
@@ -21,6 +22,22 @@ func Default() Config {
 		Database: db.Config{
 			Dialect: "sqlite",
 			URL:     "koochooloo.db",
+		},
+		//nolint:gosec // development default only; override in production config/env.
+		Auth: auth.Config{
+			JWTSecret: "koochooloo-development-secret-change-me",
+			TokenTTL:  "24h",
+			OIDC: auth.OIDCConfig{
+				Enabled:          false,
+				Issuer:           "",
+				ClientID:         "",
+				ClientSecret:     "",
+				RedirectURL:      "http://127.0.0.1:1378/admin/api/auth/oidc/callback",
+				Scopes:           []string{"openid", "profile", "email"},
+				RolesClaim:       "",
+				AdminValues:      []string{},
+				SuperAdminValues: []string{},
+			},
 		},
 		Telemetry: telemetry.Config{
 			Namespace:   "1995parham.me",
