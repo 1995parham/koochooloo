@@ -2,11 +2,15 @@
 name: "koochooloo"
 services:
   database:
-    image: mongo:latest
+    image: postgres:17
+    environment:
+      POSTGRES_USER: koochooloo
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: koochooloo
     ports:
-      - 27017:27017
+      - 5432:5432
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD-SHELL", "pg_isready -U koochooloo -d koochooloo"]
       interval: 5s
       timeout: 5s
       retries: 3

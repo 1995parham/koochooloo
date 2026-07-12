@@ -10,5 +10,5 @@ data:
   config.yml: |-
     debug: false
     database:
-      name: koochooloo
-      url: "mongodb://koochooloo:secret@koochooloo-mongodb:27017/koochooloo"
+      dialect: postgres
+      url: "host=koochooloo-postgres user=koochooloo password=secret dbname=koochooloo port=5432 sslmode=disable"

@@ -1,8 +1,0 @@
-securityContext:
-  enabled: false
-labels:
-  app: koochooloo
-
-mongodbUsername: koochooloo
-mongodbPassword: secret
-mongodbDatabase: koochooloo

@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: koochooloo-postgres
+  labels:
+    app: koochooloo
+spec:
+  selector:
+    app: koochooloo-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: koochooloo-postgres
+  labels:
+    app: koochooloo-postgres
+spec:
+  selector:
+    matchLabels:
+      app: koochooloo-postgres
+  template:
+    metadata:
+      labels:
+        app: koochooloo-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: koochooloo
+            - name: POSTGRES_PASSWORD
+              value: secret
+            - name: POSTGRES_DB
+              value: koochooloo
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "koochooloo", "-d", "koochooloo"]
+            initialDelaySeconds: 5
+            periodSeconds: 5

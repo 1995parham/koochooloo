@@ -28,12 +28,16 @@ dev cmd *flags:
 test: seed
     go test -race -v ./... -covermode=atomic -coverprofile=coverage.out
 
+# point the CLI at the docker-compose postgres so migrate/seed exercise the SQL path
+export koochooloo_database__dialect := "postgres"
+export koochooloo_database__url := "host=127.0.0.1 user=koochooloo password=secret dbname=koochooloo port=5432 sslmode=disable"
+
 seed: (dev "up")
     go run ./cmd/koochooloo/main.go migrate
     go run ./cmd/koochooloo/main.go seed
 
 # connect into the dev environment database
-database: (dev "up") (dev "exec" "database mongosh koochooloo")
+database: (dev "up") (dev "exec" "database psql -U koochooloo koochooloo")
 
 # run golangci-lint
 lint:
