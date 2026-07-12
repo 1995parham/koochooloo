@@ -2,13 +2,17 @@ package server
 
 import (
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
+	"github.com/1995parham/koochooloo/internal/domain/repository/userrepo"
 	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
+	"github.com/1995parham/koochooloo/internal/domain/service/usersvc"
+	"github.com/1995parham/koochooloo/internal/infra/auth"
 	"github.com/1995parham/koochooloo/internal/infra/config"
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/http/server"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
+	"github.com/1995parham/koochooloo/internal/infra/repository/userdb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/labstack/echo/v5"
 	"github.com/spf13/cobra"
@@ -40,10 +44,15 @@ func Register(
 					fx.Provide(telemetry.Provide),
 					fx.Provide(db.Provide),
 					fx.Provide(generator.Provide),
+					fx.Provide(auth.Provide),
 					fx.Provide(
 						fx.Annotate(urldb.ProvideDB, fx.As(new(urlrepo.Repository))),
 					),
+					fx.Provide(
+						fx.Annotate(userdb.ProvideDB, fx.As(new(userrepo.Repository))),
+					),
 					fx.Provide(urlsvc.Provide),
+					fx.Provide(usersvc.Provide),
 					fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 						return &fxevent.ZapLogger{Logger: logger}
 					}),

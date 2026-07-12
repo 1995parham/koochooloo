@@ -1,3 +1,4 @@
+// Package server wires the echo HTTP server and its route groups.
 package server
 
 import (
@@ -6,8 +7,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/1995parham/koochooloo/internal/domain/model"
 	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
+	"github.com/1995parham/koochooloo/internal/domain/service/usersvc"
+	"github.com/1995parham/koochooloo/internal/infra/auth"
 	"github.com/1995parham/koochooloo/internal/infra/http/handler"
+	"github.com/1995parham/koochooloo/internal/infra/http/middleware"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/labstack/echo/v5"
 	"go.uber.org/fx"
@@ -15,11 +20,20 @@ import (
 )
 
 const (
-	port               = ":1378"
-	readHeaderTimeout  = 10 * time.Second
+	port              = ":1378"
+	readHeaderTimeout = 10 * time.Second
 )
 
-func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele telemetry.Telemetery) *echo.Echo {
+// Provide builds the echo server, wiring the public API and the JWT-guarded
+// admin API, and manages its lifecycle through fx.
+func Provide(
+	lc fx.Lifecycle,
+	store *urlsvc.URLSvc,
+	users *usersvc.UserSvc,
+	tokens *auth.TokenService,
+	logger *zap.Logger,
+	tele telemetry.Telemetery,
+) *echo.Echo {
 	app := echo.New()
 
 	handler.URL{
@@ -32,6 +46,8 @@ func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele tel
 		Logger: logger.Named("handler").Named("healthz"),
 		Tracer: tele.TraceProvider.Tracer("handler.healthz"),
 	}.Register(app.Group(""))
+
+	registerAdmin(app, store, users, tokens, logger, tele)
 
 	//nolint: exhaustruct
 	srv := &http.Server{
@@ -56,4 +72,52 @@ func Provide(lc fx.Lifecycle, store *urlsvc.URLSvc, logger *zap.Logger, tele tel
 	)
 
 	return app
+}
+
+// registerAdmin mounts the /admin/api routes: a public login endpoint and a
+// JWT-guarded group for the current user, URL management and (role-gated)
+// user management.
+func registerAdmin(
+	app *echo.Echo,
+	store *urlsvc.URLSvc,
+	users *usersvc.UserSvc,
+	tokens *auth.TokenService,
+	logger *zap.Logger,
+	tele telemetry.Telemetery,
+) {
+	tracer := tele.TraceProvider.Tracer("handler.admin")
+
+	authH := handler.Auth{
+		Users:  users,
+		Tokens: tokens,
+		Logger: logger.Named("handler").Named("auth"),
+		Tracer: tracer,
+	}
+	urlH := handler.AdminURL{
+		Store:  store,
+		Logger: logger.Named("handler").Named("adminurl"),
+		Tracer: tracer,
+	}
+	userH := handler.AdminUser{
+		Users:  users,
+		Logger: logger.Named("handler").Named("adminuser"),
+		Tracer: tracer,
+	}
+
+	api := app.Group("/admin/api")
+	api.POST("/auth/login", authH.Login)
+
+	authMw := middleware.Auth{Tokens: tokens}
+	sec := api.Group("", authMw.Authenticate)
+
+	sec.GET("/auth/me", authH.Me)
+
+	sec.GET("/urls", urlH.List)
+	sec.POST("/urls", urlH.Create)
+	sec.DELETE("/urls/:key", urlH.Delete)
+
+	sec.GET("/users", userH.List, middleware.RequireRole(model.RoleAdmin))
+	sec.POST("/users", userH.Create, middleware.RequireRole(model.RoleSuperAdmin))
+	sec.PUT("/users/:id/role", userH.SetRole, middleware.RequireRole(model.RoleSuperAdmin))
+	sec.DELETE("/users/:id", userH.Delete, middleware.RequireRole(model.RoleSuperAdmin))
 }

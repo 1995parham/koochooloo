@@ -117,6 +117,16 @@ func (s *UserSvc) EnsureOIDC(
 	}
 }
 
+// Get returns the user with the given id.
+func (s *UserSvc) Get(ctx context.Context, id uint) (model.User, error) {
+	user, err := s.repo.FindByID(ctx, id)
+	if err != nil {
+		return model.User{}, fmt.Errorf("looking up user failed: %w", err)
+	}
+
+	return user, nil
+}
+
 // List returns all users.
 func (s *UserSvc) List(ctx context.Context) ([]model.User, error) {
 	users, err := s.repo.List(ctx)
