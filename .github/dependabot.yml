@@ -13,3 +13,7 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "npm" # admin-panel SPA (pnpm) under web/
+    directory: "/web"
+    schedule:
+      interval: "weekly"
