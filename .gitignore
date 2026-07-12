@@ -24,3 +24,8 @@
 /Godeps/
 
 # End of https://www.gitignore.io/api/go
+
+# Local SQLite database files (default dialect)
+*.db
+*.db-journal
+*.sqlite

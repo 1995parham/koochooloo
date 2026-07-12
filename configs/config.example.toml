@@ -2,8 +2,18 @@
 level = "info"
 
 [database]
-url = "mongodb://127.0.0.1:27017"
-name = "koochooloo"
+# dialect selects the engine: "sqlite", "postgres", or "mysql".
+# url is the engine-specific DSN.
+dialect = "sqlite"
+url = "koochooloo.db"
+
+# postgres example:
+# dialect = "postgres"
+# url = "host=127.0.0.1 user=koochooloo password=secret dbname=koochooloo port=5432 sslmode=disable"
+
+# mysql example:
+# dialect = "mysql"
+# url = "koochooloo:secret@tcp(127.0.0.1:3306)/koochooloo?charset=utf8mb4&parseTime=True&loc=Local"
 
 [telemetry]
 namespace = "1995parham"
