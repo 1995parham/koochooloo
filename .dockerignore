@@ -1,0 +1,19 @@
+# Build artifacts and local state that must not enter the image build context.
+/koochooloo
+/dist/
+*.out
+*.db
+*.db-journal
+*.sqlite
+
+# Frontend: node_modules is huge and dist is rebuilt inside the image.
+web/node_modules/
+web/dist/
+web/*.tsbuildinfo
+web/.vite/
+
+# VCS / editor
+.git/
+.github/
+.idea/
+.vscode/

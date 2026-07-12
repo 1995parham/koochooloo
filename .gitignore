@@ -23,6 +23,9 @@
 /vendor/
 /Godeps/
 
+# Compiled binary at repo root
+/koochooloo
+
 # End of https://www.gitignore.io/api/go
 
 # Local SQLite database files (default dialect)
