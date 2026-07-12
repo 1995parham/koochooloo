@@ -13,6 +13,7 @@ type urlRecord struct {
 	URL        string     `gorm:"column:url;not null"`
 	Count      int        `gorm:"column:count;not null;default:0"`
 	ExpireTime *time.Time `gorm:"column:expire_time;index"`
+	OwnerID    *uint      `gorm:"column:owner_id;index"`
 }
 
 // TableName pins the table name so every dialect uses the same one.
@@ -26,6 +27,7 @@ func toRecord(u model.URL) urlRecord {
 		URL:        u.URL,
 		Count:      u.Count,
 		ExpireTime: u.ExpireTime,
+		OwnerID:    u.OwnerID,
 	}
 }
 
@@ -35,5 +37,15 @@ func toModel(r urlRecord) model.URL {
 		URL:        r.URL,
 		Count:      r.Count,
 		ExpireTime: r.ExpireTime,
+		OwnerID:    r.OwnerID,
 	}
+}
+
+func toModels(rs []urlRecord) []model.URL {
+	urls := make([]model.URL, len(rs))
+	for i, r := range rs {
+		urls[i] = toModel(r)
+	}
+
+	return urls
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
+	"github.com/1995parham/koochooloo/internal/infra/repository/userdb"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -12,6 +13,10 @@ import (
 )
 
 func main(logger *zap.Logger, gdb *gorm.DB, shutdonwer fx.Shutdowner) {
+	if err := userdb.Migrate(gdb); err != nil {
+		panic(err)
+	}
+
 	if err := urldb.Migrate(gdb); err != nil {
 		panic(err)
 	}

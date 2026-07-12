@@ -8,6 +8,9 @@ type URL struct {
 	URL        string
 	Count      int
 	ExpireTime *time.Time
+	// OwnerID is the id of the user who owns this short URL. It is nil for
+	// anonymous shorts created through the public API.
+	OwnerID *uint
 }
 
 // IsExpired returns true if the URL has an expiration time that is in the past.

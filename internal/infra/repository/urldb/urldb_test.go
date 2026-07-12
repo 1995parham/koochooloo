@@ -147,6 +147,7 @@ func (suite *CommonURLSuite) TestIncCount() {
 				URL:        testURL,
 				ExpireTime: expire,
 				Count:      c.count,
+				OwnerID:    nil,
 			}))
 
 			for range c.inc {
@@ -183,6 +184,7 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 			URL:        "https://example.com",
 			Count:      0,
 			ExpireTime: nil,
+			OwnerID:    nil,
 		}))
 
 		const increments = 50
@@ -205,6 +207,7 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 			URL:        originalURL,
 			Count:      5,
 			ExpireTime: nil,
+			OwnerID:    nil,
 		}))
 
 		require.NoError(suite.repo.IncrementCount(ctx, key))
@@ -229,6 +232,7 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 			URL:        "https://initial-count.com",
 			Count:      100,
 			ExpireTime: nil,
+			OwnerID:    nil,
 		}))
 
 		require.NoError(suite.repo.IncrementCount(ctx, key))
@@ -248,6 +252,7 @@ func (suite *CommonURLSuite) TestIncrementConsistency() {
 			URL:        "https://concurrent.com",
 			Count:      0,
 			ExpireTime: nil,
+			OwnerID:    nil,
 		}))
 
 		const (
@@ -344,6 +349,7 @@ func (suite *CommonURLSuite) TestSetGetCount() {
 					URL:        c.url,
 					ExpireTime: expire,
 					Count:      0,
+					OwnerID:    nil,
 				}),
 				c.expectedSetErr,
 			)

@@ -19,4 +19,10 @@ type Repository interface {
 	Save(ctx context.Context, url model.URL) error
 	FindByKey(ctx context.Context, key string) (model.URL, error)
 	IncrementCount(ctx context.Context, key string) error
+	// ListByOwner returns every short URL owned by the given user.
+	ListByOwner(ctx context.Context, ownerID uint) ([]model.URL, error)
+	// ListAll returns every short URL (admin view).
+	ListAll(ctx context.Context) ([]model.URL, error)
+	// Delete removes the short URL with the given key.
+	Delete(ctx context.Context, key string) error
 }

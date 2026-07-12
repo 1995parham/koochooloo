@@ -124,3 +124,56 @@ func (s *SQLURL) FindByKey(ctx context.Context, key string) (model.URL, error) {
 
 	return toModel(record), nil
 }
+
+// ListByOwner returns every short URL owned by the given user, newest first.
+func (s *SQLURL) ListByOwner(ctx context.Context, ownerID uint) ([]model.URL, error) {
+	ctx, span := s.Tracer.Start(ctx, "store.url.list_by_owner")
+	defer span.End()
+
+	records, err := gorm.G[urlRecord](s.DB).
+		Where("owner_id = ?", ownerID).
+		Order("key").
+		Find(ctx)
+	if err != nil {
+		span.RecordError(err)
+
+		return nil, fmt.Errorf("database failed: %w", err)
+	}
+
+	return toModels(records), nil
+}
+
+// ListAll returns every short URL, ordered by key.
+func (s *SQLURL) ListAll(ctx context.Context) ([]model.URL, error) {
+	ctx, span := s.Tracer.Start(ctx, "store.url.list_all")
+	defer span.End()
+
+	records, err := gorm.G[urlRecord](s.DB).Order("key").Find(ctx)
+	if err != nil {
+		span.RecordError(err)
+
+		return nil, fmt.Errorf("database failed: %w", err)
+	}
+
+	return toModels(records), nil
+}
+
+// Delete removes the short URL with the given key. Deleting a missing key
+// returns ErrKeyNotFound.
+func (s *SQLURL) Delete(ctx context.Context, key string) error {
+	ctx, span := s.Tracer.Start(ctx, "store.url.delete")
+	defer span.End()
+
+	rows, err := gorm.G[urlRecord](s.DB).Where("key = ?", key).Delete(ctx)
+	if err != nil {
+		span.RecordError(err)
+
+		return fmt.Errorf("database failed: %w", err)
+	}
+
+	if rows == 0 {
+		return urlrepo.ErrKeyNotFound
+	}
+
+	return nil
+}

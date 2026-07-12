@@ -34,6 +34,7 @@ func (s *URLSvc) Set(ctx context.Context, key, url string, expire *time.Time, co
 			URL:        url,
 			ExpireTime: expire,
 			Count:      count,
+			OwnerID:    nil,
 		}); err != nil {
 			if errors.Is(err, urlrepo.ErrDuplicateKey) {
 				return "", fmt.Errorf("specified key is duplicated %w", err)
@@ -53,6 +54,7 @@ func (s *URLSvc) Set(ctx context.Context, key, url string, expire *time.Time, co
 			URL:        url,
 			ExpireTime: expire,
 			Count:      count,
+			OwnerID:    nil,
 		}); err != nil {
 			if errors.Is(err, urlrepo.ErrDuplicateKey) {
 				continue

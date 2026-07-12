@@ -76,6 +76,49 @@ func (m *MemoryURL) FindByKey(_ context.Context, key string) (model.URL, error) 
 	return model.URL{}, urlrepo.ErrKeyNotFound
 }
 
+// ListByOwner returns every short URL owned by the given user.
+func (m *MemoryURL) ListByOwner(_ context.Context, ownerID uint) ([]model.URL, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var urls []model.URL
+
+	for _, u := range m.store {
+		if u.OwnerID != nil && *u.OwnerID == ownerID {
+			urls = append(urls, u)
+		}
+	}
+
+	return urls, nil
+}
+
+// ListAll returns every short URL.
+func (m *MemoryURL) ListAll(_ context.Context) ([]model.URL, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	urls := make([]model.URL, 0, len(m.store))
+	for _, u := range m.store {
+		urls = append(urls, u)
+	}
+
+	return urls, nil
+}
+
+// Delete removes the short URL with the given key.
+func (m *MemoryURL) Delete(_ context.Context, key string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	if _, ok := m.store[key]; !ok {
+		return urlrepo.ErrKeyNotFound
+	}
+
+	delete(m.store, key)
+
+	return nil
+}
+
 // liveLocked checks if a key exists and is not expired. Caller must hold mu.
 func (m *MemoryURL) liveLocked(key string) (model.URL, bool) {
 	u, ok := m.store[key]
