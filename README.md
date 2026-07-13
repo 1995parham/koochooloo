@@ -29,6 +29,7 @@ management, exemplifying the best practices in building robust ReST applications
 - **Standardized Naming**: Adherence to the de-facto standard of singular package names, inspired by 'project-layout' principles.
 - **Independent Packages**: Each package is crafted to function independently, making the addition of new features seamless.
 - **Intuitive Structure**: Navigate with ease through a codebase that's designed for clarity.
+- **Users & Access Control**: Built-in user accounts with role-based access (`user` < `admin` < `superadmin`), local and OIDC authentication, and an embedded admin panel — see [Admin panel & users](#admin-panel--users).
 
 ### Technology
 
