@@ -5,6 +5,7 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"time"
 
@@ -80,7 +81,7 @@ func (t *TokenService) Parse(token string) (Claims, error) {
 // UserID returns the numeric user id encoded in the token subject.
 func (c Claims) UserID() (uint, error) {
 	id, err := strconv.ParseUint(c.Subject, 10, 64)
-	if err != nil {
+	if err != nil || id > math.MaxUint {
 		return 0, fmt.Errorf("%w: bad subject", ErrInvalidToken)
 	}
 
