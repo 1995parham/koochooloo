@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -127,7 +128,7 @@ func (h AdminUser) Delete(c *echo.Context) error {
 // pathID parses the :id path parameter as a user id.
 func pathID(c *echo.Context) (uint, error) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
+	if err != nil || id > math.MaxUint {
 		return 0, echo.NewHTTPError(http.StatusBadRequest, "invalid user id")
 	}
 
