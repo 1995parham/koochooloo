@@ -11,9 +11,14 @@ build:
     @echo '{{ BOLD + CYAN }}Building Koochooloo!{{ NORMAL }}'
     go build -o koochooloo ./cmd/koochooloo
 
-# update go packages
-update:
+# update go and frontend packages
+update: update-web
     @cd ./cmd/koochooloo && go get -u
+
+# update frontend packages to their latest versions
+update-web:
+    @echo '{{ BOLD + CYAN }}Updating admin panel packages{{ NORMAL }}'
+    cd web && pnpm update --latest
 
 # set up the dev environment with docker-compose
 dev cmd *flags:
