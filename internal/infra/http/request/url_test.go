@@ -56,9 +56,11 @@ func TestURLValidation(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		expire := new(time.Time)
+		// a nil expire means the short URL never expires, which is what a request
+		// without an `expire` field decodes into.
+		var expire *time.Time
 		if !c.expire.IsZero() {
-			*expire = c.expire
+			expire = &c.expire
 		}
 
 		rq := request.URL{
