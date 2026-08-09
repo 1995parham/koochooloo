@@ -52,6 +52,16 @@ export const AuthInfoSchema = z.object({
 })
 export type AuthInfo = z.infer<typeof AuthInfoSchema>
 
+// The build provenance (revision, last_commit, dirty) is only sent to admins,
+// so every field but the version itself is optional.
+export const VersionSchema = z.object({
+  version: z.string(),
+  revision: z.string().optional(),
+  last_commit: z.string().optional(),
+  dirty: z.boolean().optional(),
+})
+export type Version = z.infer<typeof VersionSchema>
+
 const TokenSchema = z.object({ token: z.string(), user: UserSchema })
 const CreatedKeySchema = z.object({ key: z.string() })
 
@@ -107,6 +117,10 @@ export const api = {
 
   me(): Promise<User> {
     return request('/auth/me').then((r) => parse(r, UserSchema, 'failed to load profile'))
+  },
+
+  version(): Promise<Version> {
+    return request('/version').then((r) => parse(r, VersionSchema, 'failed to load version'))
   },
 
   listUrls(): Promise<Url[]> {
