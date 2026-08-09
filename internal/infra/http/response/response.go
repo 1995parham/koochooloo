@@ -74,3 +74,13 @@ type Token struct {
 	Token string `json:"token"`
 	User  User   `json:"user"`
 }
+
+// Version describes the build the server is running. Every authenticated user
+// sees the version itself; the build provenance (commit, its timestamp and
+// whether the tree was dirty) is filled in for admins only.
+type Version struct {
+	Version    string     `json:"version"`
+	Revision   string     `json:"revision,omitempty"`
+	LastCommit *time.Time `json:"last_commit,omitempty"`
+	Dirty      bool       `json:"dirty,omitempty"`
+}

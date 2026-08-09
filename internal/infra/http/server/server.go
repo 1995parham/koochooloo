@@ -113,6 +113,10 @@ func registerAdmin(
 		Logger: logger.Named("handler").Named("adminuser"),
 		Tracer: tracer,
 	}
+	versionH := handler.Version{
+		Logger: logger.Named("handler").Named("version"),
+		Tracer: tracer,
+	}
 
 	api := app.Group("/admin/api")
 	api.POST("/auth/login", authH.Login)
@@ -124,6 +128,8 @@ func registerAdmin(
 	sec := api.Group("", authMw.Authenticate)
 
 	sec.GET("/auth/me", authH.Me)
+
+	versionH.Register(sec)
 
 	sec.GET("/urls", urlH.List)
 	sec.POST("/urls", urlH.Create)
