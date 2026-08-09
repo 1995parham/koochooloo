@@ -9,7 +9,7 @@
 <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/1995parham/koochooloo/test.yaml?logo=github&style=for-the-badge">
 <img alt="Codecov" src="https://img.shields.io/codecov/c/github/1995parham/koochooloo?logo=codecov&style=for-the-badge">
 <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/1995parham/koochooloo?logo=github&style=for-the-badge">
- </p>
+</p>
 
 > a Persian word which means "small" or "li'l". It is often used to refer to a girl when flirting, (with the meaning, li'l girl)
 >
@@ -17,10 +17,7 @@
 
 ## Introduction
 
-Welcome to **Koochooloo**: an elegant, practical project crafted to streamline
-the development of Golang applications. Boasting a well-organized architecture, 
-**Koochooloo** integrates vital features such as database handling and configuration 
-management, exemplifying the best practices in building robust ReST applications with Go.
+Welcome to **Koochooloo**: an elegant, practical project crafted to streamline the development of Golang applications. Boasting a well-organized architecture, **Koochooloo** integrates vital features such as database handling and configuration management, exemplifying the best practices in building robust ReST applications with Go.
 
 ### Features
 
@@ -40,19 +37,13 @@ Leveraging `fx` as our dependency injection framework, **Koochooloo** delivers:
 
 ### Your Development Companion
 
-Embark on a journey with **koochooloo** and redefine your approach to creating ReSTful applications in Go.
-Whether you're expanding your skillset or building a solid foundation for complex applications, 
-**Koochooloo** is your partner in efficient, clean, and scalable software design.
+Embark on a journey with **koochooloo** and redefine your approach to creating ReSTful applications in Go. Whether you're expanding your skillset or building a solid foundation for complex applications, **Koochooloo** is your partner in efficient, clean, and scalable software design.
 
 ## Structure
 
 ### Binaries
 
-First of all, `cmd` package contains the binaries of this project with use of [cobra](https://github.com/spf13/cobra).
-It is good to have a simple binaries for tasks like database migrations that can be run on initiation phase of project.
-Each binary has its `main.go` in its package and registers itself with a `Register` function.
-In the `root.go` of `cmd` these `Register` functions from sub-commands are called.
-Here is an example for register function:
+First of all, `cmd` package contains the binaries of this project with use of [cobra](https://github.com/spf13/cobra). It is good to have a simple binaries for tasks like database migrations that can be run on initiation phase of project. Each binary has its `main.go` in its package and registers itself with a `Register` function. In the `root.go` of `cmd` these `Register` functions from sub-commands are called. Here is an example for register function:
 
 ```go
 // Register server command.
@@ -72,9 +63,7 @@ func Register(root *cobra.Command) {
 }
 ```
 
-Again each command registers its flag by itself, so we have separation from other commands.
-Sometimes we need to have shared flags between commands, then it is better to have them in config.
-For the later case, `koanf` can help us with the structure as below:
+Again each command registers its flag by itself, so we have separation from other commands. Sometimes we need to have shared flags between commands, then it is better to have them in config. For the later case, `koanf` can help us with the structure as below:
 
 ```go
 func Register(fs *pflag.FlagSet) {
@@ -103,15 +92,13 @@ if err := k.Unmarshal("", &instance); err != nil {
 
 ### Configuration
 
-The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables.
-[Koanf](https://github.com/knadh/koanf) has all of them in a one beautiful package. The main points here are:
+The main part of each application is its configuration. There are many ways for having configuration in the project from configuration file to environment variables. [Koanf](https://github.com/knadh/koanf) has all of them in a one beautiful package. The main points here are:
 
 - Having a defined and typed structure for configuration
 - Don't use global configuration. each module has its configuration defined in `config` module and it will pass to it in its initiation.
 - Print loaded configuration at startup, so everyone can validate the applied configuration.
 
-P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://github.com/spf13/viper) for having typed configuration.
-By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
+P.S. [koanf](https://github.com/knadh/koanf) is way better than [viper](https://github.com/spf13/viper) for having typed configuration. By typed configuration I mean you have a defined structure for configuration and then load configuration from many sources into it.
 
 For installing [koanf](https://github.com/knadh/koanf) you can use the following commands:
 
@@ -127,32 +114,23 @@ go get -u github.com/knadh/koanf/parsers/toml
 
 ### Infra vs Domain
 
-Packages and services that are defined in `domain` package only uses other packages from `domain` without using any
-3rd party packages. These packages and services specifies the core domain concepts.
+Packages and services that are defined in `domain` package only uses other packages from `domain` without using any 3rd party packages. These packages and services specifies the core domain concepts.
 
 ### Database
 
-There is a `db` package that is responsible for connecting to the database. This package uses the database configuration that is defined in `config` module and create a database instance.
-It is a good idea to ping your database here to have fully confident to your database instance before going forward.
-Also for having an insight at database health you can call this ping function periodically and report its result with metrics (which I didn't do here).
+There is a `db` package that is responsible for connecting to the database. This package uses the database configuration that is defined in `config` module and create a database instance. It is a good idea to ping your database here to have fully confident to your database instance before going forward. Also for having an insight at database health you can call this ping function periodically and report its result with metrics (which I didn't do here).
 
 ### Model
 
-Project models are defined in `model` package. These models are used internally but the can be used in `response` or `request` package.
-There is no structure for communicating with database in this package.
+Project models are defined in `model` package. These models are used internally but the can be used in `response` or `request` package. There is no structure for communicating with database in this package.
 
 ### Repository
 
-Repositories are responsible for commnunicating with database to store or retrieve models. Repositories are `interface` and there is an concrete and mocked implementation for them.
-concrete implementation is used in main code and mocked one is used for tests. Please note that the tests for repositories are touchy and are done with actual database.
+Repositories are responsible for commnunicating with database to store or retrieve models. Repositories are `interface` and there is an concrete and mocked implementation for them. concrete implementation is used in main code and mocked one is used for tests. Please note that the tests for repositories are touchy and are done with actual database.
 
 ### Handler
 
-HTTP handler are defined in `handler` package. [Echo](https://github.com/labstack/echo)
-is an awesome HTTP framework that has eveything you need.
-Each handler has its structure with a `Register` method that registers its route into a given route group.
-Route group is a concept from [Echo](https://github.com/labstack/echo) framework for grouping routes under a specific parent path.
-Each handler has what it needs into its structure. Handler structure are created in `main.go` then register on their group.
+HTTP handler are defined in `handler` package. [Echo](https://github.com/labstack/echo) is an awesome HTTP framework that has eveything you need. Each handler has its structure with a `Register` method that registers its route into a given route group. Route group is a concept from [Echo](https://github.com/labstack/echo) framework for grouping routes under a specific parent path. Each handler has what it needs into its structure. Handler structure are created in `main.go` then register on their group.
 
 ```go
 type Healthz struct {}
@@ -170,43 +148,27 @@ func (h Healthz) Register(g *echo.Group) {
 
 ### Metrics
 
-All metrics are gathered using [Prometheus](https://prometheus.io/)
-based on [open-telemetry](https://github.com/open-telemetry/opentelemetry-go).
-Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them.
-For migrating from Prometheus to another service you just need to change `telemetry`.
-Metrics aren't global and they created for each instance seperately thanks to Open Telemetry design.
-For having better controller on metrics endpoint there is another HTTP server that is defined in `telemetry`
-package for monitoring.
+All metrics are gathered using [Prometheus](https://prometheus.io/) based on [open-telemetry](https://github.com/open-telemetry/opentelemetry-go). Each package has its `metric.go` that defines a structure contains the metrics and have methods for changing them. For migrating from Prometheus to another service you just need to change `telemetry`. Metrics aren't global and they created for each instance seperately thanks to Open Telemetry design. For having better controller on metrics endpoint there is another HTTP server that is defined in `telemetry` package for monitoring.
 
 ### Request/Response
 
-It is good to have separated packages for requests and responses. These packages also contain validation logic.
-One of the good validation pakcages in Go is [ozzo-validator](https://github.com/go-ozzo/ozzo-validation).
-After providing validate method, after getting request you can validate it with its method with ease.
+It is good to have separated packages for requests and responses. These packages also contain validation logic. One of the good validation pakcages in Go is [ozzo-validator](https://github.com/go-ozzo/ozzo-validation). After providing validate method, after getting request you can validate it with its method with ease.
 
 ### Logging
 
-Logging one the most important part of application. At the beginning there is no need to have something more than simple stdout logs.
-But in the future you need to strcuture you logs and ship them into an aggregation system because when your system grows detecting issues
-from text logs will be inpossible.
+Logging one the most important part of application. At the beginning there is no need to have something more than simple stdout logs. But in the future you need to strcuture you logs and ship them into an aggregation system because when your system grows detecting issues from text logs will be inpossible.
 
-[zap](https://github.com/uber-go/zap) is one the best logger for structure logging.
-`zap` forces you to pass it into your child module and you also name loggers with `Named` method.
-By using the named logger you can easily find you module logs in your log aggregator.
+[zap](https://github.com/uber-go/zap) is one the best logger for structure logging. `zap` forces you to pass it into your child module and you also name loggers with `Named` method. By using the named logger you can easily find you module logs in your log aggregator.
 
 ## Up and Running
 
-This project talks to its database through [GORM](https://gorm.io), so it runs on
-SQLite, PostgreSQL, or MySQL — pick the engine with `database.dialect` (and the
-matching `database.url` DSN) in your config. The default is a zero-config SQLite
-file, so no external service is needed to get started:
+This project talks to its database through [GORM](https://gorm.io), so it runs on SQLite, PostgreSQL, or MySQL — pick the engine with `database.dialect` (and the matching `database.url` DSN) in your config. The default is a zero-config SQLite file, so no external service is needed to get started:
 
 ```bash
 cd cmd/koochooloo/ && go build && ./koochooloo migrate && ./koochooloo server
 ```
 
-To run against the containerised PostgreSQL instead, bring up the provided
-`docker-compose` and point the config at it (see `configs/config.example.toml`):
+To run against the containerised PostgreSQL instead, bring up the provided `docker-compose` and point the config at it (see `configs/config.example.toml`):
 
 ```bash
 docker compose -f deployments/docker-compose.yml up -d
@@ -219,9 +181,7 @@ curl -L 127.0.0.1:1378/api/CKaniA
 
 ## Admin panel & users
 
-koochooloo ships with an embedded admin panel (a React SPA, built into the
-binary via `go:embed`) served at **`/admin`**, backed by a JWT-guarded API under
-`/admin/api`.
+koochooloo ships with an embedded admin panel (a React SPA, built into the binary via `go:embed`) served at **`/admin`**, backed by a JWT-guarded API under `/admin/api`.
 
 ### Roles
 
@@ -231,8 +191,7 @@ Three tiers, increasing in privilege: `user` < `admin` < `superadmin`.
 - **admin** — manages every short URL and can view users.
 - **superadmin** — additionally creates users, changes roles and deletes users.
 
-Each short URL created through the panel is owned by its creator; anonymous
-shorts made via the public `POST /api/urls` have no owner.
+Each short URL created through the panel is owned by its creator; anonymous shorts made via the public `POST /api/urls` have no owner.
 
 ### Creating the first admin
 
@@ -251,18 +210,13 @@ Then sign in at `http://127.0.0.1:1378/admin`.
 Two mechanisms coexist:
 
 - **Local** — username + password (bcrypt), issuing a session JWT.
-- **OIDC** — optional federated login (e.g. Keycloak). Enable it under
-  `[auth.oidc]` in the config (see `configs/config.example.toml`). On first
-  login an account is provisioned just-in-time, with its role mapped from a
-  configurable token claim (e.g. Keycloak's `realm_access.roles`). Both paths
-  end up with the same koochooloo JWT.
+- **OIDC** — optional federated login (e.g. Keycloak). Enable it under `[auth.oidc]` in the config (see `configs/config.example.toml`). On first login an account is provisioned just-in-time, with its role mapped from a configurable token claim (e.g. Keycloak's `realm_access.roles`). Both paths end up with the same koochooloo JWT.
 
 Set a strong `auth.jwt_secret` in production.
 
 ### Rebuilding the SPA
 
-`web/dist` is committed so `go build` needs no Node toolchain. After changing
-anything under `web/src`, rebuild with:
+`web/dist` is committed so `go build` needs no Node toolchain. After changing anything under `web/src`, rebuild with:
 
 ```bash
 just web   # cd web && pnpm install && pnpm run build
