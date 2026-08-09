@@ -214,6 +214,10 @@ Two mechanisms coexist:
 
 Set a strong `auth.jwt_secret` in production.
 
+### Build information
+
+The panel footer shows which build is running, served by `GET /admin/api/version`. Everyone signed in sees the version tag (or `devel` for an untagged build); admins additionally see the commit hash, the commit time and whether the working tree was dirty at build time. The values come from the VCS stamp Go embeds at build time, so they are only populated for binaries built from the git checkout (not with `-buildvcs=false`).
+
 ### Rebuilding the SPA
 
 `web/dist` is committed so `go build` needs no Node toolchain. After changing anything under `web/src`, rebuild with:
