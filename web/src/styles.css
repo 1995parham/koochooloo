@@ -4,7 +4,8 @@
   --border: #e3e6ea;
   --text: #1c2024;
   --muted: #6b7280;
-  --accent: #2f6feb;
+  --accent: #c2410c;
+  --accent-fg: #ffffff;
   --danger: #d64545;
   --danger-bg: #fdeaea;
   --error-bg: #fdecec;
@@ -19,7 +20,8 @@
     --border: #2a2f3a;
     --text: #e6e8eb;
     --muted: #9aa4b2;
-    --accent: #5a8dff;
+    --accent: #fb923c;
+    --accent-fg: #14161a;
     --danger: #e5715f;
     --danger-bg: #3a2020;
     --error-bg: #3a2020;
@@ -98,7 +100,7 @@ button,
   border: 1px solid transparent;
   border-radius: 8px;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-fg);
   font-size: 0.9rem;
   cursor: pointer;
   text-decoration: none;
@@ -170,7 +172,7 @@ header .spacer {
 }
 .badge.role-superadmin {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-fg);
   border-color: var(--accent);
 }
 
@@ -212,6 +214,18 @@ th {
   letter-spacing: 0.03em;
   color: var(--muted);
 }
+.version {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.25rem 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+.version code {
+  font-size: 0.75rem;
+}
+
 .truncate {
   max-width: 340px;
   overflow: hidden;
