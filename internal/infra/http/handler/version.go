@@ -28,7 +28,12 @@ func release(version, revision string) string {
 		return devel
 	}
 
-	if len(revision) >= pseudoRevisionLen && strings.Contains(version, revision[:pseudoRevisionLen]) {
+	// A pseudo-version ends in "-<12-char commit prefix>". Compare that exact
+	// suffix against the embedded revision instead of scanning the whole
+	// string, so a release tag that merely contains the prefix is not
+	// mistaken for a pseudo-version.
+	if _, commit, ok := strings.CutLast(version, "-"); ok &&
+		len(revision) >= pseudoRevisionLen && commit == revision[:pseudoRevisionLen] {
 		return devel
 	}
 
@@ -48,7 +53,7 @@ func (h Version) Handle(c *echo.Context) error {
 	_, span := h.Tracer.Start(c.Request().Context(), "handler.version")
 	defer span.End()
 
-	//nolint: exhaustruct
+	//nolint: exhaustruct_v5
 	rs := response.Version{Version: release(versioninfo.Version, versioninfo.Revision)}
 
 	claims, ok := middleware.ClaimsFrom(c)
