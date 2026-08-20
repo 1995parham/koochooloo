@@ -73,13 +73,17 @@ func setupMeterExporter(cfg Config) (metric.Reader, *http.Server) {
 		WriteTimeout:                 time.Second,
 		IdleTimeout:                  time.Second,
 		MaxHeaderBytes:               0,
-		TLSNextProto:                 nil,
-		ConnState:                    nil,
-		ErrorLog:                     nil,
-		BaseContext:                  nil,
-		ConnContext:                  nil,
-		HTTP2:                        nil,
-		Protocols:                    nil,
+		// Zero selects http.DefaultMaxHeaderValueCount (Go 1.27).
+		MaxHeaderValueCount: 0,
+		TLSNextProto:        nil,
+		ConnState:           nil,
+		ErrorLog:            nil,
+		BaseContext:         nil,
+		ConnContext:         nil,
+		HTTP2:               nil,
+		Protocols:           nil,
+		// False honours RFC 9218 client priority signals (Go 1.27 default).
+		DisableClientPriority: false,
 	}
 }
 
