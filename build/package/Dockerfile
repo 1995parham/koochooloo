@@ -15,7 +15,7 @@ COPY web/ ./
 RUN pnpm run build
 
 # --- builder: compile the Go binary with the SPA embedded -----------------
-FROM golang:1.26-bookworm AS builder
+FROM golang:1.27-bookworm AS builder
 
 WORKDIR /app
 
