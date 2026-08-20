@@ -40,8 +40,12 @@ func NewTokenService(secret string, ttl time.Duration) *TokenService {
 
 // Issue mints a signed token for the given user.
 func (t *TokenService) Issue(user model.User, now time.Time) (string, error) {
-	claims := Claims{
-		RegisteredClaims: jwt.RegisteredClaims{ //nolint:exhaustruct // only the fields we set are relevant.
+	// modernize's embedlit wants the promoted fields hoisted into the outer
+	// literal (a Go 1.27 feature), but exhaustruct v5.0.3 panics on any literal
+	// that keys a promoted field, and a crashing analyzer cannot be nolint-ed.
+	// Revisit once exhaustruct understands the Go 1.27 syntax.
+	claims := Claims{ //nolint:modernize // see above: embedlit output crashes exhaustruct_v5.
+		RegisteredClaims: jwt.RegisteredClaims{ //nolint:exhaustruct_v5 // only the fields we set are relevant.
 			Subject:   strconv.FormatUint(uint64(user.ID), 10),
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(t.ttl)),
@@ -62,7 +66,7 @@ func (t *TokenService) Issue(user model.User, now time.Time) (string, error) {
 func (t *TokenService) Parse(token string) (Claims, error) {
 	parsed, err := jwt.ParseWithClaims(
 		token,
-		&Claims{}, //nolint:exhaustruct // populated by the parser.
+		&Claims{}, //nolint:exhaustruct_v5 // populated by the parser.
 		func(_ *jwt.Token) (any, error) { return t.secret, nil },
 		jwt.WithValidMethods([]string{alg}),
 	)
