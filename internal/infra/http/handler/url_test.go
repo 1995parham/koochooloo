@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"testing/synctest"
 	"time"
 
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
@@ -20,6 +21,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"github.com/labstack/echo/v5"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
@@ -130,44 +132,51 @@ func (suite *URLSuite) TestBadRequest() {
 	require.Equal(http.StatusBadRequest, w.Code)
 }
 
+// TestExpiration runs inside a synctest bubble so the wait for the URL to
+// expire costs no wall-clock time: time.Now and the sleep below both read the
+// bubble's synthetic clock, which synctest.Sleep advances instantly.
 func (suite *URLSuite) TestExpiration() {
-	require := suite.Require()
+	synctest.Test(suite.T(), func(t *testing.T) {
+		require := require.New(t)
 
-	expire := time.Now().Add(time.Second)
-	url := "https://instagram.com"
-	key := "ex"
+		expire := time.Now().Add(time.Second)
+		url := "https://instagram.com"
+		key := "ex"
 
-	b, err := json.Marshal(request.URL{
-		URL:    url,
-		Name:   key,
-		Expire: &expire,
-	})
-	require.NoError(err)
-
-	w := httptest.NewRecorder()
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/urls", bytes.NewReader(b))
-	require.NoError(err)
-
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
-	suite.engine.ServeHTTP(w, req)
-	require.Equal(http.StatusOK, w.Code)
-
-	var resp string
-
-	require.NoError(json.NewDecoder(w.Body).Decode(&resp))
-	require.Equal("$"+key, resp)
-
-	time.Sleep(time.Second)
-
-	{
-		w := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/api/"+resp, nil)
+		b, err := json.Marshal(request.URL{
+			URL:    url,
+			Name:   key,
+			Expire: &expire,
+		})
 		require.NoError(err)
 
+		w := httptest.NewRecorder()
+		req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "/api/urls", bytes.NewReader(b))
+		require.NoError(err)
+
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
 		suite.engine.ServeHTTP(w, req)
-		require.Equal(http.StatusNotFound, w.Code)
-	}
+		require.Equal(http.StatusOK, w.Code)
+
+		var resp string
+
+		require.NoError(json.NewDecoder(w.Body).Decode(&resp))
+		require.Equal("$"+key, resp)
+
+		// IsExpired compares with a strict Before, so step past the deadline
+		// rather than exactly onto it.
+		synctest.Sleep(2 * time.Second)
+
+		{
+			w := httptest.NewRecorder()
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodGet, "/api/"+resp, nil)
+			require.NoError(err)
+
+			suite.engine.ServeHTTP(w, req)
+			require.Equal(http.StatusNotFound, w.Code)
+		}
+	})
 }
 
 // nolint: funlen
