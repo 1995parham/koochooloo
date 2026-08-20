@@ -1,13 +1,16 @@
 <h1 align="center">🐼 koochooloo 🌰</h1>
+<h3 align="center">A self-hosted URL shortener written in Go — with user accounts, role-based access control, OIDC single sign-on, and an embedded admin panel.</h3>
 <h6 align="center">I want to dedicate this project to my love ❤️</h6>
 
 <p align="center">
-<img src="./assets/koochooloo.png" height="250px">
+<img alt="koochooloo — self-hosted URL shortener written in Go" src="./assets/koochooloo.png" height="250px">
 </p>
 
 <p align="center">
 <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/1995parham/koochooloo/test.yaml?logo=github&style=for-the-badge">
 <img alt="Codecov" src="https://img.shields.io/codecov/c/github/1995parham/koochooloo?logo=codecov&style=for-the-badge">
+<img alt="Go version" src="https://img.shields.io/github/go-mod/go-version/1995parham/koochooloo?logo=go&style=for-the-badge">
+<img alt="License" src="https://img.shields.io/github/license/1995parham/koochooloo?style=for-the-badge">
 <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/1995parham/koochooloo?logo=github&style=for-the-badge">
 </p>
 
@@ -15,29 +18,217 @@
 >
 > Urban Dictionary
 
-## Introduction
+## Contents
 
-Welcome to **Koochooloo**: an elegant, practical project crafted to streamline the development of Golang applications. Boasting a well-organized architecture, **Koochooloo** integrates vital features such as database handling and configuration management, exemplifying the best practices in building robust ReST applications with Go.
+- [What is koochooloo?](#what-is-koochooloo)
+- [Features](#features)
+- [Quick start](#quick-start)
+- [HTTP API](#http-api)
+- [Admin panel & users](#admin-panel--users)
+- [Configuration](#configuration)
+- [Why it's built this way](#why-its-built-this-way) — the design notes
+- [Load testing](#load-testing)
 
-### Features
+## What is koochooloo?
 
-- **Strong Typing**: Unyielding commitment to strong typing, enhancing readability and maintainability.
-- **No Globals or `init` Functions**: Eschews globals and the complexities of `init` functions to keep things simple.
-- **Standardized Naming**: Adherence to the de-facto standard of singular package names, inspired by 'project-layout' principles.
-- **Independent Packages**: Each package is crafted to function independently, making the addition of new features seamless.
-- **Intuitive Structure**: Navigate with ease through a codebase that's designed for clarity.
-- **Users & Access Control**: Built-in user accounts with role-based access (`user` < `admin` < `superadmin`), local and OIDC authentication, and an embedded admin panel — see [Admin panel & users](#admin-panel--users).
+**koochooloo** is a self-hosted URL shortener — a small link-shortening service you run
+yourself instead of handing your links to bit.ly or TinyURL. It turns a long URL into a
+short one, redirects visitors, and counts the clicks.
 
-### Technology
+It ships as a **single static Go binary** (or a distroless container) with the admin
+dashboard compiled into it, so a full deployment is one process and one database.
 
-Leveraging `fx` as our dependency injection framework, **Koochooloo** delivers:
+```console
+$ curl -X POST -d '{"url": "https://elahe-dastan.github.io"}' \
+       -H 'Content-Type: application/json' 127.0.0.1:1378/api/urls
+"CKaniA"
 
-- **No Code Generation**: Utilize powerful dependency injection without any code bloat from code generation.
-- **Test-Friendly**: An environment that supports and simplifies the use of `fx` in testing with the same ease as in production.
+$ curl -sL -o /dev/null -w '%{url_effective}\n' 127.0.0.1:1378/api/CKaniA
+https://elahe-dastan.github.io
+```
 
-### Your Development Companion
+It is also, deliberately, a **reference Go project** — an opinionated, worked example of
+how to lay out a production Go service: `cmd/` + `internal/{cmd,domain,infra}`, `fx` for
+dependency injection, `koanf` for typed configuration, `echo` for HTTP, GORM for storage,
+and OpenTelemetry for metrics and traces. If that is why you are here, skip to
+[**Why it's built this way**](#why-its-built-this-way), which is the long-form reasoning
+behind every one of those choices.
 
-Embark on a journey with **koochooloo** and redefine your approach to creating ReSTful applications in Go. Whether you're expanding your skillset or building a solid foundation for complex applications, **Koochooloo** is your partner in efficient, clean, and scalable software design.
+## Features
+
+**Shortening**
+
+- Random short keys (6 characters from `[a-zA-Z0-9_]`) or **custom aliases** (`$myalias`).
+- **Expiring links** — set an expiry timestamp and the link stops resolving.
+- **Click counting** per short URL.
+- `302` redirects, so ordinary browsers and `curl -L` just work.
+
+**Accounts & access control**
+
+- **User accounts** with three roles: `user` < `admin` < `superadmin`.
+- **Local login** — username + password (bcrypt), issuing a session **JWT**.
+- **OIDC / OAuth2 single sign-on** — federated login against Keycloak or any OIDC
+  provider, with just-in-time account provisioning and role mapping from a token claim.
+- Per-user link ownership; admins see everything, superadmins manage users.
+- No public sign-up — accounts are bootstrapped from the CLI.
+
+**Admin panel**
+
+- A **React SPA embedded into the binary** with `go:embed` and served at `/admin`.
+  No second service, no separate static host, no Node toolchain needed to build.
+
+**Operations**
+
+- **SQLite, PostgreSQL or MySQL** via GORM — the default is a zero-config SQLite file.
+- **Prometheus metrics** and **OpenTelemetry traces** (OTLP), on a separate metrics port.
+- Typed, layered configuration: defaults → TOML file → environment variables.
+- Structured JSON logging with `zap`.
+- Graceful startup/shutdown ordering via `fx` lifecycle hooks.
+- Distroless container image, `docker-compose` and Kubernetes manifests included.
+
+## Quick start
+
+koochooloo talks to its database through [GORM](https://gorm.io), so it runs on SQLite,
+PostgreSQL, or MySQL — pick the engine with `database.dialect` (and the matching
+`database.url` DSN) in your config. The default is a zero-config SQLite file, so no
+external service is needed to get started:
+
+```bash
+cd cmd/koochooloo/ && go build && ./koochooloo migrate && ./koochooloo server
+```
+
+Create yourself an account and sign in at <http://127.0.0.1:1378/admin>:
+
+```bash
+./koochooloo user create --username root --superadmin   # prompts for a password
+```
+
+To run against the containerised PostgreSQL instead, bring up the provided
+`docker-compose` and point the config at it (see `configs/config.example.toml`):
+
+```bash
+docker compose -f deployments/docker-compose.yml up -d
+```
+
+Shorten something:
+
+```bash
+curl -X POST -d '{"url": "https://elahe-dastan.github.io"}' -H 'Content-Type: application/json' 127.0.0.1:1378/api/urls
+curl -L 127.0.0.1:1378/api/CKaniA
+```
+
+## HTTP API
+
+The OpenAPI description lives in [`api/swagger.yml`](./api/swagger.yml); there are ready-made
+requests in [`api.http`](./api.http).
+
+### Public
+
+| Method | Path              | Description                                                              |
+| ------ | ----------------- | ------------------------------------------------------------------------ |
+| `POST` | `/api/urls`       | Create a short URL. Body: `{"url": …, "name"?: …, "expire"?: …}`. Returns the key. |
+| `GET`  | `/api/:key`       | Resolve the key and `302` redirect to the target, incrementing its count. |
+| `GET`  | `/api/count/:key` | Visit count for a short URL.                                             |
+| `GET`  | `/healthz`        | Liveness probe — `204 No Content`.                                       |
+
+Passing `name` creates a custom alias, stored and returned prefixed with `$` (so
+`{"name": "google"}` becomes `$google`). Omitting it generates a random 6-character key.
+Links created through the public endpoint are anonymous — they have no owner.
+
+### Admin
+
+Everything under `/admin/api` other than the login endpoints requires a
+`Authorization: Bearer <jwt>` header.
+
+| Method   | Path                          | Role         | Description                          |
+| -------- | ----------------------------- | ------------ | ------------------------------------ |
+| `POST`   | `/admin/api/auth/login`       | —            | Local login; returns a session JWT.  |
+| `GET`    | `/admin/api/auth/info`        | —            | Which login methods are enabled.     |
+| `GET`    | `/admin/api/auth/oidc/login`  | —            | Start the OIDC authorization-code flow. |
+| `GET`    | `/admin/api/auth/oidc/callback` | —          | OIDC redirect target.                |
+| `GET`    | `/admin/api/auth/me`          | `user`       | The signed-in user.                  |
+| `GET`    | `/admin/api/version`          | `user`       | Running build (commit shown to admins). |
+| `GET`    | `/admin/api/urls`             | `user`       | Own links; every link for `admin`+.  |
+| `POST`   | `/admin/api/urls`             | `user`       | Create a link owned by the caller.   |
+| `DELETE` | `/admin/api/urls/:key`        | `user`       | Delete an own link; any link for `admin`+. |
+| `GET`    | `/admin/api/users`            | `admin`      | List users.                          |
+| `POST`   | `/admin/api/users`            | `superadmin` | Create a user.                       |
+| `PUT`    | `/admin/api/users/:id/role`   | `superadmin` | Change a user's role.                |
+| `DELETE` | `/admin/api/users/:id`        | `superadmin` | Delete a user.                       |
+
+Prometheus metrics are served by a **separate** HTTP server, `:8080/metrics` by default,
+so you can keep it off the public interface.
+
+## Admin panel & users
+
+koochooloo ships with an embedded admin panel (a React SPA, built into the binary via `go:embed`) served at **`/admin`**, backed by a JWT-guarded API under `/admin/api`.
+
+### Roles
+
+Three tiers, increasing in privilege: `user` < `admin` < `superadmin`.
+
+- **user** — manages only their own short URLs.
+- **admin** — manages every short URL and can view users.
+- **superadmin** — additionally creates users, changes roles and deletes users.
+
+Each short URL created through the panel is owned by its creator; anonymous shorts made via the public `POST /api/urls` have no owner.
+
+### Creating the first admin
+
+There is no public sign-up. Bootstrap accounts with the CLI:
+
+```bash
+./koochooloo user create --username root --superadmin   # prompts for a password
+./koochooloo user list
+./koochooloo user set-role --id 2 --role admin
+```
+
+Then sign in at `http://127.0.0.1:1378/admin`.
+
+### Authentication
+
+Two mechanisms coexist:
+
+- **Local** — username + password (bcrypt), issuing a session JWT.
+- **OIDC** — optional federated login (e.g. Keycloak). Enable it under `[auth.oidc]` in the config (see `configs/config.example.toml`). On first login an account is provisioned just-in-time, with its role mapped from a configurable token claim (e.g. Keycloak's `realm_access.roles`). Both paths end up with the same koochooloo JWT.
+
+Set a strong `auth.jwt_secret` in production.
+
+### Build information
+
+The panel footer shows which build is running, served by `GET /admin/api/version`. Everyone signed in sees the version tag (or `devel` for an untagged build); admins additionally see the commit hash, the commit time and whether the working tree was dirty at build time. The values come from the VCS stamp Go embeds at build time, so they are only populated for binaries built from the git checkout (not with `-buildvcs=false`).
+
+### Rebuilding the SPA
+
+`web/dist` is committed so `go build` needs no Node toolchain. After changing anything under `web/src`, rebuild with:
+
+```bash
+just web   # cd web && pnpm install && pnpm run build
+```
+
+## Configuration
+
+Configuration is layered — hardcoded defaults, then `config.toml`, then environment
+variables — and the fully resolved tree is printed at startup so you can always see what
+the process actually applied. Start from [`configs/config.example.toml`](./configs/config.example.toml).
+
+Every key is reachable as an environment variable with the `koochooloo_` prefix, using
+`__` for nesting:
+
+```bash
+export koochooloo_database__dialect="postgres"
+export koochooloo_database__url="host=127.0.0.1 user=koochooloo password=secret dbname=koochooloo port=5432 sslmode=disable"
+```
+
+The reasoning behind this design is in [Configuration](#configuration-1) below.
+
+---
+
+# Why it's built this way
+
+> These are my notes on how this project is put together and why. They are as much of the
+> point as the shortener itself — if you are here for a Go project layout to copy, this is
+> the part to read.
 
 ## Structure
 
@@ -136,7 +327,7 @@ HTTP handler are defined in `handler` package. [Echo](https://github.com/labstac
 type Healthz struct {}
 
 // Handle shows server is up and running.
-func (h Healthz) Handle(c echo.Context) error {
+func (h Healthz) Handle(c *echo.Context) error {
  return c.NoContent(http.StatusNoContent)
 }
 
@@ -160,73 +351,27 @@ Logging one the most important part of application. At the beginning there is no
 
 [zap](https://github.com/uber-go/zap) is one the best logger for structure logging. `zap` forces you to pass it into your child module and you also name loggers with `Named` method. By using the named logger you can easily find you module logs in your log aggregator.
 
-## Up and Running
+### Technology
 
-This project talks to its database through [GORM](https://gorm.io), so it runs on SQLite, PostgreSQL, or MySQL — pick the engine with `database.dialect` (and the matching `database.url` DSN) in your config. The default is a zero-config SQLite file, so no external service is needed to get started:
+Leveraging `fx` as our dependency injection framework, **koochooloo** delivers:
 
-```bash
-cd cmd/koochooloo/ && go build && ./koochooloo migrate && ./koochooloo server
-```
+- **No Code Generation**: Utilize powerful dependency injection without any code bloat from code generation.
+- **Test-Friendly**: An environment that supports and simplifies the use of `fx` in testing with the same ease as in production.
 
-To run against the containerised PostgreSQL instead, bring up the provided `docker-compose` and point the config at it (see `configs/config.example.toml`):
+### Principles
 
-```bash
-docker compose -f deployments/docker-compose.yml up -d
-```
+- **Strong Typing**: Unyielding commitment to strong typing, enhancing readability and maintainability.
+- **No Globals or `init` Functions**: Eschews globals and the complexities of `init` functions to keep things simple.
+- **Standardized Naming**: Adherence to the de-facto standard of singular package names, inspired by 'project-layout' principles.
+- **Independent Packages**: Each package is crafted to function independently, making the addition of new features seamless.
+- **Intuitive Structure**: Navigate with ease through a codebase that's designed for clarity.
 
-```bash
-curl -X POST -d '{"url": "https://elahe-dastan.github.io"}' -H 'Content-Type: application/json' 127.0.0.1:1378/api/urls
-curl -L 127.0.0.1:1378/api/CKaniA
-```
+---
 
-## Admin panel & users
+## Load testing
 
-koochooloo ships with an embedded admin panel (a React SPA, built into the binary via `go:embed`) served at **`/admin`**, backed by a JWT-guarded API under `/admin/api`.
-
-### Roles
-
-Three tiers, increasing in privilege: `user` < `admin` < `superadmin`.
-
-- **user** — manages only their own short URLs.
-- **admin** — manages every short URL and can view users.
-- **superadmin** — additionally creates users, changes roles and deletes users.
-
-Each short URL created through the panel is owned by its creator; anonymous shorts made via the public `POST /api/urls` have no owner.
-
-### Creating the first admin
-
-There is no public sign-up. Bootstrap accounts with the CLI:
-
-```bash
-./koochooloo user create --username root --superadmin   # prompts for a password
-./koochooloo user list
-./koochooloo user set-role --id 2 --role admin
-```
-
-Then sign in at `http://127.0.0.1:1378/admin`.
-
-### Authentication
-
-Two mechanisms coexist:
-
-- **Local** — username + password (bcrypt), issuing a session JWT.
-- **OIDC** — optional federated login (e.g. Keycloak). Enable it under `[auth.oidc]` in the config (see `configs/config.example.toml`). On first login an account is provisioned just-in-time, with its role mapped from a configurable token claim (e.g. Keycloak's `realm_access.roles`). Both paths end up with the same koochooloo JWT.
-
-Set a strong `auth.jwt_secret` in production.
-
-### Build information
-
-The panel footer shows which build is running, served by `GET /admin/api/version`. Everyone signed in sees the version tag (or `devel` for an untagged build); admins additionally see the commit hash, the commit time and whether the working tree was dirty at build time. The values come from the VCS stamp Go embeds at build time, so they are only populated for binaries built from the git checkout (not with `-buildvcs=false`).
-
-### Rebuilding the SPA
-
-`web/dist` is committed so `go build` needs no Node toolchain. After changing anything under `web/src`, rebuild with:
-
-```bash
-just web   # cd web && pnpm install && pnpm run build
-```
-
-## Load Testing
+Driven by [k6](https://k6.io) — the script lives in [`api/k6/script.js`](./api/k6/script.js) and
+`just k6` runs it against a locally built binary.
 
 ```
     checks.....................: 99.83% ✓ 2995  ✗ 5
@@ -246,3 +391,7 @@ just web   # cd web && pnpm install && pnpm run build
     vus........................: 100    min=100 max=100
     vus_max....................: 100    min=100 max=100
 ```
+
+## License
+
+[GNU General Public License v3.0](./LICENSE).
