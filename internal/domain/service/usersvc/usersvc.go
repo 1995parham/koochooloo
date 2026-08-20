@@ -42,7 +42,7 @@ func (s *UserSvc) Register(
 		return model.User{}, fmt.Errorf("hashing password failed: %w", err)
 	}
 
-	user, err := s.repo.Create(ctx, model.User{ //nolint:exhaustruct // ID/CreatedAt assigned by the store.
+	user, err := s.repo.Create(ctx, model.User{ //nolint:exhaustruct_v5 // ID/CreatedAt assigned by the store.
 		Username:     username,
 		PasswordHash: string(hash),
 		Role:         role,
@@ -101,7 +101,7 @@ func (s *UserSvc) EnsureOIDC(
 
 		return user, nil
 	case errors.Is(err, userrepo.ErrUserNotFound):
-		created, err := s.repo.Create(ctx, model.User{ //nolint:exhaustruct // no password for OIDC accounts.
+		created, err := s.repo.Create(ctx, model.User{ //nolint:exhaustruct_v5 // no password for OIDC accounts.
 			Username: username,
 			Role:     role,
 			Provider: model.ProviderOIDC,

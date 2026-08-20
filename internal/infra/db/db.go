@@ -45,7 +45,7 @@ func Provide(lc fx.Lifecycle, cfg Config) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	//nolint:exhaustruct // gorm.Config is opt-in; only the fields we set matter.
+	//nolint:exhaustruct_v5 // gorm.Config is opt-in; only the fields we set matter.
 	gdb, err := gorm.Open(dial, &gorm.Config{
 		// TranslateError maps engine-specific driver errors onto GORM sentinels
 		// (gorm.ErrDuplicatedKey, gorm.ErrRecordNotFound, ...) so the repository

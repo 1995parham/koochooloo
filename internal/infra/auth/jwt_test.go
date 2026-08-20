@@ -10,7 +10,7 @@ import (
 )
 
 func user() model.User {
-	return model.User{ //nolint:exhaustruct
+	return model.User{ //nolint:exhaustruct_v5
 		ID:       42,
 		Username: "raha",
 		Role:     model.RoleSuperAdmin,

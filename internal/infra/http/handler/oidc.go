@@ -104,7 +104,7 @@ func (h Auth) OIDCCallback(c *echo.Context) error {
 
 // setTempCookie stores a short-lived, http-only cookie scoped to the auth path.
 func (h Auth) setTempCookie(c *echo.Context, name, value string) {
-	c.SetCookie(&http.Cookie{ //nolint:exhaustruct,gosec // Secure is set from TLS; local dev serves over http.
+	c.SetCookie(&http.Cookie{ //nolint:exhaustruct_v5,gosec // Secure is set from TLS; local dev serves over http.
 		Name:     name,
 		Value:    value,
 		Path:     "/admin/api/auth",
@@ -117,7 +117,7 @@ func (h Auth) setTempCookie(c *echo.Context, name, value string) {
 
 // clearTempCookie expires a cookie set by setTempCookie.
 func (h Auth) clearTempCookie(c *echo.Context, name string) {
-	c.SetCookie(&http.Cookie{ //nolint:exhaustruct,gosec // Secure is set from TLS; local dev serves over http.
+	c.SetCookie(&http.Cookie{ //nolint:exhaustruct_v5,gosec // Secure is set from TLS; local dev serves over http.
 		Name:     name,
 		Value:    "",
 		Path:     "/admin/api/auth",

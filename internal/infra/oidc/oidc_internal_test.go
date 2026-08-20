@@ -18,8 +18,8 @@ func keycloakClaims(roles ...any) map[string]any {
 }
 
 func mapper() *Service {
-	return &Service{ //nolint:exhaustruct
-		cfg: auth.OIDCConfig{ //nolint:exhaustruct
+	return &Service{ //nolint:exhaustruct_v5
+		cfg: auth.OIDCConfig{ //nolint:exhaustruct_v5
 			RolesClaim:       "realm_access.roles",
 			AdminValues:      []string{"kc-admin"},
 			SuperAdminValues: []string{"kc-superadmin"},
@@ -44,7 +44,7 @@ func TestMapRole(t *testing.T) {
 func TestMapRoleNoClaimConfigured(t *testing.T) {
 	t.Parallel()
 
-	//nolint:exhaustruct
+	//nolint:exhaustruct_v5
 	svc := &Service{cfg: auth.OIDCConfig{RolesClaim: ""}}
 	require.Equal(t, model.RoleUser, svc.mapRole(keycloakClaims("kc-superadmin")))
 }
@@ -67,7 +67,7 @@ func TestClaimValues(t *testing.T) {
 func TestDisabledService(t *testing.T) {
 	t.Parallel()
 
-	//nolint:exhaustruct
+	//nolint:exhaustruct_v5
 	svc := &Service{enabled: false}
 	require.False(t, svc.Enabled())
 

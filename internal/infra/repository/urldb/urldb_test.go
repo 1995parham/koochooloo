@@ -63,7 +63,7 @@ type SQLURLSuite struct {
 // MaxOpenConns(1) pins every query to the same in-memory database and
 // serialises writes so the concurrency test is deterministic.
 func provideTestDB(lc fx.Lifecycle) (*gorm.DB, error) {
-	//nolint:exhaustruct // only TranslateError is relevant here.
+	//nolint:exhaustruct_v5 // only TranslateError is relevant here.
 	gdb, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{TranslateError: true})
 	if err != nil {
 		return nil, fmt.Errorf("open sqlite: %w", err)

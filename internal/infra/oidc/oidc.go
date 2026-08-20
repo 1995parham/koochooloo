@@ -52,7 +52,7 @@ func Provide(cfg auth.Config, logger *zap.Logger) *Service {
 	log := logger.Named("oidc")
 
 	if !cfg.OIDC.Enabled {
-		return &Service{enabled: false} //nolint:exhaustruct
+		return &Service{enabled: false} //nolint:exhaustruct_v5
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), discoveryTimeout)
@@ -63,7 +63,7 @@ func Provide(cfg auth.Config, logger *zap.Logger) *Service {
 		log.Warn("oidc disabled: provider discovery failed",
 			zap.String("issuer", cfg.OIDC.Issuer), zap.Error(err))
 
-		return &Service{enabled: false} //nolint:exhaustruct
+		return &Service{enabled: false} //nolint:exhaustruct_v5
 	}
 
 	scopes := cfg.OIDC.Scopes
@@ -76,14 +76,14 @@ func Provide(cfg auth.Config, logger *zap.Logger) *Service {
 	return &Service{
 		enabled: true,
 		cfg:     cfg.OIDC,
-		oauth2: oauth2.Config{ //nolint:exhaustruct
+		oauth2: oauth2.Config{ //nolint:exhaustruct_v5
 			ClientID:     cfg.OIDC.ClientID,
 			ClientSecret: cfg.OIDC.ClientSecret,
 			RedirectURL:  cfg.OIDC.RedirectURL,
 			Endpoint:     provider.Endpoint(),
 			Scopes:       scopes,
 		},
-		verifier: provider.Verifier(&oidc.Config{ClientID: cfg.OIDC.ClientID}), //nolint:exhaustruct
+		verifier: provider.Verifier(&oidc.Config{ClientID: cfg.OIDC.ClientID}), //nolint:exhaustruct_v5
 	}
 }
 

@@ -3,6 +3,9 @@ version: "2"
 linters:
   default: all
   disable:
+    # deprecated in golangci-lint v2.13.0; exhaustruct_v5 replaces it and the
+    # two double-report every literal when both are on.
+    - exhaustruct
     - gomodguard
     - wsl
     - depguard

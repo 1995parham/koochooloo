@@ -29,7 +29,7 @@ func do(engine *echo.Echo, path, authz string) *httptest.ResponseRecorder {
 func token(t *testing.T, tokens *auth.TokenService, role model.Role) string {
 	t.Helper()
 
-	signed, err := tokens.Issue(model.User{ //nolint:exhaustruct
+	signed, err := tokens.Issue(model.User{ //nolint:exhaustruct_v5
 		ID:       7,
 		Username: "u",
 		Role:     role,

@@ -29,7 +29,7 @@ func main(logger *zap.Logger, gdb *gorm.DB, shutdonwer fx.Shutdowner) {
 // Register migrate command.
 func Register(root *cobra.Command) {
 	root.AddCommand(
-		//nolint: exhaustruct
+		//nolint: exhaustruct_v5
 		&cobra.Command{
 			Use:   "migrate",
 			Short: "Setup database schema",

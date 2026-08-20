@@ -57,7 +57,7 @@ func Provide(
 	registerAdmin(app, store, users, tokens, provider, logger, tele)
 	registerSPA(app)
 
-	//nolint: exhaustruct
+	//nolint: exhaustruct_v5
 	srv := &http.Server{
 		Addr:              port,
 		Handler:           app,

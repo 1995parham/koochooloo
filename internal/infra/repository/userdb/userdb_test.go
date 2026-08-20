@@ -31,7 +31,7 @@ type SQLUserSuite struct {
 }
 
 func (suite *SQLUserSuite) SetupTest() {
-	//nolint:exhaustruct // only TranslateError is relevant here.
+	//nolint:exhaustruct_v5 // only TranslateError is relevant here.
 	gdb, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{TranslateError: true})
 	suite.Require().NoError(err)
 
@@ -48,7 +48,7 @@ func (suite *CommonUserSuite) TestCreateAndFind() {
 	require := suite.Require()
 	ctx := suite.T().Context()
 
-	created, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct
+	created, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct_v5
 		Username:     "raha",
 		PasswordHash: "hash",
 		Role:         model.RoleAdmin,
@@ -58,7 +58,7 @@ func (suite *CommonUserSuite) TestCreateAndFind() {
 	require.NotZero(created.ID)
 
 	suite.Run("Duplicate", func() {
-		_, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct
+		_, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct_v5
 			Username: "raha",
 			Provider: model.ProviderLocal,
 		})
@@ -88,7 +88,7 @@ func (suite *CommonUserSuite) TestSubjectLookup() {
 	require := suite.Require()
 	ctx := suite.T().Context()
 
-	_, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct
+	_, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct_v5
 		Username: "sso-user",
 		Role:     model.RoleUser,
 		Provider: model.ProviderOIDC,
@@ -108,7 +108,7 @@ func (suite *CommonUserSuite) TestRoleAndDelete() {
 	require := suite.Require()
 	ctx := suite.T().Context()
 
-	created, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct
+	created, err := suite.repo.Create(ctx, model.User{ //nolint:exhaustruct_v5
 		Username: "changer",
 		Role:     model.RoleUser,
 		Provider: model.ProviderLocal,

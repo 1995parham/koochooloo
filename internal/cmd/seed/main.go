@@ -37,7 +37,7 @@ func main(logger *zap.Logger, svc *urlsvc.URLSvc, shutdowner fx.Shutdowner) {
 // Register migrate command.
 func Register(root *cobra.Command) {
 	root.AddCommand(
-		//nolint: exhaustruct
+		//nolint: exhaustruct_v5
 		&cobra.Command{
 			Use:   "seed",
 			Short: "Add records into database",

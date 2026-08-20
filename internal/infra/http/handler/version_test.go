@@ -74,7 +74,7 @@ func (suite *VersionSuite) TestUnauthenticated() {
 func (suite *VersionSuite) get(role model.Role) response.Version {
 	require := suite.Require()
 
-	//nolint: exhaustruct
+	//nolint: exhaustruct_v5
 	token, err := suite.tokens.Issue(model.User{ID: 1, Username: "u", Role: role}, time.Now())
 	require.NoError(err)
 

@@ -31,7 +31,7 @@ func ProvideDB(db *gorm.DB, tele telemetry.Telemetery) *SQLUser {
 
 // Migrate creates or updates the users table for the configured dialect.
 func Migrate(db *gorm.DB) error {
-	//nolint:exhaustruct // AutoMigrate inspects the type only; the zero value is intentional.
+	//nolint:exhaustruct_v5 // AutoMigrate inspects the type only; the zero value is intentional.
 	if err := db.AutoMigrate(&userRecord{}); err != nil {
 		return fmt.Errorf("auto migrate failed: %w", err)
 	}

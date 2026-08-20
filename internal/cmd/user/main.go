@@ -26,7 +26,7 @@ import (
 
 // Register adds the user command group to the root command.
 func Register(root *cobra.Command) {
-	//nolint:exhaustruct
+	//nolint:exhaustruct_v5
 	cmd := &cobra.Command{
 		Use:   "user",
 		Short: "Manage user accounts",
@@ -57,7 +57,7 @@ func createCommand() *cobra.Command {
 		superadmin bool
 	)
 
-	//nolint:exhaustruct
+	//nolint:exhaustruct_v5
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create a local user account",
@@ -108,7 +108,7 @@ func createCommand() *cobra.Command {
 }
 
 func listCommand() *cobra.Command {
-	//nolint:exhaustruct
+	//nolint:exhaustruct_v5
 	return &cobra.Command{
 		Use:   "list",
 		Short: "List user accounts",
@@ -141,7 +141,7 @@ func setRoleCommand() *cobra.Command {
 		role string
 	)
 
-	//nolint:exhaustruct
+	//nolint:exhaustruct_v5
 	cmd := &cobra.Command{
 		Use:   "set-role",
 		Short: "Change a user's role (user|admin|superadmin)",
@@ -173,7 +173,7 @@ func setRoleCommand() *cobra.Command {
 func deleteCommand() *cobra.Command {
 	var id uint
 
-	//nolint:exhaustruct
+	//nolint:exhaustruct_v5
 	cmd := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete a user account",
