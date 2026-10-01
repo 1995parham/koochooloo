@@ -44,8 +44,8 @@ func (t *TokenService) Issue(user model.User, now time.Time) (string, error) {
 	// literal (a Go 1.27 feature), but exhaustruct v5.0.3 panics on any literal
 	// that keys a promoted field, and a crashing analyzer cannot be nolint-ed.
 	// Revisit once exhaustruct understands the Go 1.27 syntax.
-	claims := Claims{ //nolint:modernize // see above: embedlit output crashes exhaustruct_v5.
-		RegisteredClaims: jwt.RegisteredClaims{ //nolint:exhaustruct_v5 // only the fields we set are relevant.
+	claims := Claims{
+		RegisteredClaims: jwt.RegisteredClaims{ //nolint:exhaustruct_v5,modernize // only the fields we set are relevant.
 			Subject:   strconv.FormatUint(uint64(user.ID), 10),
 			IssuedAt:  jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(now.Add(t.ttl)),
