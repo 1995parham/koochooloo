@@ -17,12 +17,12 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.14",
-    "@types/node": "^26.6.3",
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^6.1.1",
+    "@vitejs/plugin-react": "^6.1.2",
     "typescript": "~7.0.2",
-    "vite": "^8.3.1"
+    "vite": "^8.3.3"
   }
 }
