@@ -15,15 +15,27 @@ import (
 	"go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
+	otelmetric "go.opentelemetry.io/otel/metric"
+	mnoop "go.opentelemetry.io/otel/metric/noop"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
+	tnoop "go.opentelemetry.io/otel/trace/noop"
 	"go.uber.org/fx"
 )
 
+// setupTraceExporter returns nil when tracing is off and stdout export was not
+// asked for: the caller then installs a no-op provider, so spans are never
+// recorded. A disabled tracer used to print every span to stdout, which in a
+// container meant a multi-line JSON block in the log for every request.
 func setupTraceExporter(cfg Config) trace.SpanExporter {
 	if !cfg.Trace.Enabled {
+		if !cfg.Trace.Stdout {
+			return nil
+		}
+
 		exporter, err := stdouttrace.New(
 			stdouttrace.WithPrettyPrint(),
 		)
@@ -45,8 +57,14 @@ func setupTraceExporter(cfg Config) trace.SpanExporter {
 	return exporter
 }
 
+// setupMeterExporter returns a nil reader when metrics are off and stdout
+// export was not asked for; the caller then installs a no-op provider.
 func setupMeterExporter(cfg Config) (metric.Reader, *http.Server) {
 	if !cfg.Meter.Enabled {
+		if !cfg.Meter.Stdout {
+			return nil, nil
+		}
+
 		exporter, err := stdoutmetric.New()
 		if err != nil {
 			log.Fatalf("failed to initialize reader pipeline for metrics (stdout): %v", err)
@@ -102,10 +120,18 @@ func Provide(lc fx.Lifecycle, cfg Config) Telemetery {
 		panic(err)
 	}
 
-	bsp := trace.NewBatchSpanProcessor(exporter)
-	tp := trace.NewTracerProvider(trace.WithSpanProcessor(bsp), trace.WithResource(res))
+	var tp oteltrace.TracerProvider = tnoop.NewTracerProvider()
 
-	mp := metric.NewMeterProvider(metric.WithResource(res), metric.WithReader(reader))
+	if exporter != nil {
+		bsp := trace.NewBatchSpanProcessor(exporter)
+		tp = trace.NewTracerProvider(trace.WithSpanProcessor(bsp), trace.WithResource(res))
+	}
+
+	var mp otelmetric.MeterProvider = mnoop.NewMeterProvider()
+
+	if reader != nil {
+		mp = metric.NewMeterProvider(metric.WithResource(res), metric.WithReader(reader))
+	}
 
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(mp)

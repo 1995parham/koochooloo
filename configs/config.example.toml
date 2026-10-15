@@ -41,13 +41,17 @@ superadmin_values = ["koochooloo-superadmin"]
 namespace = "1995parham"
 service_name = "koochooloo"
 
+# Prometheus metrics on address. With enabled = false, metrics are dropped
+# unless stdout = true prints them (local debugging only).
 [telemetry.meter]
 address = ":8080"
 enabled = true
+stdout = false
 
+# OTLP/gRPC traces to endpoint. With enabled = false, spans are dropped unless
+# stdout = true pretty-prints every span (local debugging only: it writes a
+# multi-line block per request).
 [telemetry.trace]
 enabled = true
-
-[telemetry.trace.agent]
-host = "127.0.0.1"
-port = "6831"
+endpoint = "127.0.0.1:4317"
+stdout = false
