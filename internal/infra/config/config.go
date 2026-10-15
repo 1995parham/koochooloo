@@ -24,6 +24,9 @@ import (
 // prefix indicates environment variables prefix.
 const prefix = "koochooloo_"
 
+// redactedValue replaces a secret in the printed configuration.
+const redactedValue = "<redacted>"
+
 // Config holds all configurations.
 type Config struct {
 	fx.Out
@@ -72,7 +75,7 @@ func Provide() Config {
 		log.Fatalf("error unmarshalling config: %s", err)
 	}
 
-	indent, err := json.MarshalIndent(instance, "", "\t")
+	indent, err := json.MarshalIndent(instance.Redacted(), "", "\t")
 	if err != nil {
 		panic(err)
 	}
@@ -86,4 +89,23 @@ func Provide() Config {
 	`, string(indent))
 
 	return instance
+}
+
+// Redacted returns a copy that is safe to log: the JWT secret, the OIDC
+// client secret and any non-SQLite DSN (which carries the database password)
+// are replaced. Empty values stay empty, so a missing secret is still visible.
+func (c Config) Redacted() Config {
+	if c.Auth.JWTSecret != "" {
+		c.Auth.JWTSecret = redactedValue
+	}
+
+	if c.Auth.OIDC.ClientSecret != "" {
+		c.Auth.OIDC.ClientSecret = redactedValue
+	}
+
+	if c.Database.Dialect != "sqlite" && c.Database.URL != "" {
+		c.Database.URL = redactedValue
+	}
+
+	return c
 }

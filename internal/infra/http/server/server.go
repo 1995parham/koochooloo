@@ -43,11 +43,12 @@ func Provide(
 ) *echo.Echo {
 	app := echo.New()
 
-	handler.URL{
+	urlH := handler.URL{
 		Store:  store,
 		Logger: logger.Named("handler").Named("url"),
 		Tracer: tele.TraceProvider.Tracer("handler.url"),
-	}.Register(app.Group("/api"))
+	}
+	urlH.Register(app.Group("/api"))
 
 	handler.Healthz{
 		Logger: logger.Named("handler").Named("healthz"),
@@ -56,6 +57,9 @@ func Provide(
 
 	registerAdmin(app, store, users, tokens, provider, logger, tele)
 	registerSPA(app)
+
+	// Short links at the host root (`/<key>`), for a dedicated short host.
+	urlH.RegisterRoot(app)
 
 	//nolint: exhaustruct_v5
 	srv := &http.Server{

@@ -6,6 +6,9 @@ level = "info"
 # url is the engine-specific DSN.
 dialect = "sqlite"
 url = "koochooloo.db"
+# run the schema migration (`koochooloo migrate`) before the server listens;
+# for deployments that cannot run a separate migrate step (distroless images).
+migrate_on_start = false
 
 # postgres example:
 # dialect = "postgres"

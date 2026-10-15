@@ -11,6 +11,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/generator"
 	"github.com/1995parham/koochooloo/internal/infra/http/server"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
+	"github.com/1995parham/koochooloo/internal/infra/migration"
 	"github.com/1995parham/koochooloo/internal/infra/oidc"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/repository/userdb"
@@ -59,6 +60,8 @@ func Register(
 						return &fxevent.ZapLogger{Logger: logger}
 					}),
 					fx.Provide(server.Provide),
+					// Before main: the schema exists before the server listens.
+					fx.Invoke(migration.OnStart),
 					fx.Invoke(main),
 				).Run()
 			},
