@@ -46,10 +46,12 @@ func Default() Config {
 			Meter: telemetry.Meter{
 				Address: ":8080",
 				Enabled: true,
+				Stdout:  false,
 			},
 			Trace: telemetry.Trace{
 				Enabled:  true,
 				Endpoint: "127.0.0.1:4317",
+				Stdout:   false,
 			},
 		},
 	}
