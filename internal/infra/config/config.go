@@ -17,6 +17,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/auth"
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/generator"
+	"github.com/1995parham/koochooloo/internal/infra/http/server"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 )
@@ -36,6 +37,7 @@ type Config struct {
 	Telemetry telemetry.Config `json:"telemetry" koanf:"telemetry"`
 	Generator generator.Config `json:"generator" koanf:"generator"`
 	Auth      auth.Config      `json:"auth"      koanf:"auth"`
+	HTTP      server.Config    `json:"http"      koanf:"http"`
 }
 
 func Provide() Config {

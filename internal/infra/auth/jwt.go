@@ -40,19 +40,9 @@ func NewTokenService(secret string, ttl time.Duration) *TokenService {
 
 // Issue mints a signed token for the given user.
 func (t *TokenService) Issue(user model.User, now time.Time) (string, error) {
-	// modernize's embedlit wants the promoted fields hoisted into the outer
-	// literal (a Go 1.27 feature), but exhaustruct v5.0.3 panics on any literal
-	// that keys a promoted field, and a crashing analyzer cannot be nolint-ed.
-	// Revisit once exhaustruct understands the Go 1.27 syntax.
-	claims := Claims{
-		RegisteredClaims: jwt.RegisteredClaims{ //nolint:exhaustruct_v5,modernize // only the fields we set are relevant.
-			Subject:   strconv.FormatUint(uint64(user.ID), 10),
-			IssuedAt:  jwt.NewNumericDate(now),
-			ExpiresAt: jwt.NewNumericDate(now.Add(t.ttl)),
-		},
-		Username: user.Username,
-		Role:     user.Role,
-	}
+	claims := ClaimsFor(user)
+	claims.IssuedAt = jwt.NewNumericDate(now)
+	claims.ExpiresAt = jwt.NewNumericDate(now.Add(t.ttl))
 
 	signed, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(t.secret)
 	if err != nil {
@@ -60,6 +50,23 @@ func (t *TokenService) Issue(user model.User, now time.Time) (string, error) {
 	}
 
 	return signed, nil
+}
+
+// ClaimsFor returns the identity claims of a user, without issue or expiry
+// times. The API-key path uses it to give a key's request the same claims a
+// session token for the key's owner would carry.
+func ClaimsFor(user model.User) Claims {
+	// modernize's embedlit wants the promoted fields hoisted into the outer
+	// literal (a Go 1.27 feature), but exhaustruct v5.0.3 panics on any literal
+	// that keys a promoted field, and a crashing analyzer cannot be nolint-ed.
+	// Revisit once exhaustruct understands the Go 1.27 syntax.
+	return Claims{
+		RegisteredClaims: jwt.RegisteredClaims{ //nolint:exhaustruct_v5,modernize // only the subject identifies the user.
+			Subject: strconv.FormatUint(uint64(user.ID), 10),
+		},
+		Username: user.Username,
+		Role:     user.Role,
+	}
 }
 
 // Parse verifies a token's signature and expiry and returns its claims.

@@ -1,6 +1,11 @@
 [logger]
 level = "info"
 
+[http]
+# allow anyone to create links through the public POST /api/urls. Turn it off
+# on a public domain; signed-in users and API keys use POST /admin/api/urls.
+anonymous_create = true
+
 [database]
 # dialect selects the engine: "sqlite", "postgres", or "mysql".
 # url is the engine-specific DSN.

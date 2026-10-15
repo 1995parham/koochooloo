@@ -4,6 +4,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/auth"
 	"github.com/1995parham/koochooloo/internal/infra/db"
 	"github.com/1995parham/koochooloo/internal/infra/generator"
+	"github.com/1995parham/koochooloo/internal/infra/http/server"
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
 	"go.uber.org/fx"
@@ -39,6 +40,9 @@ func Default() Config {
 				AdminValues:      []string{},
 				SuperAdminValues: []string{},
 			},
+		},
+		HTTP: server.Config{
+			AnonymousCreate: true,
 		},
 		Telemetry: telemetry.Config{
 			Namespace:   "1995parham.me",

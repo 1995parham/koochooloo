@@ -71,6 +71,8 @@ behind every one of those choices.
   provider, with just-in-time account provisioning and role mapping from a token claim.
 - Per-user link ownership; admins see everything, superadmins manage users.
 - No public sign-up — accounts are bootstrapped from the CLI.
+- **API keys** for services — `kch_…` bearer keys that act as their owner; only a hash is stored.
+- Public anonymous link creation can be switched off for a public short domain.
 
 **Admin panel**
 
@@ -126,7 +128,7 @@ requests in [`api.http`](./api.http).
 
 | Method | Path              | Description                                                              |
 | ------ | ----------------- | ------------------------------------------------------------------------ |
-| `POST` | `/api/urls`       | Create a short URL. Body: `{"url": …, "name"?: …, "expire"?: …}`. Returns the key. |
+| `POST` | `/api/urls`       | Create a short URL. Body: `{"url": …, "name"?: …, "expire"?: …}`. Returns the key. `403` when `http.anonymous_create` is off. |
 | `GET`  | `/api/:key`       | Resolve the key and `302` redirect to the target, incrementing its count. |
 | `GET`  | `/api/count/:key` | Visit count for a short URL.                                             |
 | `GET`  | `/:key`           | The same redirect at the host root, for a dedicated short host (`go.example.com/abc`). |
@@ -140,10 +142,12 @@ At the host root an alias resolves without its `$`: `/google` tries the generate
 (`/healthz`, `/admin`) always win over a key.
 Links created through the public endpoint are anonymous — they have no owner.
 
+Anyone who can reach the server can use `POST /api/urls`, which on a public domain makes it a free redirector for whoever wants a link under your name. Set `http.anonymous_create = false` (env `koochooloo_http__anonymous_create=false`) to switch it off: it then answers `403`, redirects and counts stay public, and links are created through `POST /admin/api/urls` by signed-in users and [API keys](#api-keys).
+
 ### Admin
 
-Everything under `/admin/api` other than the login endpoints requires a
-`Authorization: Bearer <jwt>` header.
+Everything under `/admin/api` other than the login endpoints requires an
+`Authorization: Bearer <jwt>` header, or `Authorization: Bearer kch_…` with an [API key](#api-keys).
 
 | Method   | Path                          | Role         | Description                          |
 | -------- | ----------------------------- | ------------ | ------------------------------------ |
@@ -198,6 +202,19 @@ Two mechanisms coexist:
 - **OIDC** — optional federated login (e.g. Keycloak). Enable it under `[auth.oidc]` in the config (see `configs/config.example.toml`). On first login an account is provisioned just-in-time, with its role mapped from a configurable token claim (e.g. Keycloak's `realm_access.roles`). Both paths end up with the same koochooloo JWT.
 
 Set a strong `auth.jwt_secret` in production.
+
+### API keys
+
+A service that creates links for its users (a team panel, a bot) uses an API key instead of a password login. A key belongs to a user and acts with that user's role, so the usual choice is a dedicated `user`-role account: the service then sees and deletes only its own links. Send it as `Authorization: Bearer kch_…` anywhere a session JWT works.
+
+```bash
+./koochooloo user create --username hatchup-team             # prompts for a password nobody needs to use
+./koochooloo apikey create --username hatchup-team --name hatchup-team   # prints the key once, on stdout
+./koochooloo apikey list                                     # id, owner, name, prefix, last used, revoked
+./koochooloo apikey revoke --id 1                            # stops working on the next request
+```
+
+A key is `kch_` followed by 40 random base62 characters. Only its SHA-256 hash and the first few characters are stored, so a lost key cannot be shown again: revoke it and create another. `last_used_at` is updated at most once a minute per key.
 
 ### Build information
 
