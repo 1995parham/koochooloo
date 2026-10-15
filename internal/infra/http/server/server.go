@@ -181,4 +181,16 @@ func registerSPA(app *echo.Echo) {
 
 	app.GET("/admin", serve)
 	app.GET("/admin/*", serve)
+
+	// Browsers ask for /favicon.ico at the root of the short-link host too.
+	// Without this static route it would reach `/:key` and count as a lookup
+	// for a link named "favicon.ico".
+	app.GET("/favicon.ico", func(c *echo.Context) error {
+		data, err := fs.ReadFile(assets, "favicon.ico")
+		if err != nil {
+			return echo.NewHTTPError(http.StatusNotFound, "favicon not built")
+		}
+
+		return c.Blob(http.StatusOK, "image/x-icon", data)
+	})
 }
