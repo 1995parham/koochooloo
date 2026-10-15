@@ -20,8 +20,9 @@ func Default() Config {
 			Type: "simple",
 		},
 		Database: db.Config{
-			Dialect: "sqlite",
-			URL:     "koochooloo.db",
+			Dialect:        "sqlite",
+			URL:            "koochooloo.db",
+			MigrateOnStart: false,
 		},
 		//nolint:gosec // development default only; override in production config/env.
 		Auth: auth.Config{

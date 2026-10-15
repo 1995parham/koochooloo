@@ -54,6 +54,13 @@ func (suite *URLSuite) SetupSuite() {
 				Tracer: tele.TraceProvider.Tracer(""),
 			}
 			url.Register(suite.engine.Group("/api"))
+
+			handler.Healthz{
+				Logger: zap.NewNop(),
+				Tracer: tele.TraceProvider.Tracer(""),
+			}.Register(suite.engine.Group(""))
+
+			url.RegisterRoot(suite.engine)
 		}),
 	).RequireStart().RequireStop()
 }
@@ -277,4 +284,85 @@ func (suite *URLSuite) TestPostRetrieve() {
 func TestURLSuite(t *testing.T) {
 	t.Parallel()
 	suite.Run(t, new(URLSuite))
+}
+
+func (suite *URLSuite) TestRootRetrieveGenerated() {
+	require := suite.Require()
+
+	url := "https://hatchup.capital"
+	key := suite.create(url, "")
+
+	w := suite.get("/" + key)
+	require.Equal(http.StatusFound, w.Code)
+	require.Equal(url, w.Header().Get(echo.HeaderLocation))
+
+	w = suite.get("/api/count/" + key)
+	require.Equal(http.StatusOK, w.Code)
+	require.Equal("1\n", w.Body.String())
+}
+
+func (suite *URLSuite) TestRootRetrieveAlias() {
+	require := suite.Require()
+
+	url := "https://team.hatchup.capital"
+	key := suite.create(url, "team")
+	require.Equal("$team", key)
+
+	// The bare name, the form a short host hands out.
+	w := suite.get("/team")
+	require.Equal(http.StatusFound, w.Code)
+	require.Equal(url, w.Header().Get(echo.HeaderLocation))
+
+	// The stored "$" form keeps working.
+	w = suite.get("/$team")
+	require.Equal(http.StatusFound, w.Code)
+	require.Equal(url, w.Header().Get(echo.HeaderLocation))
+}
+
+func (suite *URLSuite) TestRootRetrieveNotFound() {
+	suite.Require().Equal(http.StatusNotFound, suite.get("/nothere").Code)
+}
+
+func (suite *URLSuite) TestRootDoesNotShadowStaticRoutes() {
+	require := suite.Require()
+
+	require.Equal(http.StatusNoContent, suite.get("/healthz").Code)
+
+	// /api/<key> keeps resolving through its own route.
+	key := suite.create("https://example.com", "")
+	require.Equal(http.StatusFound, suite.get("/api/"+key).Code)
+}
+
+// create shortens url through the public API and returns the key it answers with.
+func (suite *URLSuite) create(url, name string) string {
+	require := suite.Require()
+
+	b, err := json.Marshal(request.URL{URL: url, Name: name, Expire: nil})
+	require.NoError(err)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/api/urls", bytes.NewReader(b))
+	require.NoError(err)
+
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	suite.engine.ServeHTTP(w, req)
+	require.Equal(http.StatusOK, w.Code)
+
+	var key string
+
+	require.NoError(json.NewDecoder(w.Body).Decode(&key))
+
+	return key
+}
+
+// get issues a GET for path on the suite's engine.
+func (suite *URLSuite) get(path string) *httptest.ResponseRecorder {
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, path, nil)
+	suite.Require().NoError(err)
+
+	suite.engine.ServeHTTP(w, req)
+
+	return w
 }

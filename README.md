@@ -129,10 +129,15 @@ requests in [`api.http`](./api.http).
 | `POST` | `/api/urls`       | Create a short URL. Body: `{"url": …, "name"?: …, "expire"?: …}`. Returns the key. |
 | `GET`  | `/api/:key`       | Resolve the key and `302` redirect to the target, incrementing its count. |
 | `GET`  | `/api/count/:key` | Visit count for a short URL.                                             |
+| `GET`  | `/:key`           | The same redirect at the host root, for a dedicated short host (`go.example.com/abc`). |
 | `GET`  | `/healthz`        | Liveness probe — `204 No Content`.                                       |
 
 Passing `name` creates a custom alias, stored and returned prefixed with `$` (so
 `{"name": "google"}` becomes `$google`). Omitting it generates a random 6-character key.
+
+At the host root an alias resolves without its `$`: `/google` tries the generated key
+`google` first and then the alias `$google`, and `/$google` still works. Static routes
+(`/healthz`, `/admin`) always win over a key.
 Links created through the public endpoint are anonymous — they have no owner.
 
 ### Admin
@@ -219,6 +224,10 @@ Every key is reachable as an environment variable with the `koochooloo_` prefix,
 export koochooloo_database__dialect="postgres"
 export koochooloo_database__url="host=127.0.0.1 user=koochooloo password=secret dbname=koochooloo port=5432 sslmode=disable"
 ```
+
+Where nothing can run `koochooloo migrate` before the server — the container image is
+distroless — set `koochooloo_database__migrate_on_start=true` and `server` migrates the
+schema (idempotently) before it starts listening.
 
 The reasoning behind this design is in [Configuration](#configuration-1) below.
 
