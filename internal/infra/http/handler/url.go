@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
@@ -21,12 +22,19 @@ type URL struct {
 	Store  *urlsvc.URLSvc
 	Logger *zap.Logger
 	Tracer trace.Tracer
+	// AnonymousCreate allows `POST /api/urls` without logging in; when false
+	// it answers 403 and links are created through the admin API only.
+	AnonymousCreate bool
 }
 
 // Create generates short URL and save it on database.
 func (h URL) Create(c *echo.Context) error {
 	ctx, span := h.Tracer.Start(c.Request().Context(), "handler.url.create")
 	defer span.End()
+
+	if !h.AnonymousCreate {
+		return echo.NewHTTPError(http.StatusForbidden, "anonymous link creation is disabled")
+	}
 
 	var rq request.URL
 
@@ -66,7 +74,7 @@ func (h URL) Retrieve(c *echo.Context) error {
 	ctx, span := h.Tracer.Start(c.Request().Context(), "handler.url.retrieve")
 	defer span.End()
 
-	return h.redirect(ctx, c, span, c.Param("key"))
+	return h.redirect(ctx, c, span, keyParam(c))
 }
 
 // RootRetrieve resolves a short URL served at the host root (`/<key>`), the
@@ -77,7 +85,7 @@ func (h URL) RootRetrieve(c *echo.Context) error {
 	ctx, span := h.Tracer.Start(c.Request().Context(), "handler.url.root")
 	defer span.End()
 
-	key := c.Param("key")
+	key := keyParam(c)
 
 	if !strings.HasPrefix(key, "$") {
 		if _, err := h.Store.Get(ctx, key); errors.Is(err, urlrepo.ErrKeyNotFound) {
@@ -93,7 +101,7 @@ func (h URL) Count(c *echo.Context) error {
 	ctx, span := h.Tracer.Start(c.Request().Context(), "handler.url.count")
 	defer span.End()
 
-	key := c.Param("key")
+	key := keyParam(c)
 
 	count, err := h.Store.Count(ctx, key)
 	if err != nil {
@@ -141,4 +149,18 @@ func (h URL) redirect(ctx context.Context, c *echo.Context, span trace.Span, key
 	}
 
 	return c.Redirect(http.StatusFound, u.URL)
+}
+
+// keyParam returns the `:key` path parameter unescaped. Echo hands parameters
+// over as they appear in the raw path, so a client that escapes the `$` of a
+// custom alias (`%24launch`) would otherwise look up a key that never exists.
+func keyParam(c *echo.Context) string {
+	raw := c.Param("key")
+
+	key, err := url.PathUnescape(raw)
+	if err != nil {
+		return raw
+	}
+
+	return key
 }

@@ -49,9 +49,10 @@ func (suite *URLSuite) SetupSuite() {
 		),
 		fx.Invoke(func(store *urlsvc.URLSvc, tele telemetry.Telemetery) {
 			url := handler.URL{
-				Store:  store,
-				Logger: zap.NewNop(),
-				Tracer: tele.TraceProvider.Tracer(""),
+				Store:           store,
+				Logger:          zap.NewNop(),
+				Tracer:          tele.TraceProvider.Tracer(""),
+				AnonymousCreate: true,
 			}
 			url.Register(suite.engine.Group("/api"))
 
@@ -334,6 +335,21 @@ func (suite *URLSuite) TestRootDoesNotShadowStaticRoutes() {
 }
 
 // create shortens url through the public API and returns the key it answers with.
+func (suite *URLSuite) TestRetrieveEscapedAlias() {
+	require := suite.Require()
+
+	url := "https://hatchup.capital/escaped"
+	key := suite.create(url, "escaped")
+	require.Equal("$escaped", key)
+
+	// A client that path-escapes the `$` of an alias reaches the same link.
+	for _, path := range []string{"/api/%24escaped", "/%24escaped"} {
+		w := suite.get(path)
+		require.Equal(http.StatusFound, w.Code, path)
+		require.Equal(url, w.Header().Get(echo.HeaderLocation), path)
+	}
+}
+
 func (suite *URLSuite) create(url, name string) string {
 	require := suite.Require()
 
@@ -365,4 +381,29 @@ func (suite *URLSuite) get(path string) *httptest.ResponseRecorder {
 	suite.engine.ServeHTTP(w, req)
 
 	return w
+}
+
+func TestCreateAnonymousDisabled(t *testing.T) {
+	t.Parallel()
+
+	engine := echo.New()
+
+	handler.URL{
+		Store:           nil, // never reached: the flag is checked first.
+		Logger:          zap.NewNop(),
+		Tracer:          telemetry.ProvideNull(nil).TraceProvider.Tracer(""),
+		AnonymousCreate: false,
+	}.Register(engine.Group("/api"))
+
+	body, err := json.Marshal(request.URL{URL: "https://example.com", Name: "", Expire: nil})
+	require.NoError(t, err)
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/api/urls", bytes.NewReader(body))
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+	w := httptest.NewRecorder()
+	engine.ServeHTTP(w, req)
+
+	require.Equal(t, http.StatusForbidden, w.Code)
+	require.Contains(t, w.Body.String(), "anonymous link creation is disabled")
 }

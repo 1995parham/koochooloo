@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/1995parham/koochooloo/internal/infra/db"
+	"github.com/1995parham/koochooloo/internal/infra/repository/apikeydb"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/repository/userdb"
 	"go.uber.org/zap"
@@ -21,6 +22,10 @@ func Run(gdb *gorm.DB) error {
 
 	if err := urldb.Migrate(gdb); err != nil {
 		return fmt.Errorf("migrating urls: %w", err)
+	}
+
+	if err := apikeydb.Migrate(gdb); err != nil {
+		return fmt.Errorf("migrating api keys: %w", err)
 	}
 
 	return nil

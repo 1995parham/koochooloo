@@ -40,7 +40,7 @@ func (suite *VersionSuite) SetupSuite() {
 				Tracer: tele.TraceProvider.Tracer(""),
 			}
 
-			authMw := middleware.Auth{Tokens: suite.tokens}
+			authMw := middleware.Auth{Tokens: suite.tokens, Keys: nil}
 			version.Register(suite.engine.Group("", authMw.Authenticate))
 		}),
 	).RequireStart().RequireStop()

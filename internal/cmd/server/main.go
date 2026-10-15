@@ -1,8 +1,10 @@
 package server
 
 import (
+	"github.com/1995parham/koochooloo/internal/domain/repository/apikeyrepo"
 	"github.com/1995parham/koochooloo/internal/domain/repository/urlrepo"
 	"github.com/1995parham/koochooloo/internal/domain/repository/userrepo"
+	"github.com/1995parham/koochooloo/internal/domain/service/apikeysvc"
 	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/domain/service/usersvc"
 	"github.com/1995parham/koochooloo/internal/infra/auth"
@@ -13,6 +15,7 @@ import (
 	"github.com/1995parham/koochooloo/internal/infra/logger"
 	"github.com/1995parham/koochooloo/internal/infra/migration"
 	"github.com/1995parham/koochooloo/internal/infra/oidc"
+	"github.com/1995parham/koochooloo/internal/infra/repository/apikeydb"
 	"github.com/1995parham/koochooloo/internal/infra/repository/urldb"
 	"github.com/1995parham/koochooloo/internal/infra/repository/userdb"
 	"github.com/1995parham/koochooloo/internal/infra/telemetry"
@@ -54,8 +57,12 @@ func Register(
 					fx.Provide(
 						fx.Annotate(userdb.ProvideDB, fx.As(new(userrepo.Repository))),
 					),
+					fx.Provide(
+						fx.Annotate(apikeydb.ProvideDB, fx.As(new(apikeyrepo.Repository))),
+					),
 					fx.Provide(urlsvc.Provide),
 					fx.Provide(usersvc.Provide),
+					fx.Provide(apikeysvc.Provide),
 					fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 						return &fxevent.ZapLogger{Logger: logger}
 					}),

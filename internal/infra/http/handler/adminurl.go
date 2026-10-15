@@ -97,7 +97,7 @@ func (h AdminURL) Delete(c *echo.Context) error {
 		return err
 	}
 
-	key := c.Param("key")
+	key := keyParam(c)
 
 	url, err := h.Store.Get(ctx, key)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/1995parham/koochooloo/internal/cmd/apikey"
 	"github.com/1995parham/koochooloo/internal/cmd/migrate"
 	"github.com/1995parham/koochooloo/internal/cmd/seed"
 	"github.com/1995parham/koochooloo/internal/cmd/server"
@@ -29,6 +30,7 @@ func Execute() {
 	migrate.Register(root)
 	seed.Register(root)
 	user.Register(root)
+	apikey.Register(root)
 
 	if err := root.Execute(); err != nil {
 		log.Printf("failed to execute root command %s", err)

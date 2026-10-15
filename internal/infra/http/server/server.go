@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/1995parham/koochooloo/internal/domain/model"
+	"github.com/1995parham/koochooloo/internal/domain/service/apikeysvc"
 	"github.com/1995parham/koochooloo/internal/domain/service/urlsvc"
 	"github.com/1995parham/koochooloo/internal/domain/service/usersvc"
 	"github.com/1995parham/koochooloo/internal/infra/auth"
@@ -34,8 +35,10 @@ const (
 // admin API, and manages its lifecycle through fx.
 func Provide(
 	lc fx.Lifecycle,
+	cfg Config,
 	store *urlsvc.URLSvc,
 	users *usersvc.UserSvc,
+	keys *apikeysvc.APIKeySvc,
 	tokens *auth.TokenService,
 	provider *oidc.Service,
 	logger *zap.Logger,
@@ -44,9 +47,10 @@ func Provide(
 	app := echo.New()
 
 	urlH := handler.URL{
-		Store:  store,
-		Logger: logger.Named("handler").Named("url"),
-		Tracer: tele.TraceProvider.Tracer("handler.url"),
+		Store:           store,
+		Logger:          logger.Named("handler").Named("url"),
+		Tracer:          tele.TraceProvider.Tracer("handler.url"),
+		AnonymousCreate: cfg.AnonymousCreate,
 	}
 	urlH.Register(app.Group("/api"))
 
@@ -55,7 +59,7 @@ func Provide(
 		Tracer: tele.TraceProvider.Tracer("handler.healthz"),
 	}.Register(app.Group(""))
 
-	registerAdmin(app, store, users, tokens, provider, logger, tele)
+	registerAdmin(app, store, users, keys, tokens, provider, logger, tele)
 	registerSPA(app)
 
 	// Short links at the host root (`/<key>`), for a dedicated short host.
@@ -93,6 +97,7 @@ func registerAdmin(
 	app *echo.Echo,
 	store *urlsvc.URLSvc,
 	users *usersvc.UserSvc,
+	keys *apikeysvc.APIKeySvc,
 	tokens *auth.TokenService,
 	provider *oidc.Service,
 	logger *zap.Logger,
@@ -128,7 +133,7 @@ func registerAdmin(
 	api.GET("/auth/oidc/login", authH.OIDCLogin)
 	api.GET("/auth/oidc/callback", authH.OIDCCallback)
 
-	authMw := middleware.Auth{Tokens: tokens}
+	authMw := middleware.Auth{Tokens: tokens, Keys: keys}
 	sec := api.Group("", authMw.Authenticate)
 
 	sec.GET("/auth/me", authH.Me)
