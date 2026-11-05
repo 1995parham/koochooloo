@@ -8,7 +8,7 @@ WORKDIR /app/web
 RUN corepack enable
 
 # Install dependencies first so this layer is cached across source changes.
-COPY web/package.json web/pnpm-lock.yaml ./
+COPY web/package.json web/pnpm-lock.yaml web/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY web/ ./
