@@ -3,6 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
   "packageManager": "pnpm@11.27.1",
   "scripts": {
     "dev": "vite",
